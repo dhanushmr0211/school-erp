@@ -9,6 +9,8 @@ const { assignSubjectToClass, getClassSubjects } = require('../controllers/admin
 const { createStudent, getStudents, getStudentById } = require('../controllers/adminStudents.controller');
 const { enrollStudentsToClass, getClassStudents } = require('../controllers/adminStudentClass.controller');
 const { upsertStudentFees, getStudentFees } = require('../controllers/adminStudentFees.controller');
+const { getFaculties } = require("../controllers/adminFacultyController");
+
 
 const router = express.Router();
 
@@ -41,5 +43,8 @@ router.get('/class-enrollments', requireAdmin, getClassStudents);
 
 router.post('/student-fees', requireAdmin, upsertStudentFees);
 router.get('/student-fees', requireAdmin, getStudentFees);
+
+router.get("/faculties", requireAdmin, getFaculties);
+
 
 module.exports = router;
