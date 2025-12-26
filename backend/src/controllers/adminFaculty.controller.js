@@ -31,7 +31,7 @@ const createFaculty = async (req, res) => {
     res.json(data);
   } catch (err) {
     console.error("Create faculty error:", err);
-    res.status(500).json({ error: "Internal server error" });
+    res.status(500).json({ error: err.message || "Internal server error", details: err });
   }
 };
 
