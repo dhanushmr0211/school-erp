@@ -60,6 +60,6 @@ const getFacultiesBySubject = async (req, res) => {
 };
 
 module.exports = {
-    assignSubjectToFaculty,
-    getFacultiesBySubject,
+  assignSubjectToFaculty,
+  getFacultiesBySubject,
 };

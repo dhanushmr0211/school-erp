@@ -44,8 +44,27 @@ const getFaculties = async (req, res) => {
   if (error) return res.status(500).json(error);
   res.json(data);
 };
+const getFacultyById = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const { data, error } = await supabaseAdmin
+      .from('faculties')
+      .select('*')
+      .eq('id', id)
+      .single();
+
+    if (error) throw error;
+
+    res.json(data);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch faculty' });
+  }
+};
+
 
 module.exports = {
   createFaculty,
   getFaculties,
+  getFacultyById,
 };
