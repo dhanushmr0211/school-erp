@@ -3,27 +3,36 @@ import { useAcademicYear } from "../../context/AcademicYearContext";
 import { fetchAdminStats } from "../../services/adminApi";
 
 export default function AdminDashboard() {
-  const { academicYear } = useAcademicYear();
+  const { academicYearId } = useAcademicYear();
   const [stats, setStats] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!academicYear) return;
+    if (!academicYearId) return;
 
     const loadStats = async () => {
-      const [students, classes, faculties] =
-        await fetchAdminStats(academicYear.id);
+      try {
+        const [students, classes, faculties] =
+          await fetchAdminStats(academicYearId);
 
-      setStats({
-        students: students.length,
-        classes: classes.length,
-        faculties: faculties.length,
-      });
+        setStats({
+          students: students.length,
+          classes: classes.length,
+          faculties: faculties.length,
+        });
+      } finally {
+        setLoading(false);
+      }
     };
 
     loadStats();
-  }, [academicYear]);
+  }, [academicYearId]);
 
-  if (!stats) {
+  if (!academicYearId) {
+    return <p className="p-6">Select academic year...</p>;
+  }
+
+  if (loading) {
     return <p className="p-6">Loading dashboard...</p>;
   }
 

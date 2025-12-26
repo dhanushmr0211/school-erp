@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../services/supabaseClient";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../context/AuthContext";   // ✅ MISSING IMPORT
 import { useAcademicYear } from "../context/AcademicYearContext";
 import { fetchAcademicYears } from "../services/adminApi";
 
 export default function Topbar() {
-  const { user } = useAuth();
+  const { user } = useAuth(); // ✅ NOW DEFINED
   const { academicYearId, setAcademicYearId } = useAcademicYear();
   const [years, setYears] = useState([]);
 
@@ -18,7 +18,6 @@ export default function Topbar() {
       const years = await fetchAcademicYears(token);
       setYears(years);
 
-      // 🔥 SET DEFAULT ACADEMIC YEAR ONCE
       if (!academicYearId && years.length > 0) {
         setAcademicYearId(years[0].id);
       }

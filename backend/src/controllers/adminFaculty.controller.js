@@ -1,4 +1,4 @@
-const { supabaseAdmin } = require('../services/supabaseClient');
+const { supabaseAdmin } = require("../services/supabaseClient");
 
 const createFaculty = async (req, res) => {
   try {
@@ -11,19 +11,17 @@ const createFaculty = async (req, res) => {
     }
 
     const { data: existing } = await supabaseAdmin
-      .from('faculties')
-      .select('id')
-      .eq('email', email)
+      .from("faculties")
+      .select("id")
+      .eq("email", email)
       .maybeSingle();
 
     if (existing) {
-      return res.status(400).json({
-        error: "Faculty already exists",
-      });
+      return res.status(400).json({ error: "Faculty already exists" });
     }
 
     const { data, error } = await supabaseAdmin
-      .from('faculties')
+      .from("faculties")
       .insert([{ name, email, academic_year_id }])
       .select()
       .single();
@@ -38,52 +36,16 @@ const createFaculty = async (req, res) => {
 };
 
 const getFaculties = async (req, res) => {
-  try {
-    const { data, error } = await supabaseAdmin
-      .from('faculties')
-      .select('*')
-      .order('name', { ascending: true });
+  const { data, error } = await supabaseAdmin
+    .from("faculties")
+    .select("*")
+    .order("name");
 
-    if (error) throw error;
-
-    res.json(data);
-  } catch (error) {
-    console.error('Error fetching faculties:', error);
-    res.status(500).json({ error: 'Failed to fetch faculties' });
-  }
-};
-
-const getFacultyById = async (req, res) => {
-  try {
-    const { id } = req.params;
-
-    const { data, error } = await supabaseAdmin
-      .from('faculties')
-      .select(`
-        *,
-        faculty_subjects (
-          subject_id,
-          subjects ( id, name )
-        )
-      `)
-      .eq('id', id)
-      .single();
-
-    if (error) throw error;
-
-    if (!data) {
-      return res.status(404).json({ error: 'Faculty not found' });
-    }
-
-    res.json(data);
-  } catch (error) {
-    console.error('Error fetching faculty:', error);
-    res.status(500).json({ error: 'Failed to fetch faculty' });
-  }
+  if (error) return res.status(500).json(error);
+  res.json(data);
 };
 
 module.exports = {
   createFaculty,
   getFaculties,
-  getFacultyById,
 };
