@@ -1,6 +1,6 @@
 const { supabaseAdmin } = require("../services/supabaseClient");
 
-const createFaculty = async (req, res) => {
+exports.createFaculty = async (req, res) => {
   try {
     const { name, email, academic_year_id } = req.body;
 
@@ -10,19 +10,29 @@ const createFaculty = async (req, res) => {
       });
     }
 
-    const { data: existing } = await supabaseAdmin
-      .from("faculties")
-      .select("id")
-      .eq("email", email)
-      .maybeSingle();
+    // 1️⃣ Create Auth user
+    const { data: authUser, error: authError } =
+      await supabaseAdmin.auth.admin.createUser({
+        email,
+        email_confirm: true,
+        user_metadata: { role: "FACULTY" },
+      });
 
-    if (existing) {
-      return res.status(400).json({ error: "Faculty already exists" });
+    if (authError) {
+      return res.status(400).json({ error: authError.message });
     }
 
+    // 2️⃣ Insert faculty with user_id
     const { data, error } = await supabaseAdmin
       .from("faculties")
-      .insert([{ name, email, academic_year_id }])
+      .insert([
+        {
+          user_id: authUser.user.id,
+          name,
+          email,
+          academic_year_id,
+        },
+      ])
       .select()
       .single();
 
@@ -31,9 +41,10 @@ const createFaculty = async (req, res) => {
     res.json(data);
   } catch (err) {
     console.error("Create faculty error:", err);
-    res.status(500).json({ error: err.message || "Internal server error", details: err });
+    res.status(500).json({ error: err.message });
   }
 };
+
 
 const getFaculties = async (req, res) => {
   const { data, error } = await supabaseAdmin
