@@ -6,21 +6,21 @@ import { fetchAcademicYears } from "../services/adminApi";
 
 export default function Topbar() {
   const { user } = useAuth();
-  const { academicYear, setAcademicYear } = useAcademicYear();
+  const { academicYearId, setAcademicYearId } = useAcademicYear();
   const [years, setYears] = useState([]);
 
   useEffect(() => {
     const loadYears = async () => {
-      const session = await supabase.auth.getSession();
-      const token = session.data.session?.access_token;
-
+      const { data } = await supabase.auth.getSession();
+      const token = data.session?.access_token;
       if (!token) return;
 
-      const data = await fetchAcademicYears(token);
-      setYears(data);
+      const years = await fetchAcademicYears(token);
+      setYears(years);
 
-      if (!academicYear && data.length > 0) {
-        setAcademicYear(data[0]); // default
+      // 🔥 SET DEFAULT ACADEMIC YEAR ONCE
+      if (!academicYearId && years.length > 0) {
+        setAcademicYearId(years[0].id);
       }
     };
 
@@ -33,17 +33,13 @@ export default function Topbar() {
 
       <div className="flex items-center gap-4">
         <select
-          value={academicYear?.id || ""}
-          onChange={(e) =>
-            setAcademicYear(
-              years.find((y) => y.id === e.target.value)
-            )
-          }
+          value={academicYearId || ""}
+          onChange={(e) => setAcademicYearId(e.target.value)}
           className="border px-2 py-1 rounded"
         >
-          {years.map((year) => (
-            <option key={year.id} value={year.id}>
-              {year.year_name}
+          {years.map((y) => (
+            <option key={y.id} value={y.id}>
+              {y.year_name}
             </option>
           ))}
         </select>
