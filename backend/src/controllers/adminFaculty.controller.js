@@ -1,36 +1,36 @@
-const { supabaseAdmin } = require("../services/supabaseClient");
+const { supabaseAdmin } = require('../services/supabaseClient');
 
-exports.createFaculty = async (req, res) => {
+/* ================= CREATE FACULTY ================= */
+const createFaculty = async (req, res) => {
   try {
-    const { name, email, academic_year_id } = req.body;
+    const { name, email, academic_year_id, user_id } = req.body;
 
-    if (!name || !email || !academic_year_id) {
+    if (!name || !email || !academic_year_id || !user_id) {
       return res.status(400).json({
-        error: "name, email, academic_year_id are required",
+        error: "name, email, academic_year_id, user_id are required",
       });
     }
 
-    // 1️⃣ Create Auth user
-    const { data: authUser, error: authError } =
-      await supabaseAdmin.auth.admin.createUser({
-        email,
-        email_confirm: true,
-        user_metadata: { role: "FACULTY" },
-      });
+    const { data: existing } = await supabaseAdmin
+      .from('faculties')
+      .select('id')
+      .eq('email', email)
+      .single();
 
-    if (authError) {
-      return res.status(400).json({ error: authError.message });
+    if (existing) {
+      return res.status(400).json({
+        error: "Faculty already exists",
+      });
     }
 
-    // 2️⃣ Insert faculty with user_id
     const { data, error } = await supabaseAdmin
-      .from("faculties")
+      .from('faculties')
       .insert([
         {
-          user_id: authUser.user.id,
           name,
           email,
           academic_year_id,
+          user_id,
         },
       ])
       .select()
@@ -45,35 +45,46 @@ exports.createFaculty = async (req, res) => {
   }
 };
 
-
+/* ================= GET FACULTIES ================= */
 const getFaculties = async (req, res) => {
-  const { data, error } = await supabaseAdmin
-    .from("faculties")
-    .select("*")
-    .order("name");
+  try {
+    const { data, error } = await supabaseAdmin
+      .from('faculties')
+      .select('*')
+      .order('name');
 
-  if (error) return res.status(500).json(error);
-  res.json(data);
+    if (error) throw error;
+    res.json(data);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 };
+
+/* ================= GET FACULTY BY ID ================= */
 const getFacultyById = async (req, res) => {
   try {
     const { id } = req.params;
 
     const { data, error } = await supabaseAdmin
       .from('faculties')
-      .select('*')
+      .select(`
+        *,
+        faculty_subjects (
+          subject_id,
+          subjects ( id, name )
+        )
+      `)
       .eq('id', id)
       .single();
 
     if (error) throw error;
-
     res.json(data);
   } catch (err) {
-    res.status(500).json({ error: 'Failed to fetch faculty' });
+    res.status(500).json({ error: err.message });
   }
 };
 
-
+/* ================= EXPORTS ================= */
 module.exports = {
   createFaculty,
   getFaculties,
