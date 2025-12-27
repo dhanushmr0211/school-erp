@@ -1,14 +1,16 @@
-const { supabaseAdmin } = require('../services/supabaseClient');
+const { supabaseAdmin } = require("../services/supabaseClient");
 
-
-
-exports.assignSubjectToFaculty = async (req, res) => {
+/**
+ * POST /admin/faculty-subjects
+ * body: { faculty_id, subject_ids: [] }
+ */
+const assignSubjectToFaculty = async (req, res) => {
   try {
     const { faculty_id, subject_ids } = req.body;
 
     if (!faculty_id || !Array.isArray(subject_ids) || subject_ids.length === 0) {
       return res.status(400).json({
-        error: "faculty_id and subject_ids array are required",
+        error: "faculty_id and subject_ids are required",
       });
     }
 
@@ -25,43 +27,44 @@ exports.assignSubjectToFaculty = async (req, res) => {
 
     res.json({ success: true });
   } catch (err) {
-    console.error("Assign subject error:", err);
+    console.error("Assign subjects error:", err);
     res.status(500).json({ error: err.message });
   }
 };
 
+/**
+ * GET /admin/faculty-subjects?subject_id=UUID
+ */
 const getFacultiesBySubject = async (req, res) => {
-    try {
-        const { subject_id } = req.query;
+  try {
+    const { subject_id } = req.query;
 
-        if (!subject_id) {
-            return res.status(400).json({ error: 'Subject ID is required' });
-        }
+    if (!subject_id) {
+      return res.status(400).json({
+        error: "subject_id is required",
+      });
+    }
 
-        const { data, error } = await supabaseAdmin
-            .from('faculty_subjects')
-            .select(`
-        faculty_id,
-        faculties (
+    const { data, error } = await supabaseAdmin
+      .from("faculty_subjects")
+      .select(
+        `
+        faculty:faculties (
           id,
           name,
-          qualification
+          email
         )
-      `)
-            .eq('subject_id', subject_id);
+      `
+      )
+      .eq("subject_id", subject_id);
 
-        if (error) {
-            throw error;
-        }
+    if (error) throw error;
 
-        // Flatten the response to return just the faculty details if preferred, 
-        // or keep the structure. Usually, returning the joined data is fine.
-        // Let's return the structured data directly.
-        res.json(data);
-    } catch (error) {
-        console.error('Error fetching faculties by subject:', error);
-        res.status(500).json({ error: 'Failed to fetch faculties by subject' });
-    }
+    res.json(data.map((d) => d.faculty));
+  } catch (err) {
+    console.error("Fetch faculties by subject error:", err);
+    res.status(500).json({ error: err.message });
+  }
 };
 
 module.exports = {
