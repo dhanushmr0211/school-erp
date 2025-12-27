@@ -1,144 +1,149 @@
-
-
 import { useEffect, useState } from "react";
 import {
-    fetchFaculties,
-    createFaculty,
+  fetchFaculties,
+  createFaculty,
 } from "../../services/adminFacultyApi";
 import {
-    fetchSubjects,
-    assignSubjectsToFaculty,
+  fetchSubjects,
+  assignSubjectsToFaculty,
 } from "../../services/adminSubjectApi";
 import { useAcademicYear } from "../../context/AcademicYearContext";
 
-
-
 export default function FacultyPage() {
+  /* -------------------- STATE -------------------- */
+  const [faculties, setFaculties] = useState([]);
+  const [subjects, setSubjects] = useState([]);
+  const [selectedSubjects, setSelectedSubjects] = useState({});
+  const [loading, setLoading] = useState(true);
 
-    /* -------------------- STATE -------------------- */
-    const [faculties, setFaculties] = useState([]);
-    const [loading, setLoading] = useState(true);
-
-    const [form, setForm] = useState({
-        name: "",
-        email: "",
-    });
-
-    const [subjects, setSubjects] = useState([]);
-    const [selectedSubjects, setSelectedSubjects] = useState({});
-    const { academicYearId } = useAcademicYear();
-    
-
-    /* -------------------- EFFECTS -------------------- */
-    useEffect(() => {
-        fetchFaculties()
-            .then(setFaculties)
-            .finally(() => setLoading(false));
-    }, []);
-
-    useEffect(() => {
-        fetchSubjects().then(setSubjects);
-    }, []);
-
-    /* -------------------- HANDLERS -------------------- */
-    function handleChange(e) {
-        setForm({ ...form, [e.target.name]: e.target.value });
-    }
-
-   async function handleSubmit(e) {
-  e.preventDefault();
-
-  if (!academicYearId) {
-    alert("Select Academic Year first");
-    return;
-  }
-
-  await createFaculty({
-    name: form.name,
-    email: form.email,
-    academic_year_id: academicYearId,
+  const [form, setForm] = useState({
+    name: "",
+    email: "",
+    user_id: "", // ✅ REQUIRED (Supabase Auth User ID)
   });
 
-  setForm({ name: "", email: "" });
-  setFaculties(await fetchFaculties());
-}
+  const { academicYearId } = useAcademicYear();
 
-    /* -------------------- LOADING -------------------- */
-    if (loading) return <p>Loading faculties...</p>;
+  /* -------------------- EFFECTS -------------------- */
+  useEffect(() => {
+    async function loadData() {
+      const facultyData = await fetchFaculties();
+      const subjectData = await fetchSubjects();
+      setFaculties(facultyData);
+      setSubjects(subjectData);
+      setLoading(false);
+    }
+    loadData();
+  }, []);
 
-    /* -------------------- UI -------------------- */
-    return (
-        console.log("ACADEMIC YEAR ID:", academicYearId),
-        <div>
-            <h2>Faculty Management</h2>
-            
+  /* -------------------- HANDLERS -------------------- */
+  function handleChange(e) {
+    setForm({ ...form, [e.target.name]: e.target.value });
+  }
 
-            {/* ADD FACULTY FORM */}
-            <form onSubmit={handleSubmit}>
-                <input
-                    name="name"
-                    placeholder="Faculty Name"
-                    value={form.name}
-                    onChange={handleChange}
-                />
-                <br />
+  async function handleSubmit(e) {
+    e.preventDefault();
 
-                <input
-                    name="email"
-                    placeholder="Faculty Email"
-                    value={form.email}
-                    onChange={handleChange}
-                />
-                <br />
+    if (!academicYearId) {
+      alert("Please select Academic Year first");
+      return;
+    }
 
-                <button>Add Faculty</button>
-            </form>
+    await createFaculty({
+      name: form.name,
+      email: form.email,
+      user_id: form.user_id,           // ✅ CRITICAL
+      academic_year_id: academicYearId,
+    });
 
-            {/* FACULTY LIST */}
-            <ul>
-                {faculties.map((f) => (
-                    <li key={f.id}>
-                        <b>{f.name}</b> — {f.email}
-                        <br />
+    setForm({ name: "", email: "", user_id: "" });
+    setFaculties(await fetchFaculties());
+  }
 
-                        <select
-                            multiple
-                            value={selectedSubjects[f.id] || []}
-                            onChange={(e) => {
-                                const values = Array.from(
-                                    e.target.selectedOptions
-                                ).map((o) => o.value);
+  /* -------------------- RENDER -------------------- */
+  if (loading) return <p>Loading faculties...</p>;
 
-                                setSelectedSubjects({
-                                    ...selectedSubjects,
-                                    [f.id]: values,
-                                });
-                            }}
-                        >
-                            {subjects.map((s) => (
-                                <option key={s.id} value={s.id}>
-                                    {s.name}
-                                </option>
-                            ))}
-                        </select>
+  return (
+    <div>
+      <h2>Faculty Management</h2>
 
-                        <br />
+      {/* ADD FACULTY FORM */}
+      <form onSubmit={handleSubmit} style={{ marginBottom: "20px" }}>
+        <input
+          name="name"
+          placeholder="Faculty Name"
+          value={form.name}
+          onChange={handleChange}
+        />
+        <br />
 
-                        <button
-                            onClick={() =>
-                                assignSubjectsToFaculty(
-                                    f.id,
-                                    selectedSubjects[f.id] || []
-                                )
-                            }
-                        >
-                            Assign Subjects
-                        </button>
+        <input
+          name="email"
+          placeholder="Faculty Email"
+          value={form.email}
+          onChange={handleChange}
+        />
+        <br />
 
-                        <hr />
-                    </li>
-                ))}
-            </ul>
-        </div>
-    );
+        <input
+          name="user_id"
+          placeholder="Supabase User ID"
+          value={form.user_id}
+          onChange={handleChange}
+        />
+        <br />
+
+        <button type="submit">Add Faculty</button>
+      </form>
+
+      <hr />
+
+      {/* FACULTY LIST */}
+      <ul>
+        {faculties.map((f) => (
+          <li key={f.id} style={{ marginBottom: "20px" }}>
+            <b>{f.name}</b> — {f.email}
+
+            <br />
+
+            <select
+              multiple
+              value={selectedSubjects[f.id] || []}
+              onChange={(e) => {
+                const values = Array.from(
+                  e.target.selectedOptions
+                ).map((o) => o.value);
+
+                setSelectedSubjects({
+                  ...selectedSubjects,
+                  [f.id]: values,
+                });
+              }}
+            >
+              {subjects.map((s) => (
+                <option key={s.id} value={s.id}>
+                  {s.name}
+                </option>
+              ))}
+            </select>
+
+            <br />
+
+            <button
+              onClick={() =>
+                assignSubjectsToFaculty(
+                  f.id,
+                  selectedSubjects[f.id] || []
+                )
+              }
+            >
+              Assign Subjects
+            </button>
+
+            <hr />
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
 }

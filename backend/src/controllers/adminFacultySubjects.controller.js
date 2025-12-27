@@ -1,28 +1,33 @@
 const { supabaseAdmin } = require('../services/supabaseClient');
 
-const assignSubjectToFaculty = async (req, res) => {
-    try {
-        const { faculty_id, subject_id } = req.body;
+const { supabaseAdmin } = require("../services/supabaseClient");
 
-        if (!faculty_id || !subject_id) {
-            return res.status(400).json({ error: 'Faculty ID and Subject ID are required' });
-        }
+exports.assignSubjectToFaculty = async (req, res) => {
+  try {
+    const { faculty_id, subject_ids } = req.body;
 
-        const { data, error } = await supabaseAdmin
-            .from('faculty_subjects')
-            .insert([{ faculty_id, subject_id }])
-            .select()
-            .single();
-
-        if (error) {
-            throw error;
-        }
-
-        res.status(201).json(data);
-    } catch (error) {
-        console.error('Error assigning subject to faculty:', error);
-        res.status(500).json({ error: 'Failed to assign subject to faculty' });
+    if (!faculty_id || !Array.isArray(subject_ids) || subject_ids.length === 0) {
+      return res.status(400).json({
+        error: "faculty_id and subject_ids array are required",
+      });
     }
+
+    const rows = subject_ids.map((subject_id) => ({
+      faculty_id,
+      subject_id,
+    }));
+
+    const { error } = await supabaseAdmin
+      .from("faculty_subjects")
+      .insert(rows);
+
+    if (error) throw error;
+
+    res.json({ success: true });
+  } catch (err) {
+    console.error("Assign subject error:", err);
+    res.status(500).json({ error: err.message });
+  }
 };
 
 const getFacultiesBySubject = async (req, res) => {
