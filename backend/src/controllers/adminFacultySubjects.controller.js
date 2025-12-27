@@ -1,6 +1,6 @@
 const { supabaseAdmin } = require('../services/supabaseClient');
 
-const { supabaseAdmin } = require("../services/supabaseClient");
+
 
 exports.assignSubjectToFaculty = async (req, res) => {
   try {
