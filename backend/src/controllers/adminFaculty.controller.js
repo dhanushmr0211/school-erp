@@ -49,8 +49,9 @@ const createFaculty = async (req, res) => {
 const getFaculties = async (req, res) => {
   try {
     const { data, error } = await supabaseAdmin
+
       .from('faculties')
-      .select('*')
+      .select('*, faculty_subjects(subject_id)')
       .order('name');
 
     if (error) throw error;

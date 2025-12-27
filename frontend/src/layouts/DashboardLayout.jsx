@@ -1,3 +1,4 @@
+
 import Sidebar from "../components/Sidebar";
 import Topbar from "../components/Topbar";
 import { Outlet } from "react-router-dom";
@@ -6,11 +7,11 @@ import { AcademicYearProvider } from "../context/AcademicYearContext";
 export default function DashboardLayout() {
   return (
     <AcademicYearProvider>
-      <div className="flex">
+      <div className="dashboard-layout">
         <Sidebar />
-        <div className="flex-1 bg-gray-100 min-h-screen">
+        <div className="flex-col w-full" style={{ overflow: "hidden", display: "flex" }}>
           <Topbar />
-          <main className="p-6">
+          <main className="main-content">
             <Outlet />
           </main>
         </div>

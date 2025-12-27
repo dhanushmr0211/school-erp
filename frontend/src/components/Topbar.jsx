@@ -1,49 +1,66 @@
+
 import { useEffect, useState } from "react";
 import { supabase } from "../services/supabaseClient";
-import { useAuth } from "../context/AuthContext";   // ✅ MISSING IMPORT
+import { useAuth } from "../context/AuthContext";
 import { useAcademicYear } from "../context/AcademicYearContext";
 import { fetchAcademicYears } from "../services/adminApi";
+import { LogOut } from "lucide-react";
 
 export default function Topbar() {
-  const { user } = useAuth(); // ✅ NOW DEFINED
+  const { user } = useAuth();
   const { academicYearId, setAcademicYearId } = useAcademicYear();
   const [years, setYears] = useState([]);
 
   useEffect(() => {
     const loadYears = async () => {
-      const { data } = await supabase.auth.getSession();
-      const token = data.session?.access_token;
-      if (!token) return;
-
-      const years = await fetchAcademicYears(token);
-      setYears(years);
-
-      if (!academicYearId && years.length > 0) {
-        setAcademicYearId(years[0].id);
+      try {
+        const yearsData = await fetchAcademicYears();
+        setYears(yearsData || []);
+        if (!academicYearId && yearsData.length > 0) {
+          setAcademicYearId(yearsData[0].id);
+        }
+      } catch (err) {
+        console.error("Failed to load academic years", err);
       }
     };
-
     loadYears();
-  }, []);
+  }, [academicYearId, setAcademicYearId]);
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    window.location.href = "/";
+  };
 
   return (
-    <header className="h-16 bg-white border-b px-6 flex items-center justify-between">
-      <h1 className="font-semibold text-lg">Admin Dashboard</h1>
+    <header className="page-header" style={{ marginBottom: 0, padding: "var(--spacing-lg)", borderBottom: "1px solid var(--border-color)", background: "var(--bg-secondary)" }}>
+      <h2 style={{ margin: 0, fontSize: "1.25rem" }}>
+        Welcome, {user?.email?.split('@')[0]}
+      </h2>
 
-      <div className="flex items-center gap-4">
-        <select
-          value={academicYearId || ""}
-          onChange={(e) => setAcademicYearId(e.target.value)}
-          className="border px-2 py-1 rounded"
+      <div style={{ display: "flex", alignItems: "center", gap: "var(--spacing-md)" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "var(--spacing-sm)" }}>
+          <label style={{ fontSize: "0.9rem", color: "var(--text-secondary)" }}>Year:</label>
+          <select
+            value={academicYearId || ""}
+            onChange={(e) => setAcademicYearId(e.target.value)}
+            style={{ width: "auto", padding: "0.5rem" }}
+          >
+            {years.map((y) => (
+              <option key={y.id} value={y.id}>
+                {y.year_name} ({y.start_date} - {y.end_date})
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <button
+          onClick={handleLogout}
+          className="btn btn-secondary"
+          style={{ padding: "0.5rem" }}
+          title="Logout"
         >
-          {years.map((y) => (
-            <option key={y.id} value={y.id}>
-              {y.year_name}
-            </option>
-          ))}
-        </select>
-
-        <span className="text-sm text-gray-600">{user?.email}</span>
+          <LogOut size={18} />
+        </button>
       </div>
     </header>
   );
