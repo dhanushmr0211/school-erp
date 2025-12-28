@@ -3,35 +3,39 @@ const { supabaseAdmin } = require('../services/supabaseClient');
 
 const generateReportCard = async (req, res) => {
     try {
-        const { student_id, academic_year_id } = req.query;
+        const { admission_number, academic_year_id } = req.query;
 
-        if (!student_id || !academic_year_id) {
-            return res.status(400).json({ error: 'Student ID and Academic Year ID are required' });
+        if (!admission_number || !academic_year_id) {
+            return res.status(400).json({ error: 'Admission Number and Academic Year ID are required' });
         }
 
-        // 1. Fetch Student Details
+        // 1. Fetch Student Details (lookup by Admission Number)
         const { data: student, error: studentError } = await supabaseAdmin
             .from('students')
-            .select('name, roll_number, father_name, class_enrollments:student_class_enrollments(class:classes(class_name))')
-            .eq('id', student_id)
+            .select('id, name, father_name, class_enrollments:student_class_enrollments(roll_number, class:classes(class_name, section))')
+            .eq('admission_number', admission_number)
             .eq('student_class_enrollments.academic_year_id', academic_year_id)
             .single();
 
         if (studentError || !student) {
             console.error('Error fetching student:', studentError);
-            return res.status(404).json({ error: 'Student not found' });
+            return res.status(404).json({ error: 'Student not found with this Admission Number' });
         }
 
-        // Extract class name safely (handling potential array or empty results details)
-        const className = student.class_enrollments?.[0]?.class?.class_name || 'N/A';
+        const student_id = student.id;
+
+        // Extract class details safely
+        const enrollment = student.class_enrollments?.[0];
+        const classNameRaw = enrollment?.class?.class_name || 'N/A';
+        const section = enrollment?.class?.section || '';
+        const className = section ? `${classNameRaw} - ${section}` : classNameRaw;
+        const rollNumber = enrollment?.roll_number || 'N/A';
 
         // 2. Fetch Marks
         const { data: marks, error: marksError } = await supabaseAdmin
             .from('marks')
             .select(`
-        marks_obtained,
-        max_marks,
-        exam_type,
+        *,
         subject:subjects (
             name
         )
@@ -45,52 +49,70 @@ const generateReportCard = async (req, res) => {
             return res.status(500).json({ error: 'Failed to fetch marks' });
         }
 
-        // 3. Calculate Totals
-        let sem1Total = 0;
-        let sem2Total = 0;
-        let totalMaxMarks = 0;
-        let totalObtained = 0;
+        // 3. Process Marks Data
+        let sem1PercentageSum = 0;
+        let sem1Count = 0;
+        let sem2PercentageSum = 0;
+        let sem2Count = 0;
 
-        // We'll prepare rows for the table
-        // Format: { subject: 'Math', exam: 'SEM1', obtained: 45, max: 50 }
+        // Overall for Grand Total (still useful for verification)
+        let grandTotalObtained = 0;
+        let grandTotalMax = 0;
+
         const tableRows = marks.map(m => {
-            const ob = m.marks_obtained || 0;
-            const max = m.max_marks || 0;
+            const subjectName = m.subject?.name || 'Unknown';
 
-            // Calculation logic based on requirements:
-            // "SEM1 total (sum of SEM1 marks)"
-            // "SEM2 total (sum of SEM2 marks)"
-            if (m.exam_type === 'SEM1') {
-                sem1Total += ob;
-            } else if (m.exam_type === 'SEM2') {
-                sem2Total += ob;
+            const t1 = m.test1;
+            const t2 = m.test2;
+            const s1 = m.sem1;
+            const t3 = m.test3;
+            const t4 = m.test4;
+            const s2 = m.sem2;
+
+            // Accumulate Percentages directly from DB columns
+            if (m.sem1_percentage != null) {
+                sem1PercentageSum += m.sem1_percentage;
+                sem1Count++;
+            }
+            if (m.sem2_percentage != null) {
+                sem2PercentageSum += m.sem2_percentage;
+                sem2Count++;
             }
 
-            // "Percentage = ((SEM1 + SEM2) / total_max_marks) * 100"
-            // Implies we only care about SEM1 and SEM2 for percentage?
-            // Or "Total marks" usually implies all marks. 
-            // Based on the specific text "Percentage = ((SEM1 + SEM2) / total_max_marks) * 100",
-            // I will assume the percentage is derived ONLY from SEM1 and SEM2 exams.
-            if (m.exam_type === 'SEM1' || m.exam_type === 'SEM2') {
-                totalObtained += ob;
-                totalMaxMarks += max;
-            }
+            // Accumulate Grand Total for Overall Percentage
+            // Sem 1 parts
+            if (t1 != null) { grandTotalObtained += t1; grandTotalMax += 25; }
+            if (t2 != null) { grandTotalObtained += t2; grandTotalMax += 25; }
+            if (s1 != null) { grandTotalObtained += s1; grandTotalMax += 50; }
+            // Sem 2 parts
+            if (t3 != null) { grandTotalObtained += t3; grandTotalMax += 25; }
+            if (t4 != null) { grandTotalObtained += t4; grandTotalMax += 25; }
+            if (s2 != null) { grandTotalObtained += s2; grandTotalMax += 50; }
 
             return {
-                subject: m.subject?.name || 'Unknown',
-                exam: m.exam_type,
-                obtained: ob,
-                max: max
+                subject: subjectName,
+                test1: t1 ?? '-',
+                test2: t2 ?? '-',
+                sem1: s1 ?? '-',
+                test3: t3 ?? '-',
+                test4: t4 ?? '-',
+                sem2: s2 ?? '-'
             };
         });
 
-        const percentage = totalMaxMarks > 0 ? ((totalObtained / totalMaxMarks) * 100).toFixed(2) : '0.00';
+        // Averages
+        const sem1Avg = sem1Count > 0 ? (sem1PercentageSum / sem1Count).toFixed(2) : '0.00';
+        const sem2Avg = sem2Count > 0 ? (sem2PercentageSum / sem2Count).toFixed(2) : '0.00';
+
+        // Overall
+        const overallPercentage = grandTotalMax > 0 ? ((grandTotalObtained / grandTotalMax) * 100).toFixed(2) : '0.00';
+
 
         // 4. Generate PDF
-        const doc = new PDFDocument({ margin: 50 });
+        const doc = new PDFDocument({ margin: 30, size: 'A4' });
 
         res.setHeader('Content-Type', 'application/pdf');
-        res.setHeader('Content-Disposition', `attachment; filename=report_card_${student.roll_number}.pdf`);
+        res.setHeader('Content-Disposition', `attachment; filename=report_card_${rollNumber}.pdf`);
 
         doc.pipe(res);
 
@@ -100,52 +122,65 @@ const generateReportCard = async (req, res) => {
 
         doc.fontSize(12);
         doc.text(`Name: ${student.name}`);
-        doc.text(`Roll Number: ${student.roll_number}`);
+        doc.text(`Roll Number: ${rollNumber}`);
         doc.text(`Father's Name: ${student.father_name || 'N/A'}`);
         doc.text(`Class: ${className}`);
         doc.moveDown();
 
-        // Table Header
+        // Table Constants
         const tableTop = doc.y;
-        const itemX = 50;
-        const typeX = 250;
-        const marksX = 350;
-        const maxX = 450;
+        const colX = {
+            subject: 30,
+            test1: 130,
+            test2: 180,
+            sem1: 230,
+            test3: 280,
+            test4: 330,
+            sem2: 380,
+        };
 
-        doc.font('Helvetica-Bold');
-        doc.text('Subject', itemX, tableTop);
-        doc.text('Exam', typeX, tableTop);
-        doc.text('Obtained', marksX, tableTop);
-        doc.text('Max', maxX, tableTop);
+        // Draw Table Header
+        doc.font('Helvetica-Bold').fontSize(10);
+        doc.text('Subject', colX.subject, tableTop);
+        doc.text('T1 (25)', colX.test1, tableTop);
+        doc.text('T2 (25)', colX.test2, tableTop);
+        doc.text('Sem1 (50)', colX.sem1, tableTop);
+        doc.text('T3 (25)', colX.test3, tableTop);
+        doc.text('T4 (25)', colX.test4, tableTop);
+        doc.text('Sem2 (50)', colX.sem2, tableTop);
+
+        doc.moveTo(30, tableTop + 15).lineTo(570, tableTop + 15).stroke();
         doc.font('Helvetica');
 
-        doc.moveTo(itemX, tableTop + 15).lineTo(550, tableTop + 15).stroke();
-
-        // Table Rows
+        // Draw Table Rows
         let y = tableTop + 25;
         tableRows.forEach(row => {
-            if (y > 700) { // Add new page if close to bottom
+            if (y > 750) {
                 doc.addPage();
                 y = 50;
             }
-            doc.text(row.subject, itemX, y);
-            doc.text(row.exam, typeX, y);
-            doc.text(row.obtained.toString(), marksX, y);
-            doc.text(row.max.toString(), maxX, y);
+            doc.text(row.subject, colX.subject, y);
+            doc.text(row.test1, colX.test1, y);
+            doc.text(row.test2, colX.test2, y);
+            doc.text(row.sem1, colX.sem1, y);
+            doc.text(row.test3, colX.test3, y);
+            doc.text(row.test4, colX.test4, y);
+            doc.text(row.sem2, colX.sem2, y);
+
             y += 20;
         });
 
         doc.moveDown();
-        doc.moveTo(itemX, y).lineTo(550, y).stroke();
-        y += 10;
+        doc.moveTo(30, y).lineTo(570, y).stroke();
+        y += 15;
 
         // Summary
-        doc.font('Helvetica-Bold');
-        doc.text(`SEM1 Total: ${sem1Total}`, itemX, y);
+        doc.font('Helvetica-Bold').fontSize(12);
+        doc.text(`Sem 1 Percentage: ${sem1Avg}%`, 30, y);
         y += 20;
-        doc.text(`SEM2 Total: ${sem2Total}`, itemX, y);
+        doc.text(`Sem 2 Percentage: ${sem2Avg}%`, 30, y);
         y += 20;
-        doc.text(`Overall Percentage: ${percentage}%`, itemX, y);
+        doc.text(`Overall Percentage: ${overallPercentage}%`, 30, y);
 
         doc.end();
 

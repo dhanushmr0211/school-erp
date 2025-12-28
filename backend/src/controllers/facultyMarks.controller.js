@@ -6,47 +6,73 @@ const upsertMarks = async (req, res) => {
             class_id,
             subject_id,
             academic_year_id,
-            exam_type,
-            marks, // Array of { student_id, marks_obtained }
+            marks, // Array of { student_id, test1, test2, sem1, ... }
         } = req.body;
 
-        if (!class_id || !subject_id || !academic_year_id || !exam_type || !marks || !Array.isArray(marks)) {
+        if (!class_id || !subject_id || !academic_year_id || !marks || !Array.isArray(marks)) {
             return res.status(400).json({ error: 'Missing required fields' });
         }
 
-        let max_marks = 0;
-        const type = exam_type.toUpperCase();
+        // Allowed columns for security/validation
+        // Allowed columns for security/validation
+        // 'sem1_percentage' and 'sem2_percentage' are generated columns in DB, so we cannot insert them.
+        const allowedColumns = ['test1', 'test2', 'sem1', 'test3', 'test4', 'sem2'];
 
-        if (['TEST1', 'TEST2', 'TEST3', 'TEST4'].includes(type)) {
-            max_marks = 25;
-        } else if (['SEM1', 'SEM2'].includes(type)) {
-            max_marks = 50;
-        } else {
-            return res.status(400).json({ error: 'Invalid exam type. Must be TEST1-4 or SEM1-2' });
+        const updates = marks.map(m => {
+            const updateRow = {
+                class_id,
+                subject_id,
+                academic_year_id,
+                student_id: m.student_id
+            };
+
+            // Only include valid columns that are present in the input
+            allowedColumns.forEach(col => {
+                if (m[col] !== undefined) {
+                    updateRow[col] = m[col] === "" ? null : m[col];
+                }
+            });
+
+            return updateRow;
+        });
+
+        // process updates sequentially to handle "upsert" manually
+        // because the database is missing a unique constraint on (student_id, class_id, subject_id, academic_year_id)
+        const results = [];
+
+        for (const update of updates) {
+            // 1. Try to Update
+            const { data: updatedRows, error: updateError } = await supabaseAdmin
+                .from('marks')
+                .update(update)
+                .eq('student_id', update.student_id)
+                .eq('class_id', update.class_id)
+                .eq('subject_id', update.subject_id)
+                .eq('academic_year_id', update.academic_year_id)
+                .select();
+
+            if (updateError) throw updateError;
+
+            if (updatedRows && updatedRows.length > 0) {
+                results.push(updatedRows[0]);
+            } else {
+                // 2. If no update, Insert
+                const { data: insertedRow, error: insertError } = await supabaseAdmin
+                    .from('marks')
+                    .insert(update)
+                    .select()
+                    .single();
+
+                if (insertError) throw insertError;
+                results.push(insertedRow);
+            }
         }
 
-        const marksData = marks.map((entry) => ({
-            class_id,
-            subject_id,
-            academic_year_id,
-            exam_type: type,
-            student_id: entry.student_id,
-            marks_obtained: entry.marks_obtained,
-            max_marks,
-        }));
+        const data = results; // maintain compatibility with response below
 
-        // upsert requires a unique constraint to update instead of fail on duplicate.
-        // Assuming unique constraint on (student_id, class_id, subject_id, exam_type, academic_year_id)
-        const { data, error } = await supabaseAdmin
-            .from('marks')
-            .upsert(marksData)
-            .select();
 
-        if (error) {
-            throw error;
-        }
 
-        res.status(201).json(data);
+        res.status(201).json({ message: 'Marks saved successfully', count: data.length });
     } catch (error) {
         console.error('Error upserting marks:', error);
         res.status(500).json({ error: 'Failed to save marks' });
@@ -55,32 +81,36 @@ const upsertMarks = async (req, res) => {
 
 const getMarks = async (req, res) => {
     try {
-        const { class_id, subject_id, academic_year_id, exam_type } = req.query;
+        const { class_id, subject_id, academic_year_id } = req.query; // Removed exam_type dependency
 
-        if (!class_id || !subject_id || !academic_year_id || !exam_type) {
+        if (!class_id || !subject_id || !academic_year_id) {
             return res.status(400).json({ error: 'Missing required query parameters' });
         }
 
         const { data, error } = await supabaseAdmin
             .from('marks')
             .select(`
-        *,
-        students (
-          id,
-          name,
-          roll_number
-        )
-      `)
+                *,
+                students (
+                  id,
+                  name,
+                  roll_number
+                )
+              `)
             .eq('class_id', class_id)
             .eq('subject_id', subject_id)
-            .eq('academic_year_id', academic_year_id)
-            .eq('exam_type', exam_type);
+            .eq('academic_year_id', academic_year_id);
 
-        if (error) {
-            throw error;
-        }
+        if (error) throw error;
 
-        res.json(data);
+        // Return raw rows so frontend can access all columns (test1, sem1, etc.)
+        const formattedData = data.map(row => ({
+            ...row,
+            student_name: row.students?.name,
+            roll_number: row.students?.roll_number
+        }));
+
+        res.json(formattedData);
     } catch (error) {
         console.error('Error fetching marks:', error);
         res.status(500).json({ error: 'Failed to fetch marks' });

@@ -43,11 +43,14 @@ export default function App() {
               <Route path="/admin/students" element={<ProtectedRoute role="ADMIN"><Students /></ProtectedRoute>} />
               <Route path="/admin/reports" element={<ProtectedRoute role="ADMIN"><Reports /></ProtectedRoute>} />
 
+
               {/* FACULTY ROUTES */}
+              <Route path="/faculty" element={<Navigate to="/faculty/dashboard" replace />} />
               <Route path="/faculty/dashboard" element={<ProtectedRoute role="FACULTY"><FacultyDashboard /></ProtectedRoute>} />
               <Route path="/faculty/marks" element={<ProtectedRoute role="FACULTY"><FacultyMarks /></ProtectedRoute>} />
 
               {/* STUDENT ROUTES */}
+              <Route path="/student" element={<Navigate to="/student/dashboard" replace />} />
               <Route path="/student/dashboard" element={<ProtectedRoute role="STUDENT"><StudentDashboard /></ProtectedRoute>} />
               <Route path="/student/fees" element={<ProtectedRoute role="STUDENT"><StudentFees /></ProtectedRoute>} />
 

@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import { fetchFaculties, createFaculty } from "../../services/adminFacultyApi";
 import { fetchSubjects, assignSubjectsToFaculty } from "../../services/adminSubjectApi";
-import { useAcademicYear } from "../../context/AcademicYearContext"; // Fixed import
+import { useAcademicYear } from "../../context/AcademicYearContext";
 
 export default function FacultyPage() {
     const [faculties, setFaculties] = useState([]);
@@ -10,13 +10,14 @@ export default function FacultyPage() {
     const [loading, setLoading] = useState(true);
     const { academicYearId } = useAcademicYear();
 
-    const [form, setForm] = useState({ name: "", email: "", user_id: "" });
+
+    const [form, setForm] = useState({ name: "", email: "" });
     const [selectedSubjects, setSelectedSubjects] = useState({});
+    const [editingId, setEditingId] = useState(null); // ID of the faculty currently being edited
 
     useEffect(() => {
         loadData();
     }, []);
-
 
     async function loadData() {
         const facultyData = await fetchFaculties();
@@ -43,9 +44,27 @@ export default function FacultyPage() {
             ...form,
             academic_year_id: academicYearId,
         });
-        setForm({ name: "", email: "", user_id: "" });
-        const facultyData = await fetchFaculties();
-        setFaculties(facultyData);
+
+        setForm({ name: "", email: "" });
+        loadData();
+    }
+
+    async function handleSave(facultyId) {
+        try {
+            await assignSubjectsToFaculty(facultyId, selectedSubjects[facultyId] || []);
+            setEditingId(null);
+            await loadData(); // Reload to refresh view
+        } catch (err) {
+            alert("Failed to assign subjects");
+        }
+    }
+
+    function getSubjectNames(assignedIds) {
+        if (!assignedIds || assignedIds.length === 0) return "No subjects assigned";
+        return assignedIds.map(id => {
+            const subj = subjects.find(s => s.id === id);
+            return subj ? `${subj.name} (${subj.code})` : "Unknown";
+        }).join(", ");
     }
 
     if (loading) return <div className="p-4">Loading...</div>;
@@ -55,6 +74,7 @@ export default function FacultyPage() {
             <div className="page-header">
                 <h1>Faculty Management</h1>
             </div>
+
 
             <div className="card">
                 <h3>Add New Faculty</h3>
@@ -77,15 +97,6 @@ export default function FacultyPage() {
                             required
                         />
                     </div>
-                    <div className="input-group flex-1">
-                        <label>Supabase User ID</label>
-                        <input
-                            name="user_id"
-                            value={form.user_id}
-                            onChange={(e) => setForm({ ...form, user_id: e.target.value })}
-                            required
-                        />
-                    </div>
                     <button type="submit" className="btn btn-primary mb-md">Add Faculty</button>
                 </form>
             </div>
@@ -102,35 +113,66 @@ export default function FacultyPage() {
                         </tr>
                     </thead>
                     <tbody>
-                        {faculties.map((f) => (
-                            <tr key={f.id}>
-                                <td>{f.name}</td>
-                                <td>{f.email}</td>
-                                <td>
-                                    <select
-                                        multiple
-                                        value={selectedSubjects[f.id] || []}
-                                        onChange={(e) => {
-                                            const values = Array.from(e.target.selectedOptions).map(o => o.value);
-                                            setSelectedSubjects({ ...selectedSubjects, [f.id]: values });
-                                        }}
-                                        style={{ height: "100px" }}
-                                    >
-                                        {subjects.map((s) => (
-                                            <option key={s.id} value={s.id}>{s.name} ({s.code})</option>
-                                        ))}
-                                    </select>
-                                </td>
-                                <td>
-                                    <button
-                                        className="btn btn-secondary"
-                                        onClick={() => assignSubjectsToFaculty(f.id, selectedSubjects[f.id] || [])}
-                                    >
-                                        Assign
-                                    </button>
-                                </td>
-                            </tr>
-                        ))}
+                        {faculties.map((f) => {
+                            const isEditing = editingId === f.id;
+                            const assignedIds = selectedSubjects[f.id] || [];
+
+                            return (
+                                <tr key={f.id}>
+                                    <td>{f.name}</td>
+                                    <td>{f.email}</td>
+                                    <td>
+                                        {isEditing ? (
+                                            <select
+                                                multiple
+                                                value={assignedIds}
+                                                onChange={(e) => {
+                                                    const values = Array.from(e.target.selectedOptions).map(o => o.value);
+                                                    setSelectedSubjects({ ...selectedSubjects, [f.id]: values });
+                                                }}
+                                                style={{ height: "100px" }}
+                                            >
+                                                {subjects.map((s) => (
+                                                    <option key={s.id} value={s.id}>{s.name} ({s.code})</option>
+                                                ))}
+                                            </select>
+                                        ) : (
+                                            <span>{getSubjectNames(assignedIds)}</span>
+                                        )}
+                                    </td>
+                                    <td>
+                                        {isEditing ? (
+                                            <div className="flex gap-sm">
+                                                <button
+                                                    className="btn btn-primary"
+                                                    style={{ padding: "0.25rem 0.5rem", fontSize: "0.8rem" }}
+                                                    onClick={() => handleSave(f.id)}
+                                                >
+                                                    Save
+                                                </button>
+                                                <button
+                                                    className="btn btn-secondary"
+                                                    style={{ padding: "0.25rem 0.5rem", fontSize: "0.8rem" }}
+                                                    onClick={() => {
+                                                        setEditingId(null);
+                                                        loadData(); // Reset changes by reloading
+                                                    }}
+                                                >
+                                                    Cancel
+                                                </button>
+                                            </div>
+                                        ) : (
+                                            <button
+                                                className="btn btn-secondary"
+                                                onClick={() => setEditingId(f.id)}
+                                            >
+                                                Edit Assignments
+                                            </button>
+                                        )}
+                                    </td>
+                                </tr>
+                            );
+                        })}
                     </tbody>
                 </table>
             </div>

@@ -1,17 +1,33 @@
+
 import { useEffect, useState } from "react";
-import { fetchStudents, createStudent, enrollStudentToClass, fetchStudentFees } from "../../services/adminStudentApi";
+import { fetchStudents, createStudent, enrollStudentToClass, fetchStudentFees, deleteStudent, updateStudent, fetchStudentById } from "../../services/adminStudentApi";
 import { fetchClasses } from "../../services/adminClassApi";
-import { useAcademicYear } from "../../context/AcademicYearContext"; // Fixed import
+import { useAcademicYear } from "../../context/AcademicYearContext";
+import { Trash2, Pencil, Banknote } from "lucide-react";
+import FeesModal from "./FeesModal";
 
 export default function Students() {
     const { academicYearId } = useAcademicYear();
     const [students, setStudents] = useState([]);
     const [classes, setClasses] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [form, setForm] = useState({ first_name: "", last_name: "", email: "", date_of_birth: "" });
+
+    const [form, setForm] = useState({
+        name: "",
+        roll_number: "",
+        dob: "",
+        siblings: []
+    });
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const [enrollModal, setEnrollModal] = useState(null); // student object
+    const [enrollModal, setEnrollModal] = useState(null); // student object for enrollment
     const [selectedClassId, setSelectedClassId] = useState("");
+
+    const [editModalOpen, setEditModalOpen] = useState(false);
+    const [editingId, setEditingId] = useState(null);
+    const [editForm, setEditForm] = useState({ name: "", roll_number: "", dob: "", siblings: [] });
+
+    const [feesModalOpen, setFeesModalOpen] = useState(false);
+    const [selectedStudentForFees, setSelectedStudentForFees] = useState(null);
 
     useEffect(() => {
         if (academicYearId) {
@@ -40,8 +56,13 @@ export default function Students() {
         e.preventDefault();
         setIsSubmitting(true);
         try {
-            await createStudent({ ...form, academic_year_id: academicYearId });
-            setForm({ first_name: "", last_name: "", email: "", date_of_birth: "" });
+            const validSiblings = form.siblings.filter(s => s.name && s.age);
+            await createStudent({
+                ...form,
+                siblings: validSiblings,
+                academic_year_id: academicYearId
+            });
+            setForm({ name: "", roll_number: "", dob: "", siblings: [] });
             loadData();
         } catch (err) {
             alert("Failed to create student");
@@ -62,6 +83,47 @@ export default function Students() {
         }
     }
 
+    async function handleDelete(id) {
+        if (!confirm("Are you sure you want to delete this student?")) return;
+        try {
+            await deleteStudent(id);
+            loadData();
+        } catch (err) {
+            alert("Failed to delete student");
+        }
+    }
+
+    async function handleEditClick(id) {
+        try {
+            const data = await fetchStudentById(id);
+            setEditingId(id);
+            setEditForm({
+                name: data.name,
+                roll_number: data.roll_number,
+                dob: data.dob,
+                siblings: data.student_siblings || [] // Ensure siblings are loaded
+            });
+            setEditModalOpen(true);
+        } catch (err) {
+            alert("Failed to load student details");
+        }
+    }
+
+    async function handleUpdate(e) {
+        e.preventDefault();
+        try {
+            const validSiblings = editForm.siblings.filter(s => s.name && s.age);
+            await updateStudent(editingId, { ...editForm, siblings: validSiblings });
+
+            setEditModalOpen(false);
+            setEditingId(null);
+            loadData();
+            alert("Student updated successfully");
+        } catch (err) {
+            alert("Failed to update student");
+        }
+    }
+
     if (loading) return <div className="p-4">Loading students...</div>;
 
     return (
@@ -72,42 +134,76 @@ export default function Students() {
 
             <div className="card">
                 <h3>Register New Student</h3>
-                <form onSubmit={handleSubmit} className="flex gap-md items-end flex-wrap">
-                    <div className="input-group flex-1">
-                        <label>First Name</label>
-                        <input
-                            value={form.first_name}
-                            onChange={(e) => setForm({ ...form, first_name: e.target.value })}
-                            required
-                        />
+                <form onSubmit={handleSubmit}>
+                    <div className="flex gap-md flex-wrap mb-md">
+                        <div className="input-group flex-1">
+                            <label>Name</label>
+                            <input
+                                value={form.name}
+                                onChange={(e) => setForm({ ...form, name: e.target.value })}
+                                placeholder="Full Name"
+                                required
+                            />
+                        </div>
+
+                        <div className="input-group flex-1">
+                            <label>Date of Birth</label>
+                            <input
+                                type="date"
+                                value={form.dob}
+                                onChange={(e) => setForm({ ...form, dob: e.target.value })}
+                                required
+                            />
+                        </div>
                     </div>
-                    <div className="input-group flex-1">
-                        <label>Last Name</label>
-                        <input
-                            value={form.last_name}
-                            onChange={(e) => setForm({ ...form, last_name: e.target.value })}
-                            required
-                        />
+
+                    <div className="mb-md">
+                        <label className="mb-sm block font-bold">Siblings (Optional)</label>
+                        {form.siblings.map((sibling, index) => (
+                            <div key={index} className="flex gap-sm mb-sm items-center">
+                                <input
+                                    placeholder="Sibling Name"
+                                    value={sibling.name}
+                                    onChange={(e) => {
+                                        const newSiblings = [...form.siblings];
+                                        newSiblings[index].name = e.target.value;
+                                        setForm({ ...form, siblings: newSiblings });
+                                    }}
+                                    className="flex-1"
+                                />
+                                <input
+                                    type="number"
+                                    placeholder="Age"
+                                    value={sibling.age}
+                                    onChange={(e) => {
+                                        const newSiblings = [...form.siblings];
+                                        newSiblings[index].age = e.target.value;
+                                        setForm({ ...form, siblings: newSiblings });
+                                    }}
+                                    style={{ width: "80px" }}
+                                />
+                                <button
+                                    type="button"
+                                    className="btn btn-danger"
+                                    onClick={() => {
+                                        const newSiblings = form.siblings.filter((_, i) => i !== index);
+                                        setForm({ ...form, siblings: newSiblings });
+                                    }}
+                                >
+                                    X
+                                </button>
+                            </div>
+                        ))}
+                        <button
+                            type="button"
+                            className="btn btn-secondary btn-sm"
+                            onClick={() => setForm({ ...form, siblings: [...form.siblings, { name: "", age: "" }] })}
+                        >
+                            + Add Sibling
+                        </button>
                     </div>
-                    <div className="input-group flex-1">
-                        <label>Email</label>
-                        <input
-                            type="email"
-                            value={form.email}
-                            onChange={(e) => setForm({ ...form, email: e.target.value })}
-                            required
-                        />
-                    </div>
-                    <div className="input-group flex-1">
-                        <label>Date of Birth</label>
-                        <input
-                            type="date"
-                            value={form.date_of_birth}
-                            onChange={(e) => setForm({ ...form, date_of_birth: e.target.value })}
-                            required
-                        />
-                    </div>
-                    <button type="submit" className="btn btn-primary mb-md" disabled={isSubmitting}>
+
+                    <button type="submit" className="btn btn-primary" disabled={isSubmitting}>
                         Register Student
                     </button>
                 </form>
@@ -115,29 +211,55 @@ export default function Students() {
 
             <div className="card">
                 <h3>All Students</h3>
+
                 <table>
                     <thead>
                         <tr>
+                            <th>Adm No.</th>
                             <th>Name</th>
-                            <th>Email</th>
                             <th>DOB</th>
-                            <th>Actions</th>
+                            <th>Action</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {students.map((s) => (
+                        {students.map((s, index) => (
                             <tr key={s.id}>
-                                <td>{s.first_name} {s.last_name}</td>
-                                <td>{s.email}</td>
-                                <td>{s.date_of_birth}</td>
+                                <td>{s.admission_number || "-"}</td>
                                 <td>
-                                    <button
-                                        className="btn btn-secondary"
-                                        style={{ padding: "0.25rem 0.5rem", fontSize: "0.8rem" }}
-                                        onClick={() => setEnrollModal(s)}
-                                    >
-                                        Enroll to Class
-                                    </button>
+                                    <div className="font-bold">{s.name}</div>
+                                    <div className="text-sm text-gray">{s.registered_date}</div>
+                                </td>
+                                <td>{s.dob}</td>
+                                <td style={{ textAlign: "right" }}>
+                                    <div className="flex gap-sm justify-end">
+                                        <button
+                                            onClick={() => {
+                                                setSelectedStudentForFees(s);
+                                                setFeesModalOpen(true);
+                                            }}
+                                            className="btn btn-primary"
+                                            style={{ padding: "0.25rem 0.5rem" }}
+                                            title="Manage Fees"
+                                        >
+                                            <Banknote size={16} />
+                                        </button>
+                                        <button
+                                            onClick={() => handleEditClick(s.id)}
+                                            className="btn btn-secondary"
+                                            style={{ padding: "0.25rem 0.5rem" }}
+                                            title="Edit Student"
+                                        >
+                                            <Pencil size={16} />
+                                        </button>
+                                        <button
+                                            onClick={() => handleDelete(s.id)}
+                                            className="btn btn-danger"
+                                            style={{ padding: "0.25rem 0.5rem" }}
+                                            title="Delete Student"
+                                        >
+                                            <Trash2 size={16} />
+                                        </button>
+                                    </div>
                                 </td>
                             </tr>
                         ))}
@@ -145,13 +267,14 @@ export default function Students() {
                 </table>
             </div>
 
+            {/* ENROLL MODAL */}
             {enrollModal && (
                 <div style={{
                     position: "fixed", top: 0, left: 0, right: 0, bottom: 0,
-                    background: "rgba(0,0,0,0.5)", display: "flex", justifyContent: "center", alignItems: "center"
+                    background: "rgba(0,0,0,0.5)", display: "flex", justifyContent: "center", alignItems: "center", zIndex: 1000
                 }}>
                     <div className="card" style={{ width: "400px" }}>
-                        <h3>Enroll {enrollModal.first_name}</h3>
+                        <h3>Enroll {enrollModal.name}</h3>
                         <div className="mb-md">
                             <label>Select Class</label>
                             <select
@@ -170,7 +293,102 @@ export default function Students() {
                         </div>
                     </div>
                 </div>
+            )
+            }
+
+            {/* EDIT MODAL */}
+            {
+                editModalOpen && (
+                    <div style={{
+                        position: "fixed", top: 0, left: 0, right: 0, bottom: 0,
+                        background: "rgba(0,0,0,0.5)", display: "flex", justifyContent: "center", alignItems: "center", zIndex: 1000
+                    }}>
+                        <div className="card" style={{ width: "600px", maxHeight: "90vh", overflowY: "auto" }}>
+                            <h3>Edit Student Details</h3>
+                            <form onSubmit={handleUpdate}>
+                                <div className="flex gap-md flex-wrap mb-md">
+                                    <div className="input-group flex-1">
+                                        <label>Name</label>
+                                        <input
+                                            value={editForm.name}
+                                            onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
+                                            required
+                                        />
+                                    </div>
+                                    <div className="input-group flex-1">
+                                        <label>Date of Birth</label>
+                                        <input
+                                            type="date"
+                                            value={editForm.dob}
+                                            onChange={(e) => setEditForm({ ...editForm, dob: e.target.value })}
+                                            required
+                                        />
+                                    </div>
+                                </div>
+
+                                <div className="mb-md">
+                                    <label className="mb-sm block font-bold">Siblings</label>
+                                    {editForm.siblings.map((sibling, index) => (
+                                        <div key={index} className="flex gap-sm mb-sm items-center">
+                                            <input
+                                                placeholder="Sibling Name"
+                                                value={sibling.name}
+                                                onChange={(e) => {
+                                                    const newSiblings = [...editForm.siblings];
+                                                    newSiblings[index].name = e.target.value;
+                                                    setEditForm({ ...editForm, siblings: newSiblings });
+                                                }}
+                                                className="flex-1"
+                                            />
+                                            <input
+                                                type="number"
+                                                placeholder="Age"
+                                                value={sibling.age}
+                                                onChange={(e) => {
+                                                    const newSiblings = [...editForm.siblings];
+                                                    newSiblings[index].age = e.target.value;
+                                                    setEditForm({ ...editForm, siblings: newSiblings });
+                                                }}
+                                                style={{ width: "80px" }}
+                                            />
+                                            <button
+                                                type="button"
+                                                className="btn btn-danger"
+                                                onClick={() => {
+                                                    const newSiblings = editForm.siblings.filter((_, i) => i !== index);
+                                                    setEditForm({ ...editForm, siblings: newSiblings });
+                                                }}
+                                            >
+                                                X
+                                            </button>
+                                        </div>
+                                    ))}
+                                    <button
+                                        type="button"
+                                        className="btn btn-secondary btn-sm"
+                                        onClick={() => setEditForm({ ...editForm, siblings: [...editForm.siblings, { name: "", age: "" }] })}
+                                    >
+                                        + Add Sibling
+                                    </button>
+                                </div>
+
+                                <div className="flex gap-md justify-between">
+                                    <button type="button" className="btn btn-secondary" onClick={() => setEditModalOpen(false)}>Cancel</button>
+                                    <button type="submit" className="btn btn-primary">Update Student</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                )
+            }
+
+            {feesModalOpen && selectedStudentForFees && (
+                <FeesModal
+                    student={selectedStudentForFees}
+                    academicYearId={academicYearId}
+                    onClose={() => setFeesModalOpen(false)}
+                />
             )}
-        </div>
+        </div >
     );
 }

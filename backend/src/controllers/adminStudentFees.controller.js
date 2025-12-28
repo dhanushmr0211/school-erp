@@ -6,47 +6,49 @@ const upsertStudentFees = async (req, res) => {
             student_id,
             academic_year_id,
             semester,
-            tuition_fee,
-            book_fee,
-            uniform_fee,
-            bus_fee,
-            fee_paid,
+            tuition_total, tuition_paid,
+            books_total, books_paid,
+            uniform_total, uniform_paid,
+            bus_total, bus_paid
         } = req.body;
 
         if (!student_id || !academic_year_id || !semester) {
             return res.status(400).json({ error: 'Student ID, Academic Year ID, and Semester are required' });
         }
 
-        // Default fees to 0 if not provided
-        const tf = Number(tuition_fee) || 0;
-        const bf = Number(book_fee) || 0;
-        const uf = Number(uniform_fee) || 0;
-        const buf = Number(bus_fee) || 0;
-        const fp = Number(fee_paid) || 0;
+        // Helper to parse numbers safely
+        const val = (v) => Number(v) || 0;
 
-        const total_fee = tf + bf + uf + buf;
-        const fee_balance = total_fee - fp;
+        const tt = val(tuition_total);
+        const tp = val(tuition_paid);
+        const bt = val(books_total);
+        const bp = val(books_paid);
+        const ut = val(uniform_total);
+        const up = val(uniform_paid);
+        const bust = val(bus_total);
+        const busp = val(bus_paid);
 
-        // Prepare data for upsert
-        // We assume there is a unique constraint on (student_id, academic_year_id, semester)
-        // or the frontend is sending an 'id' which we are not explicitly reading here.
-        // If relying on composite uniqueness, upsert works fine.
+        const total_fee = tt + bt + ut + bust;
+        const total_paid = tp + bp + up + busp;
+        const balance_fee = total_fee - total_paid;
+
         const feeData = {
             student_id,
             academic_year_id,
             semester,
-            tuition_fee: tf,
-            book_fee: bf,
-            uniform_fee: uf,
-            bus_fee: buf,
-            total_fee,
-            fee_paid: fp,
-            fee_balance,
+            tuition_total: tt,
+            tuition_paid: tp,
+            books_total: bt,
+            books_paid: bp,
+            uniform_total: ut,
+            uniform_paid: up,
+            bus_total: bust,
+            bus_paid: busp
         };
 
         const { data, error } = await supabaseAdmin
             .from('student_fees')
-            .upsert(feeData)
+            .upsert(feeData, { onConflict: 'student_id, academic_year_id, semester' })
             .select()
             .single();
 
@@ -73,7 +75,8 @@ const getStudentFees = async (req, res) => {
             .from('student_fees')
             .select('*')
             .eq('student_id', student_id)
-            .eq('academic_year_id', academic_year_id);
+            .eq('academic_year_id', academic_year_id)
+            .order('semester', { ascending: true }); // Order by semester
 
         if (error) {
             throw error;

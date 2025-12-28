@@ -1,5 +1,7 @@
+
 import { useEffect, useState } from "react";
-import { fetchSubjects, createSubject } from "../../services/adminSubjectApi";
+import { fetchSubjects, createSubject, deleteSubject } from "../../services/adminSubjectApi";
+import { Trash2 } from "lucide-react";
 
 export default function Subjects() {
     const [subjects, setSubjects] = useState([]);
@@ -33,6 +35,16 @@ export default function Subjects() {
             alert("Failed to create subject");
         } finally {
             setIsSubmitting(false);
+        }
+    }
+
+    async function handleDelete(id) {
+        if (!confirm("Are you sure you want to delete this subject?")) return;
+        try {
+            await deleteSubject(id);
+            loadData();
+        } catch (err) {
+            alert("Failed to delete subject");
         }
     }
 
@@ -90,15 +102,28 @@ export default function Subjects() {
                             <th>Code</th>
                             <th>Name</th>
                             <th>Type</th>
+                            <th style={{ textAlign: "right", width: "100px" }}>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
                         {subjects.map((s) => (
                             <tr key={s.id}>
-                                <td>{s.code}</td>
+                                <td>{s.code || "-"}</td>
                                 <td>{s.name}</td>
                                 <td>
-                                    <span className="badge badge-blue">{s.type}</span>
+                                    <span className={`badge ${s.type === 'LAB' ? 'badge-purple' : 'badge-blue'}`}>
+                                        {s.type}
+                                    </span>
+                                </td>
+                                <td style={{ textAlign: "right" }}>
+                                    <button
+                                        onClick={() => handleDelete(s.id)}
+                                        className="btn btn-danger"
+                                        style={{ padding: "0.25rem 0.5rem" }}
+                                        title="Delete Subject"
+                                    >
+                                        <Trash2 size={16} />
+                                    </button>
                                 </td>
                             </tr>
                         ))}

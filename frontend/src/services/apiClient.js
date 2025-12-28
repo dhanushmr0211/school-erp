@@ -7,17 +7,25 @@ export async function apiFetch(path, options = {}) {
     data: { session },
   } = await supabase.auth.getSession();
 
+  const headers = {
+    "Content-Type": "application/json",
+    Authorization: `Bearer ${session?.access_token}`,
+  };
+
+  const academicYearId = localStorage.getItem("academicYearId");
+  if (academicYearId) {
+    headers["x-academic-year"] = academicYearId;
+  }
+
   const res = await fetch(`${BASE_URL}${path}`, {
     method: options.method || "GET",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${session?.access_token}`,
-    },
+    headers,
     body: options.body ? JSON.stringify(options.body) : undefined,
   });
 
   if (!res.ok) {
-    throw new Error("API error");
+    const errData = await res.json().catch(() => ({}));
+    throw new Error(errData.error || "API Request Failed");
   }
 
   return res.json();

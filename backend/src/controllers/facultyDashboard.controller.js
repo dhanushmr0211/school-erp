@@ -4,12 +4,17 @@ const getFacultyClasses = async (req, res) => {
     try {
         const userId = req.user.id; // User ID from Supabase Auth
 
+
+        console.log("Fetching dashboard for user:", userId);
+
         // 1. Get Faculty ID
         const { data: faculty, error: facultyError } = await supabaseAdmin
             .from('faculties')
             .select('id')
             .eq('user_id', userId)
             .single();
+
+        console.log("Faculty Lookup result:", faculty, facultyError);
 
         if (facultyError || !faculty) {
             console.error('Faculty not found for user:', userId, facultyError);
@@ -18,63 +23,47 @@ const getFacultyClasses = async (req, res) => {
 
         const facultyId = faculty.id;
 
+        const academicYearId = req.academicYearId; // From academicYearGuard
+
+        console.log(`Querying assignments for Faculty: ${facultyId}, Year: ${academicYearId}`);
+
         // 2. Fetch Class Assignments with Class and Subject details
         const { data: assignments, error: assignmentError } = await supabaseAdmin
             .from('class_subject_faculty')
             .select(`
         class_id,
         subject_id,
-        classes (
+        classes!inner (
           id,
           class_name,
+          section,
           academic_year_id
         ),
         subjects (
           id,
-          name
+          name,
+          code
         )
       `)
-            .eq('faculty_id', facultyId);
+            .eq('faculty_id', facultyId)
+            .eq('classes.academic_year_id', academicYearId);
+
+        console.log("Assignments found:", assignments ? assignments.length : 0);
+        if (assignmentError) console.error("Assignment Query Error:", assignmentError);
 
         if (assignmentError) {
             throw assignmentError;
         }
 
-        // 3. Process data to group by class and fetch student counts
-        const classMap = new Map();
-
-        for (const assignment of assignments) {
-            const classId = assignment.class_id;
-
-            if (!classMap.has(classId)) {
-                // Fetch student count for this class
-                // Note: Doing this in a loop isn't ideal for large datasets but acceptable for typical school loads.
-                // A better approach would be a separate aggregation query if Supabase supported it easily in one go.
-                const { count, error: countError } = await supabaseAdmin
-                    .from('student_class_enrollments')
-                    .select('*', { count: 'exact', head: true })
-                    .eq('class_id', classId);
-
-                if (countError) {
-                    console.error(`Error counting students for class ${classId}:`, countError);
-                }
-
-                classMap.set(classId, {
-                    class_id: assignment.classes.id,
-                    class_name: assignment.classes.class_name,
-                    academic_year_id: assignment.classes.academic_year_id,
-                    student_strength: count || 0,
-                    subjects: [],
-                });
-            }
-
-            classMap.get(classId).subjects.push({
-                subject_id: assignment.subjects.id,
-                subject_name: assignment.subjects.name,
-            });
-        }
-
-        const dashboardData = Array.from(classMap.values());
+        // 3. Map to flat list for dashboard
+        const dashboardData = assignments.map(a => ({
+            class_id: a.classes.id,
+            class_name: a.classes.class_name,
+            section: a.classes.section,
+            subject_id: a.subjects.id,
+            subject_name: a.subjects.name,
+            subject_code: a.subjects.code
+        }));
 
         res.json(dashboardData);
     } catch (error) {

@@ -1,8 +1,7 @@
 import { apiFetch } from "./apiClient";
 
 export function fetchFacultyDashboard(academicYearId) {
-    const query = academicYearId ? `?academic_year_id=${academicYearId}` : "";
-    return apiFetch(`/faculty/dashboard${query}`);
+    return apiFetch(`/faculty/dashboard`); // Query param removed, relying on header
 }
 
 export function upsertMarks(data) {
@@ -12,7 +11,7 @@ export function upsertMarks(data) {
     });
 }
 
-export function fetchMarks(classId, subjectId, examType) {
-    const query = `?class_id=${classId}&subject_id=${subjectId}&exam_type=${examType}`;
+export function fetchMarks(classId, subjectId, examType, academicYearId) {
+    const query = `?class_id=${classId}&subject_id=${subjectId}&exam_type=${examType}&academic_year_id=${academicYearId}`;
     return apiFetch(`/faculty/marks${query}`);
 }

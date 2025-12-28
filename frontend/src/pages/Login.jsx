@@ -12,17 +12,18 @@ export default function Login() {
   const navigate = useNavigate();
   const { user, loading: authLoading } = useAuth();
 
-useEffect(() => {
-  if (!authLoading && user) {
-    const role =
-      user.app_metadata?.role ||
-      user.user_metadata?.role;
+  useEffect(() => {
+    if (!authLoading && user) {
+      const role =
+        user.app_metadata?.role ||
+        user.user_metadata?.role;
 
-    if (role === "ADMIN") navigate("/admin");
-    else if (role === "FACULTY") navigate("/faculty");
-    else if (role === "STUDENT") navigate("/student");
-  }
-}, [user, authLoading, navigate]);
+
+      if (role === "ADMIN") navigate("/admin");
+      else if (role === "FACULTY") navigate("/faculty/dashboard");
+      else if (role === "STUDENT") navigate("/student/dashboard");
+    }
+  }, [user, authLoading, navigate]);
 
 
   const handleLogin = async (e) => {
@@ -45,47 +46,98 @@ useEffect(() => {
       data.user.user_metadata?.role;
 
     if (role === "ADMIN") navigate("/admin");
-    else if (role === "FACULTY") navigate("/faculty");
-    else if (role === "STUDENT") navigate("/student");
+    else if (role === "FACULTY") navigate("/faculty/dashboard");
+    else if (role === "STUDENT") navigate("/student/dashboard");
     else alert("Role not assigned");
 
     setLoading(false);
   };
 
+
+  const [showForgot, setShowForgot] = useState(false);
+  const [resetEmail, setResetEmail] = useState("");
+  const [resetLoading, setResetLoading] = useState(false);
+
+  const handleReset = async (e) => {
+    e.preventDefault();
+    setResetLoading(true);
+    const { error } = await supabase.auth.resetPasswordForEmail(resetEmail, {
+      redirectTo: "http://localhost:5173/update-password", // You'd need a route for this ideally
+    });
+    setResetLoading(false);
+    if (error) alert("Error: " + error.message);
+    else {
+      alert("Password reset link sent to your email!");
+      setShowForgot(false);
+    }
+  };
+
   return (
-    <div className="min-h-screen flex items-center justify-center">
-      <form
-        onSubmit={handleLogin}
-        className="border p-6 rounded w-80 space-y-4"
-      >
-        <h1 className="text-xl font-bold text-center">Login</h1>
-
-        <input
-          type="email"
-          placeholder="Email"
-          className="border p-2 w-full"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-        />
-
-        <input
-          type="password"
-          placeholder="Password"
-          className="border p-2 w-full"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-        />
-
-        <button
-          type="submit"
-          disabled={loading}
-          className="bg-black text-white w-full py-2"
+    <div className="min-h-screen flex items-center justify-center p-4">
+      {!showForgot ? (
+        <form
+          onSubmit={handleLogin}
+          className="card w-96 space-y-4"
         >
-          {loading ? "Logging in..." : "Login"}
-        </button>
-      </form>
+          <h1 className="text-xl font-bold text-center mb-md">Login</h1>
+
+          <input
+            type="email"
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
+
+          <input
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="btn btn-primary w-full"
+          >
+            {loading ? "Logging in..." : "Login"}
+          </button>
+
+          <p className="text-center text-sm text-gray-400 cursor-pointer hover:text-white mt-4" onClick={() => setShowForgot(true)}>
+            Forgot Password?
+          </p>
+        </form>
+      ) : (
+        <form
+          onSubmit={handleReset}
+          className="card w-96 space-y-4"
+        >
+          <h1 className="text-xl font-bold text-center mb-md">Reset Password</h1>
+          <p className="text-center text-sm text-gray-400 mb-4">Enter your email to receive a password reset link.</p>
+
+          <input
+            type="email"
+            placeholder="Enter your email"
+            value={resetEmail}
+            onChange={(e) => setResetEmail(e.target.value)}
+            required
+          />
+
+          <button
+            type="submit"
+            disabled={resetLoading}
+            className="btn btn-primary w-full"
+          >
+            {resetLoading ? "Sending..." : "Send Reset Link"}
+          </button>
+
+          <p className="text-center text-sm text-gray-400 cursor-pointer hover:text-white mt-4" onClick={() => setShowForgot(false)}>
+            Back to Login
+          </p>
+        </form>
+      )}
     </div>
   );
 }

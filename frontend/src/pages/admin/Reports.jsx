@@ -4,17 +4,30 @@ import { useAcademicYear } from "../../context/AcademicYearContext"; // Fixed im
 
 export default function Reports() {
     const { academicYearId } = useAcademicYear();
-    const [studentId, setStudentId] = useState("");
+    const [admissionNumber, setAdmissionNumber] = useState("");
     const [reportData, setReportData] = useState(null);
     const [loading, setLoading] = useState(false);
 
     async function handleGenerate() {
-        if (!studentId || !academicYearId) return alert("Enter Student ID and select Academic Year");
+        if (!admissionNumber || !academicYearId) return alert("Enter Admission Number and select Academic Year");
         setLoading(true);
         try {
-            const data = await getReportCard(studentId, academicYearId);
-            setReportData(data);
+            const blob = await getReportCard(admissionNumber, academicYearId);
+
+            // Create a link to download the PDF
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `report_card_${admissionNumber}.pdf`; // Ideally fetch filename from headers but this is fine
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+
+            alert("Report generated successfully!");
+            setReportData(null); // Clear previous data/errors
         } catch (err) {
+            console.error(err);
             alert("Failed to fetch report");
         } finally {
             setLoading(false);
@@ -31,47 +44,20 @@ export default function Reports() {
                 <h3>Generate Student Report Card</h3>
                 <div className="flex gap-md items-end">
                     <div className="input-group flex-1">
-                        <label>Student ID (UUID)</label>
+                        <label>Admission Number</label>
                         <input
-                            value={studentId}
-                            onChange={(e) => setStudentId(e.target.value)}
-                            placeholder="e.g. 123e4567-e89b..."
+                            type="number"
+                            value={admissionNumber}
+                            onChange={(e) => setAdmissionNumber(e.target.value)}
+                            placeholder="e.g. 1"
                             required
                         />
                     </div>
                     <button onClick={handleGenerate} className="btn btn-primary mb-md" disabled={loading}>
-                        {loading ? "Generating..." : "Generate"}
+                        {loading ? "Generating..." : "Generate PDF"}
                     </button>
                 </div>
             </div>
-
-            {reportData && (
-                <div className="card">
-                    <h3>Report Card</h3>
-                    <p><strong>Student:</strong> {reportData.studentName}</p>
-                    <p><strong>Class:</strong> {reportData.className}</p>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Subject</th>
-                                <th>Marks Obtained</th>
-                                <th>Total Marks</th>
-                                <th>Grade</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {reportData.subjects?.map((s, idx) => (
-                                <tr key={idx}>
-                                    <td>{s.subject}</td>
-                                    <td>{s.obtained}</td>
-                                    <td>{s.total}</td>
-                                    <td>{s.grade}</td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
-            )}
         </div>
     );
 }

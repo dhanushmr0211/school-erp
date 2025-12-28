@@ -34,4 +34,5 @@ app.use('/reports', reportsRoutes);
 
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
+  console.log("Server v2.0 - Fees Fix Applied");
 });

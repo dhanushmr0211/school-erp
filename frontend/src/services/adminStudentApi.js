@@ -5,11 +5,29 @@ export function fetchStudents(academicYearId) {
     return apiFetch(`/admin/students${query}`);
 }
 
+
 export function createStudent(data) {
     return apiFetch("/admin/students", {
         method: "POST",
         body: data,
     });
+}
+
+export function updateStudent(id, data) {
+    return apiFetch(`/admin/students/${id}`, {
+        method: "PUT",
+        body: data,
+    });
+}
+
+export function deleteStudent(id) {
+    return apiFetch(`/admin/students/${id}`, {
+        method: "DELETE",
+    });
+}
+
+export function fetchStudentById(id) {
+    return apiFetch(`/admin/students/${id}`);
 }
 
 export function enrollStudentToClass(studentId, classId, academicYearId) {
@@ -34,6 +52,6 @@ export function upsertStudentFees(data) {
     });
 }
 
-export function fetchStudentFees(studentId) {
-    return apiFetch(`/admin/student-fees?student_id=${studentId}`);
+export function fetchStudentFees(studentId, academicYearId) {
+    return apiFetch(`/admin/student-fees?student_id=${studentId}&academic_year_id=${academicYearId}`);
 }

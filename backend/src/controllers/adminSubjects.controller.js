@@ -18,23 +18,22 @@ const getSubjects = async (req, res) => {
     }
 };
 
+
 const createSubject = async (req, res) => {
     try {
-        const { name } = req.body;
+        const { name, code, type } = req.body;
 
-        if (!name) {
-            return res.status(400).json({ error: 'Subject name is required' });
+        if (!name || !code || !type) {
+            return res.status(400).json({ error: 'Name, code, and type are required' });
         }
 
         const { data, error } = await supabaseAdmin
             .from('subjects')
-            .insert([{ name }])
+            .insert([{ name, code, type }])
             .select()
             .single();
 
-        if (error) {
-            throw error;
-        }
+        if (error) throw error;
 
         res.status(201).json(data);
     } catch (error) {
@@ -43,7 +42,31 @@ const createSubject = async (req, res) => {
     }
 };
 
+
+const deleteSubject = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        if (!id) {
+            return res.status(400).json({ error: 'Subject ID is required' });
+        }
+
+        const { error } = await supabaseAdmin
+            .from('subjects')
+            .delete()
+            .eq('id', id);
+
+        if (error) throw error;
+
+        res.json({ success: true, message: "Subject deleted successfully" });
+    } catch (err) {
+        console.error("Delete subject error:", err);
+        res.status(500).json({ error: err.message });
+    }
+}
+
 module.exports = {
     getSubjects,
     createSubject,
+    deleteSubject,
 };
