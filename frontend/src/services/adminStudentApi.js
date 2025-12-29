@@ -30,6 +30,10 @@ export function fetchStudentById(id) {
     return apiFetch(`/admin/students/${id}`);
 }
 
+export function fetchStudentProfile(id, academicYearId) {
+    return apiFetch(`/admin/students/${id}/profile?academic_year_id=${academicYearId}`);
+}
+
 export function enrollStudentToClass(studentId, classId, academicYearId) {
     return apiFetch("/admin/class-enrollments", {
         method: "POST",

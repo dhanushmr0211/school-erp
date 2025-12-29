@@ -141,7 +141,30 @@ const getClassStudents = async (req, res) => {
     }
 };
 
+const removeStudentFromClass = async (req, res) => {
+    try {
+        const { class_id, student_id } = req.params;
+
+        if (!class_id || !student_id) {
+            return res.status(400).json({ error: 'Class ID and Student ID are required' });
+        }
+
+        const { error } = await supabaseAdmin
+            .from('student_class_enrollments')
+            .delete()
+            .match({ class_id, student_id });
+
+        if (error) throw error;
+
+        res.json({ message: 'Student removed from class successfully' });
+    } catch (error) {
+        console.error('Error removing student from class:', error);
+        res.status(500).json({ error: 'Failed to remove student from class' });
+    }
+};
+
 module.exports = {
     enrollStudentsToClass,
     getClassStudents,
+    removeStudentFromClass
 };

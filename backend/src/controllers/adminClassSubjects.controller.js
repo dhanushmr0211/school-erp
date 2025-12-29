@@ -60,7 +60,30 @@ const getClassSubjects = async (req, res) => {
     }
 };
 
+const removeClassSubject = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        if (!id) {
+            return res.status(400).json({ error: 'Assignment ID is required' });
+        }
+
+        const { error } = await supabaseAdmin
+            .from('class_subject_faculty')
+            .delete()
+            .match({ id });
+
+        if (error) throw error;
+
+        res.json({ message: 'Subject assignment removed from class successfully' });
+    } catch (error) {
+        console.error('Error removing subject from class:', error);
+        res.status(500).json({ error: 'Failed to remove subject from class' });
+    }
+};
+
 module.exports = {
     assignSubjectToClass,
     getClassSubjects,
+    removeClassSubject
 };

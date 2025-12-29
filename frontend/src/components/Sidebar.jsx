@@ -17,6 +17,7 @@ export default function Sidebar() {
       { name: "Subjects", path: "/admin/subjects", icon: BookOpen },
       { name: "Faculty", path: "/admin/faculty", icon: Users },
       { name: "Classes", path: "/admin/classes", icon: Layers },
+      { name: "Promote Class", path: "/admin/promote-class", icon: Layers },
       { name: "Students & Fees", path: "/admin/students", icon: GraduationCap },
       { name: "Reports", path: "/admin/reports", icon: FileText },
     ],

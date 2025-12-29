@@ -23,7 +23,7 @@ const { assignSubjectToClass, getClassSubjects } =
   require('../controllers/adminClassSubjects.controller');
 
 
-const { createStudent, getStudents, getStudentById, updateStudent, deleteStudent } =
+const { createStudent, getStudents, getStudentById, getStudentProfile, updateStudent, deleteStudent } =
   require('../controllers/adminStudents.controller');
 
 const { enrollStudentsToClass, getClassStudents } =
@@ -64,11 +64,14 @@ router.delete('/classes/:id', requireAdmin, deleteClass);
 /* Class Subjects */
 router.post('/class-subjects', requireAdmin, assignSubjectToClass);
 router.get('/class-subjects', requireAdmin, getClassSubjects);
+const { removeClassSubject } = require('../controllers/adminClassSubjects.controller');
+router.delete('/class-subjects/:id', requireAdmin, removeClassSubject);
 
 
 /* Students */
 router.post('/students', requireAdmin, createStudent);
 router.get('/students', requireAdmin, getStudents);
+router.get('/students/:id/profile', requireAdmin, getStudentProfile);
 router.get('/students/:id', requireAdmin, getStudentById);
 router.put('/students/:id', requireAdmin, updateStudent);
 router.delete('/students/:id', requireAdmin, deleteStudent);
@@ -76,9 +79,15 @@ router.delete('/students/:id', requireAdmin, deleteStudent);
 /* Enrollments */
 router.post('/class-enrollments', requireAdmin, enrollStudentsToClass);
 router.get('/class-enrollments', requireAuth, getClassStudents);
+const { removeStudentFromClass } = require('../controllers/adminStudentClass.controller');
+router.delete('/class-enrollments/:class_id/:student_id', requireAdmin, removeStudentFromClass);
 
 /* Fees */
 router.post('/student-fees', requireAdmin, upsertStudentFees);
 router.get('/student-fees', requireAdmin, getStudentFees);
+
+/* Promotion */
+const { promoteClass } = require('../controllers/classPromotion.controller');
+router.post('/promote-class', requireAdmin, promoteClass);
 
 module.exports = router;

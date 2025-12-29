@@ -1,11 +1,15 @@
 
 import { useEffect, useState } from "react";
-import { fetchClasses, createClass, assignSubjectToClass, fetchClassSubjects, deleteClass, updateClass, enrollStudentsToClass, fetchClassStudents } from "../../services/adminClassApi";
+import {
+    fetchClasses, createClass, assignSubjectToClass, fetchClassSubjects,
+    deleteClass, updateClass, enrollStudentsToClass, fetchClassStudents,
+    removeStudentFromClass, removeClassSubject
+} from "../../services/adminClassApi";
 
 import { fetchSubjects } from "../../services/adminSubjectApi";
 import { fetchStudents } from "../../services/adminStudentApi";
 import { fetchFacultiesBySubject } from "../../services/adminFacultyApi";
-import { useAcademicYear } from "../../context/AcademicYearContext"; // Fixed import path
+import { useAcademicYear } from "../../context/AcademicYearContext";
 import { Pencil, Trash2, Eye, UserPlus } from "lucide-react";
 
 export default function Classes() {
@@ -353,6 +357,26 @@ function ClassDetailModal({ cls, allSubjects, onClose, onUpdate }) {
         }
     }
 
+    async function handleRemoveStudent(studentId) {
+        if (!confirm("Remove this student from the class?")) return;
+        try {
+            await removeStudentFromClass(cls.id, studentId);
+            loadDetails(); // Reload to refresh list
+        } catch (err) {
+            alert("Failed to remove student");
+        }
+    }
+
+    async function handleRemoveSubject(assignmentId) {
+        if (!confirm("Remove this subject assignment?")) return;
+        try {
+            await removeClassSubject(assignmentId);
+            loadDetails(); // Reload to refresh list
+        } catch (err) {
+            alert("Failed to remove subject");
+        }
+    }
+
     return (
         <div className="card" style={{ width: "800px", maxHeight: "90vh", overflowY: "auto" }}>
             <div className="flex justify-between items-center mb-md">
@@ -378,6 +402,7 @@ function ClassDetailModal({ cls, allSubjects, onClose, onUpdate }) {
                             <tr>
                                 <th>Subject</th>
                                 <th>Teacher</th>
+                                <th>Action</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -385,6 +410,15 @@ function ClassDetailModal({ cls, allSubjects, onClose, onUpdate }) {
                                 <tr key={idx}>
                                     <td>{item.subject?.name}</td>
                                     <td>{item.faculty?.name}</td>
+                                    <td>
+                                        <button
+                                            onClick={() => handleRemoveSubject(item.id)}
+                                            className="btn btn-danger btn-sm"
+                                            style={{ padding: '2px 6px' }}
+                                        >
+                                            <Trash2 size={12} />
+                                        </button>
+                                    </td>
                                 </tr>
                             ))}
                         </tbody>
@@ -399,6 +433,7 @@ function ClassDetailModal({ cls, allSubjects, onClose, onUpdate }) {
                                 <tr>
                                     <th>Roll</th>
                                     <th>Name</th>
+                                    <th>Action</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -407,6 +442,15 @@ function ClassDetailModal({ cls, allSubjects, onClose, onUpdate }) {
                                     <tr key={idx}>
                                         <td>{item.roll_number || "-"}</td>
                                         <td>{item.students?.name}</td>
+                                        <td>
+                                            <button
+                                                onClick={() => handleRemoveStudent(item.student_id)}
+                                                className="btn btn-danger btn-sm"
+                                                style={{ padding: '2px 6px' }}
+                                            >
+                                                <Trash2 size={12} />
+                                            </button>
+                                        </td>
                                     </tr>
                                 ))}
                             </tbody>
@@ -423,8 +467,6 @@ function AddStudentModal({ cls, academicYearId, onClose }) {
     const [allStudents, setAllStudents] = useState([]);
     const [selectedStudents, setSelectedStudents] = useState([]);
     const [loading, setLoading] = useState(true);
-
-
 
     useEffect(() => {
         if (academicYearId && cls.id) {

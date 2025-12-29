@@ -35,8 +35,12 @@ export default function StudentDashboard() {
   }
 
   // Calculate Fee Summary
-  const totalFee = fees.reduce((acc, f) => acc + (Number(f.total_fee) || 0), 0);
-  const totalPaid = fees.reduce((acc, f) => acc + (Number(f.total_paid) || 0), 0);
+  // Calculate Fee Summary
+  const calculateTotal = (f) => (Number(f.tuition_total) || 0) + (Number(f.books_total) || 0) + (Number(f.uniform_total) || 0) + (Number(f.bus_total) || 0);
+  const calculatePaid = (f) => (Number(f.tuition_paid) || 0) + (Number(f.books_paid) || 0) + (Number(f.uniform_paid) || 0) + (Number(f.bus_paid) || 0);
+
+  const totalFee = fees.reduce((acc, f) => acc + calculateTotal(f), 0);
+  const totalPaid = fees.reduce((acc, f) => acc + calculatePaid(f), 0);
   const balanceFee = totalFee - totalPaid;
 
   if (loading) return <div className="p-8 text-center text-gray-500">Loading dashboard...</div>;

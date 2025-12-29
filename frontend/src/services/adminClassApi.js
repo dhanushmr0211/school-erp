@@ -53,3 +53,15 @@ export function enrollStudentsToClass(data) {
 export function fetchClassStudents(classId) {
     return apiFetch(`/admin/class-enrollments?class_id=${classId}`);
 }
+
+export function removeStudentFromClass(classId, studentId) {
+    return apiFetch(`/admin/class-enrollments/${classId}/${studentId}`, {
+        method: "DELETE"
+    });
+}
+
+export function removeClassSubject(id) {
+    return apiFetch(`/admin/class-subjects/${id}`, {
+        method: "DELETE"
+    });
+}

@@ -233,10 +233,68 @@ const deleteStudent = async (req, res) => {
     }
 }
 
+/**
+ * GET STUDENT FULL PROFILE (Details, Class, Marks)
+ */
+const getStudentProfile = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { academic_year_id } = req.query;
+
+        if (!id || !academic_year_id) {
+            return res.status(400).json({ error: "Student ID and Academic Year ID required" });
+        }
+
+        // 1. Fetch Student & Enrollment
+        // Note: We use Filter on the nested join for academic_year_id
+        const { data: student, error: studentError } = await supabaseAdmin
+            .from('students')
+            .select(`
+                *,
+                student_siblings(*),
+                enrollments:student_class_enrollments(
+                    class_id,
+                    academic_year_id,
+                    class:classes(id, class_name, section)
+                )
+            `)
+            .eq('id', id)
+            .single();
+
+        if (studentError) throw studentError;
+
+        // 2. Fetch Marks for this Academic Year
+        const { data: marks, error: marksError } = await supabaseAdmin
+            .from('marks')
+            .select(`
+                *,
+                subject:subjects(id, name, code)
+            `)
+            .eq('student_id', id)
+            .eq('academic_year_id', academic_year_id);
+
+        if (marksError) throw marksError;
+
+        // Filter enrollment for specific year
+        const currentEnrollment = student.enrollments?.find(e => e.academic_year_id == academic_year_id);
+
+        res.json({
+            student: student,
+            current_class: currentEnrollment ? currentEnrollment.class : null,
+            marks: marks
+        });
+
+    } catch (err) {
+        console.error("Fetch profile error:", err);
+        res.status(500).json({ error: "Failed to fetch student profile" });
+    }
+}
+
 module.exports = {
     createStudent,
     getStudents,
     getStudentById,
+    getStudentProfile, // Added
     updateStudent,
     deleteStudent
 };

@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AcademicYearProvider } from "./context/AcademicYearContext";
 import { AuthProvider } from "./context/AuthContext";
 
+import LandingPage from "./pages/LandingPage";
 import Login from "./pages/Login";
 import DashboardLayout from "./layouts/DashboardLayout";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -15,6 +16,7 @@ import FacultyPage from "./pages/admin/FacultyPage";
 import Classes from "./pages/admin/Classes";
 import Students from "./pages/admin/Students";
 import Reports from "./pages/admin/Reports";
+import PromoteClass from "./pages/admin/PromoteClass";
 
 // Faculty Pages
 import FacultyDashboard from "./pages/faculty/FacultyDashboard";
@@ -30,7 +32,8 @@ export default function App() {
       <AuthProvider>
         <AcademicYearProvider>
           <Routes>
-            <Route path="/" element={<Login />} />
+            <Route path="/" element={<LandingPage />} />
+            <Route path="/login" element={<Login />} />
 
             <Route element={<DashboardLayout />}>
 
@@ -42,6 +45,7 @@ export default function App() {
               <Route path="/admin/classes" element={<ProtectedRoute role="ADMIN"><Classes /></ProtectedRoute>} />
               <Route path="/admin/students" element={<ProtectedRoute role="ADMIN"><Students /></ProtectedRoute>} />
               <Route path="/admin/reports" element={<ProtectedRoute role="ADMIN"><Reports /></ProtectedRoute>} />
+              <Route path="/admin/promote-class" element={<ProtectedRoute role="ADMIN"><PromoteClass /></ProtectedRoute>} />
 
 
               {/* FACULTY ROUTES */}
@@ -56,7 +60,7 @@ export default function App() {
 
             </Route>
 
-            {/* Catch all redirect (optional) - redirecting to root login for now */}
+            {/* Catch all redirect - redirecting to Landing Page */}
             <Route path="*" element={<Navigate to="/" replace />} />
 
           </Routes>

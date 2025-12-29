@@ -1,9 +1,9 @@
 
 import { useEffect, useState } from "react";
-import { fetchStudents, createStudent, enrollStudentToClass, fetchStudentFees, deleteStudent, updateStudent, fetchStudentById } from "../../services/adminStudentApi";
+import { fetchStudents, createStudent, enrollStudentToClass, fetchStudentFees, deleteStudent, updateStudent, fetchStudentById, fetchStudentProfile } from "../../services/adminStudentApi";
 import { fetchClasses } from "../../services/adminClassApi";
 import { useAcademicYear } from "../../context/AcademicYearContext";
-import { Trash2, Pencil, Banknote } from "lucide-react";
+import { Trash2, Pencil, Banknote, Eye } from "lucide-react";
 import FeesModal from "./FeesModal";
 
 export default function Students() {
@@ -28,6 +28,9 @@ export default function Students() {
 
     const [feesModalOpen, setFeesModalOpen] = useState(false);
     const [selectedStudentForFees, setSelectedStudentForFees] = useState(null);
+
+    const [profileModalOpen, setProfileModalOpen] = useState(false);
+    const [selectedProfile, setSelectedProfile] = useState(null);
 
     useEffect(() => {
         if (academicYearId) {
@@ -121,6 +124,16 @@ export default function Students() {
             alert("Student updated successfully");
         } catch (err) {
             alert("Failed to update student");
+        }
+    }
+
+    async function handleViewProfile(student) {
+        try {
+            const profileData = await fetchStudentProfile(student.id, academicYearId);
+            setSelectedProfile(profileData);
+            setProfileModalOpen(true);
+        } catch (err) {
+            alert("Failed to load profile");
         }
     }
 
@@ -232,6 +245,14 @@ export default function Students() {
                                 <td>{s.dob}</td>
                                 <td style={{ textAlign: "right" }}>
                                     <div className="flex gap-sm justify-end">
+                                        <button
+                                            onClick={() => handleViewProfile(s)}
+                                            className="btn btn-secondary"
+                                            style={{ padding: "0.25rem 0.5rem" }}
+                                            title="View Profile"
+                                        >
+                                            <Eye size={16} />
+                                        </button>
                                         <button
                                             onClick={() => {
                                                 setSelectedStudentForFees(s);
@@ -389,6 +410,74 @@ export default function Students() {
                     onClose={() => setFeesModalOpen(false)}
                 />
             )}
+
+            {profileModalOpen && selectedProfile && (
+                <StudentProfileModal
+                    profile={selectedProfile}
+                    onClose={() => setProfileModalOpen(false)}
+                />
+            )}
         </div >
+    );
+}
+
+function StudentProfileModal({ profile, onClose }) {
+    if (!profile) return null;
+    const { student, current_class, marks } = profile;
+
+    return (
+        <div style={{
+            position: "fixed", top: 0, left: 0, right: 0, bottom: 0,
+            background: "rgba(0,0,0,0.5)", display: "flex", justifyContent: "center", alignItems: "center", zIndex: 1000
+        }}>
+            <div className="card" style={{ width: "800px", maxHeight: "90vh", overflowY: "auto" }}>
+                <div className="flex justify-between items-start mb-md">
+                    <div>
+                        <h2>{student.name}</h2>
+                        <p className="text-gray">Admission No: {student.admission_number || "N/A"} | Roll No: {student.roll_number || "N/A"}</p>
+                        <div className="mt-sm">
+                            <span className="badge badge-blue">
+                                {current_class ? `${current_class.class_name} - ${current_class.section}` : "Not Enrolled"}
+                            </span>
+                        </div>
+                    </div>
+                    <button onClick={onClose} className="btn btn-secondary">Close</button>
+                </div>
+
+                <h4>Academic Performance</h4>
+                <div style={{ overflowX: "auto" }}>
+                    <table style={{ fontSize: "0.9rem" }}>
+                        <thead>
+                            <tr>
+                                <th>Subject</th>
+                                <th>Test 1</th>
+                                <th>Test 2</th>
+                                <th>Sem 1</th>
+                                <th>Test 3</th>
+                                <th>Test 4</th>
+                                <th>Sem 2</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {marks && marks.length > 0 ? marks.map((m, idx) => (
+                                <tr key={idx}>
+                                    <td>{m.subject?.name}</td>
+                                    <td>{m.test1 || "-"}</td>
+                                    <td>{m.test2 || "-"}</td>
+                                    <td className="font-bold">{m.sem1 || "-"}</td>
+                                    <td>{m.test3 || "-"}</td>
+                                    <td>{m.test4 || "-"}</td>
+                                    <td className="font-bold">{m.sem2 || "-"}</td>
+                                </tr>
+                            )) : (
+                                <tr>
+                                    <td colSpan="7" className="text-center text-gray">No marks found for this academic year.</td>
+                                </tr>
+                            )}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
     );
 }
