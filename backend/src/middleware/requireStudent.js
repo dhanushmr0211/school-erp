@@ -9,10 +9,16 @@ const requireStudent = async (req, res, next) => {
         }
 
         const token = authHeader.split(' ')[1];
+
         const { data: { user }, error } = await supabaseAnon.auth.getUser(token);
 
-        if (error || !user) {
-            return res.status(401).json({ error: 'Invalid or expired token' });
+        if (error) {
+            console.error("requireStudent Anon error:", error);
+            return res.status(401).json({ error: 'Invalid or expired token: ' + error.message });
+        }
+
+        if (!user) {
+            return res.status(401).json({ error: 'User not found in token' });
         }
 
         const role = user.user_metadata?.role;

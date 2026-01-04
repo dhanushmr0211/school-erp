@@ -4,69 +4,84 @@ import { useAcademicYear } from "../../context/AcademicYearContext";
 import { Users, Layers, BookOpen } from "lucide-react";
 
 export default function AdminDashboard() {
-  const { academicYearId } = useAcademicYear();
-  const [stats, setStats] = useState({ students: 0, classes: 0, faculty: 0 });
-  const [loading, setLoading] = useState(true);
+    const { academicYearId } = useAcademicYear();
+    const [stats, setStats] = useState({ students: 0, classes: 0, faculty: 0 });
+    const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    if (academicYearId) {
-      loadStats();
+    useEffect(() => {
+        if (academicYearId) {
+            loadStats();
+        }
+    }, [academicYearId]);
+
+    async function loadStats() {
+        try {
+            // fetchAdminStats returns [students, classes, faculty] arrays
+            const [students, classes, faculty] = await fetchAdminStats(academicYearId);
+            setStats({
+                students: students.length,
+                classes: classes.length,
+                faculty: faculty.length,
+            });
+        } catch (err) {
+            console.error(err);
+        } finally {
+            setLoading(false);
+        }
     }
-  }, [academicYearId]);
 
-  async function loadStats() {
-    try {
-      // fetchAdminStats returns [students, classes, faculty] arrays
-      const [students, classes, faculty] = await fetchAdminStats(academicYearId);
-      setStats({
-        students: students.length,
-        classes: classes.length,
-        faculty: faculty.length,
-      });
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  }
+    if (loading) return <div className="p-8 text-center text-gray">Loading stats...</div>;
 
-  if (loading) return <div className="p-4">Loading stats...</div>;
+    return (
+        <div className="animate-fade-in" style={{ paddingBottom: '2rem' }}>
+            <div className="page-header flex justify-between items-center" style={{ marginBottom: '2.5rem' }}>
+                <div>
+                    <h1 style={{ marginBottom: "0.5rem", fontSize: '2rem' }}>Dashboard Overview</h1>
+                    <p className="text-gray" style={{ margin: 0, fontSize: '1.1rem' }}>Welcome to the Anikethana administration portal.</p>
+                </div>
+                <span className="badge badge-blue" style={{ padding: '0.5rem 0.5rem', fontSize: '0.9rem' }}>Academic Year Active</span>
+            </div>
 
-  return (
-    <div>
-      <div className="page-header">
-        <h1>Dashboard Overview</h1>
-        <span className="badge badge-blue">Academic Year Active</span>
-      </div>
+            <div className="flex gap-md" style={{ flexWrap: 'wrap', gap: '2rem' }}>
+                <div className="card flex flex-col items-center justify-center p-8 animate-fade-in" style={{ flex: 1, animationDelay: '0.05s', minWidth: '250px' }}>
+                    <div style={{ padding: '1.25rem', background: 'var(--royal-light)', borderRadius: '50%', marginBottom: '1.5rem' }}>
+                        <Users size={40} className="text-royal" />
+                    </div>
+                    <h2 className="text-4xl font-bold" style={{ marginBottom: '0.5rem' }}>{stats.students}</h2>
+                    <p className="text-gray" style={{ fontWeight: 600, fontSize: '1.1rem' }}>Total Students</p>
+                </div>
 
-      <div className="flex gap-md flex-wrap">
-        <div className="card flex-1 flex flex-col items-center justify-center p-8">
-          <Users size={48} className="text-blue-500 mb-md" />
-          <h2 className="text-4xl font-bold">{stats.students}</h2>
-          <p className="text-gray-400">Total Students</p>
+                <div className="card flex flex-col items-center justify-center p-8 animate-fade-in" style={{ flex: 1, animationDelay: '0.1s', minWidth: '250px' }}>
+                    <div style={{ padding: '1.25rem', background: '#ecfccb', borderRadius: '50%', marginBottom: '1.5rem' }}>
+                        <Layers size={40} style={{ color: '#65a30d' }} />
+                    </div>
+                    <h2 className="text-4xl font-bold" style={{ marginBottom: '0.5rem' }}>{stats.classes}</h2>
+                    <p className="text-gray" style={{ fontWeight: 600, fontSize: '1.1rem' }}>Total Classes</p>
+                </div>
+
+                <div className="card flex flex-col items-center justify-center p-8 animate-fade-in" style={{ flex: 1, animationDelay: '0.15s', minWidth: '250px' }}>
+                    <div style={{ padding: '1.25rem', background: '#fffbeb', borderRadius: '50%', marginBottom: '1.5rem' }}>
+                        <BookOpen size={40} className="text-gold" />
+                    </div>
+                    <h2 className="text-4xl font-bold" style={{ marginBottom: '0.5rem' }}>{stats.faculty}</h2>
+                    <p className="text-gray" style={{ fontWeight: 600, fontSize: '1.1rem' }}>Total Faculty</p>
+                </div>
+            </div>
+
+            <div className="card animate-fade-in" style={{ animationDelay: '0.2s', marginTop: '2.5rem' }}>
+                <h3 style={{ marginBottom: '1.5rem', fontSize: '1.25rem' }}>Quick Actions</h3>
+                <div className="flex" style={{ flexWrap: 'wrap', gap: '1.5rem' }}>
+                    <a href="/admin/students" className="btn btn-primary" style={{ padding: '0.8rem 1.5rem' }}>
+                        <Users size={20} /> Manage Students
+                    </a>
+                    <a href="/admin/classes" className="btn btn-secondary" style={{ padding: '0.8rem 1.5rem' }}>
+                        <Layers size={20} /> Manage Classes
+                    </a>
+                    <a href="/admin/reports" className="btn btn-secondary" style={{ padding: '0.8rem 1.5rem' }}>
+                        <BookOpen size={20} /> Generate Reports
+                    </a>
+                </div>
+            </div>
         </div>
-
-        <div className="card flex-1 flex flex-col items-center justify-center p-8">
-          <Layers size={48} className="text-green-500 mb-md" />
-          <h2 className="text-4xl font-bold">{stats.classes}</h2>
-          <p className="text-gray-400">Total Classes</p>
-        </div>
-
-        <div className="card flex-1 flex flex-col items-center justify-center p-8">
-          <BookOpen size={48} className="text-purple-500 mb-md" />
-          <h2 className="text-4xl font-bold">{stats.faculty}</h2>
-          <p className="text-gray-400">Total Faculty</p>
-        </div>
-      </div>
-
-      <div className="card mt-md">
-        <h3>Quick Actions</h3>
-        <div className="flex gap-md">
-          <a href="/admin/students" className="btn btn-secondary">Manage Students</a>
-          <a href="/admin/classes" className="btn btn-secondary">Manage Classes</a>
-          <a href="/admin/reports" className="btn btn-secondary">Generate Reports</a>
-        </div>
-      </div>
-    </div>
-  );
+    );
 }

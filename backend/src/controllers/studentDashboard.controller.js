@@ -135,8 +135,72 @@ const getStudentClasses = async (req, res) => {
     }
 };
 
+// --- NEW VERIFICATION FUNCTION ---
+const verifyStudent = async (req, res) => {
+    try {
+        const { admission_number, dob } = req.body;
+
+        if (!admission_number || !dob) {
+            return res.status(400).json({ error: "Admission Number and DOB are required" });
+        }
+
+        // Query with Service Key (Admin) to bypass RLS
+        const { data: student, error } = await supabaseAdmin
+            .from('students')
+            .select('id, name')
+            .eq('admission_number', admission_number)
+            .eq('dob', dob)
+            .maybeSingle();
+
+        if (error) {
+            console.error("Supabase Error:", error);
+            return res.status(500).json({ error: "Verification failed due to server error" });
+        }
+
+        if (!student) {
+            return res.status(404).json({ error: "Invalid Admission Number or Date of Birth" });
+        }
+
+        // Construct email
+        const effectiveEmail = `student${admission_number}@anikethana.edu`;
+
+        // Auto-Register Auth User if not exists
+        try {
+            const { error: createError } = await supabaseAdmin.auth.admin.createUser({
+                email: effectiveEmail,
+                password: dob, // Set DOB as password
+                email_confirm: true,
+                user_metadata: {
+                    role: 'STUDENT',
+                    student_id: student.id,
+                    name: student.name
+                }
+            });
+
+            if (createError && !createError.message.includes("already registered")) {
+                console.error("Auto-registration failed:", createError);
+                // We can arguably fail here, or let them try to login if it was a transient error.
+                // But if creation failed really, login will fail too.
+            }
+        } catch (authErr) {
+            console.error("Auth creation exception:", authErr);
+        }
+
+        res.json({
+            success: true,
+            email: effectiveEmail,
+            name: student.name
+        });
+
+    } catch (err) {
+        console.error("Verify Student Error:", err);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+};
+
 module.exports = {
     getStudentMarks,
     getStudentFees,
     getStudentClasses,
+    verifyStudent
 };

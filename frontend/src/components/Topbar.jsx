@@ -1,11 +1,9 @@
-
-
 import { useEffect, useState } from "react";
 import { supabase } from "../services/supabaseClient";
 import { useAuth } from "../context/AuthContext";
 import { useAcademicYear } from "../context/AcademicYearContext";
 import { fetchAcademicYears } from "../services/adminApi";
-import { LogOut, KeyRound, X } from "lucide-react";
+import { LogOut, KeyRound, X, ChevronDown } from "lucide-react";
 
 export default function Topbar() {
   const { user } = useAuth();
@@ -53,63 +51,85 @@ export default function Topbar() {
 
   return (
     <>
-      <header className="page-header" style={{ marginBottom: 0, padding: "var(--spacing-lg)", borderBottom: "1px solid var(--border-color)", background: "var(--bg-secondary)" }}>
-        <h2 style={{ margin: 0, fontSize: "1.25rem" }}>
-          Welcome, {user?.email?.split('@')[0]}
+      <header className="page-header" style={{
+        marginBottom: 0,
+        padding: "1rem 2rem",
+        borderBottom: "1px solid var(--border-soft)",
+        background: "white",
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "center",
+        boxShadow: "var(--shadow-sm)"
+      }}>
+        <h2 style={{ margin: 0, fontSize: "1.25rem", color: "var(--text-primary)" }}>
+          Welcome, <span className="text-royal">{user?.email?.split('@')[0]}</span>
         </h2>
 
-        <div style={{ display: "flex", alignItems: "center", gap: "var(--spacing-md)" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: "var(--spacing-sm)" }}>
-            <label style={{ fontSize: "0.9rem", color: "var(--text-secondary)" }}>Year:</label>
-            <select
-              value={academicYearId || ""}
-              onChange={(e) => setAcademicYearId(e.target.value)}
-              style={{ width: "auto", padding: "0.5rem" }}
-            >
-              {years.map((y) => (
-                <option key={y.id} value={y.id}>
-                  {y.year_name} ({y.start_date} - {y.end_date})
-                </option>
-              ))}
-            </select>
+        <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+            <label style={{ fontSize: "0.85rem", color: "var(--text-secondary)", fontWeight: 500 }}>Year:</label>
+            <div style={{ position: "relative" }}>
+              <select
+                value={academicYearId || ""}
+                onChange={(e) => setAcademicYearId(e.target.value)}
+                style={{
+                  width: "auto",
+                  padding: "0.4rem 2rem 0.4rem 0.75rem",
+                  fontSize: "0.9rem",
+                  borderColor: "var(--border-soft)",
+                  appearance: "none",
+                  background: "white",
+                  cursor: "pointer"
+                }}
+              >
+                {years.map((y) => (
+                  <option key={y.id} value={y.id}>
+                    {y.year_name}
+                  </option>
+                ))}
+              </select>
+              <ChevronDown size={14} style={{ position: "absolute", right: "10px", top: "50%", transform: "translateY(-50%)", pointerEvents: "none", color: "var(--text-secondary)" }} />
+            </div>
           </div>
 
-          <button
-            onClick={() => setShowPasswordModal(true)}
-            className="btn btn-secondary"
-            style={{ padding: "0.5rem" }}
-            title="Change Password"
-          >
-            <KeyRound size={18} />
-          </button>
+          <div className="flex gap-sm">
+            <button
+              onClick={() => setShowPasswordModal(true)}
+              className="btn btn-secondary"
+              style={{ padding: "0.5rem" }}
+              title="Change Password"
+            >
+              <KeyRound size={18} />
+            </button>
 
-          <button
-            onClick={handleLogout}
-            className="btn btn-secondary"
-            style={{ padding: "0.5rem" }}
-            title="Logout"
-          >
-            <LogOut size={18} />
-          </button>
+            <button
+              onClick={handleLogout}
+              className="btn btn-secondary"
+              style={{ padding: "0.5rem", color: "var(--ribbon-red)", borderColor: "var(--border-soft)" }}
+              title="Logout"
+            >
+              <LogOut size={18} />
+            </button>
+          </div>
         </div>
       </header>
 
       {showPasswordModal && (
         <div style={{
-          position: "fixed", top: 0, left: 0, right: 0, bottom: 0,
-          background: "rgba(0,0,0,0.7)", display: "flex", justifyContent: "center", alignItems: "center", zIndex: 1000
+          position: "fixed", inset: 0,
+          background: "rgba(0,0,0,0.4)", display: "flex", justifyContent: "center", alignItems: "center", zIndex: 1000
         }}>
-          <div className="card" style={{ width: "400px", position: "relative" }}>
+          <div className="card" style={{ width: "400px", position: "relative", marginBottom: 0 }}>
             <button
               onClick={() => setShowPasswordModal(false)}
-              style={{ position: "absolute", top: "10px", right: "10px", background: "none", border: "none", color: "var(--text-secondary)", cursor: "pointer" }}
+              style={{ position: "absolute", top: "15px", right: "15px", background: "none", border: "none", color: "var(--text-muted)", cursor: "pointer" }}
             >
               <X size={20} />
             </button>
             <h3>Change Password</h3>
-            <form onSubmit={handleChangePassword}>
-              <div className="input-group">
-                <label>New Password</label>
+            <form onSubmit={handleChangePassword} style={{ marginTop: "1.5rem" }}>
+              <div className="input-group" style={{ marginBottom: "1rem" }}>
+                <label style={{ display: "block", marginBottom: "0.5rem", fontSize: "0.9rem", fontWeight: 500 }}>New Password</label>
                 <input
                   type="password"
                   value={newPassword}

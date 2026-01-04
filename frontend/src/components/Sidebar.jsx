@@ -1,14 +1,21 @@
-
+import { useState, useEffect } from "react";
 import {
   Home, Users, BookOpen, Layers,
-  GraduationCap, FileText, DollarSign, Calendar
+  GraduationCap, FileText, DollarSign, Calendar, Menu, X
 } from "lucide-react";
-import { NavLink } from "react-router-dom";
+import { NavLink, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
 export default function Sidebar() {
   const { user } = useAuth();
   const role = user?.user_metadata?.role || user?.app_metadata?.role || "STUDENT";
+  const [isOpen, setIsOpen] = useState(false);
+  const location = useLocation();
+
+  // Close sidebar on route change (mobile)
+  useEffect(() => {
+    setIsOpen(false);
+  }, [location.pathname]);
 
   const menus = {
     ADMIN: [
@@ -34,32 +41,67 @@ export default function Sidebar() {
   const currentLinks = menus[role] || menus.STUDENT;
 
   return (
-    <aside className="sidebar">
-      <div className="sidebar-title">
-        <Layers size={28} />
-        <span>School ERP</span>
-      </div>
+    <>
+      <button
+        className="btn md:hidden"
+        style={{
+          position: 'fixed',
+          top: '1rem',
+          left: '1rem',
+          zIndex: 100,
+          width: '40px',
+          height: '40px',
+          padding: 0,
+          background: 'white',
+          border: '1px solid var(--border-soft)',
+          borderRadius: '50%',
+          boxShadow: 'var(--shadow-md)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          color: 'var(--royal-blue)'
+        }}
+        onClick={() => setIsOpen(!isOpen)}
+      >
+        {isOpen ? <X size={20} /> : <Menu size={20} />}
+      </button>
 
-      <nav style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-        {currentLinks.map(({ name, path, icon: Icon }) => (
-          <NavLink
-            key={name}
-            to={path}
-            className={({ isActive }) =>
-              `nav-link ${isActive ? "active" : ""}`
-            }
-          >
-            <Icon size={20} style={{ marginRight: "12px" }} />
-            {name}
-          </NavLink>
-        ))}
-      </nav>
+      {/* Backdrop for mobile */}
+      {isOpen && (
+        <div
+          className="fixed inset-0 bg-black/20 z-40 md:hidden"
+          style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.3)', zIndex: 40 }}
+          onClick={() => setIsOpen(false)}
+        />
+      )}
 
-      <div style={{ marginTop: "auto", paddingTop: "20px", borderTop: "1px solid var(--border-color)" }}>
-        <p style={{ color: "var(--text-secondary)", fontSize: "0.8rem", textAlign: "center" }}>
-          Role: {role}
-        </p>
-      </div>
-    </aside>
+      <aside className={`sidebar ${isOpen ? "open" : ""}`}>
+        <div className="sidebar-title">
+          <img src="/logo.png" alt="Logo" style={{ width: 32, height: 32 }} />
+          <span>Anikethana</span>
+        </div>
+
+        <nav style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+          {currentLinks.map(({ name, path, icon: Icon }) => (
+            <NavLink
+              key={name}
+              to={path}
+              className={({ isActive }) =>
+                `nav-link ${isActive ? "active" : ""}`
+              }
+            >
+              <Icon size={20} style={{ marginRight: "12px" }} />
+              {name}
+            </NavLink>
+          ))}
+        </nav>
+
+        <div style={{ marginTop: "auto", paddingTop: "20px", borderTop: "1px solid var(--border-soft)" }}>
+          <p style={{ color: "var(--text-muted)", fontSize: "0.8rem", textAlign: "center" }}>
+            {role} Portal
+          </p>
+        </div>
+      </aside>
+    </>
   );
 }
