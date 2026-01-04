@@ -113,7 +113,7 @@ export default function Login() {
     e.preventDefault();
     setResetLoading(true);
     const { error } = await supabase.auth.resetPasswordForEmail(resetEmail, {
-      redirectTo: "http://localhost:5173/update-password", // You'd need a route for this ideally
+      redirectTo: `${window.location.origin}/update-password`,
     });
     setResetLoading(false);
     if (error) alert("Error: " + error.message);
