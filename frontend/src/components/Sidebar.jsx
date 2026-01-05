@@ -46,12 +46,10 @@ export default function Sidebar() {
         className="btn md:hidden"
         style={{
           position: 'fixed',
-          top: '1rem',
+          top: '0.75rem',
           left: '1rem',
           zIndex: 100,
-          width: '40px',
-          height: '40px',
-          padding: 0,
+          padding: '0.5rem',
           background: 'white',
           border: '1px solid var(--border-soft)',
           borderRadius: '50%',
@@ -63,7 +61,7 @@ export default function Sidebar() {
         }}
         onClick={() => setIsOpen(!isOpen)}
       >
-        {isOpen ? <X size={20} /> : <Menu size={20} />}
+        {isOpen ? <X size={24} /> : <Menu size={24} />}
       </button>
 
       {/* Backdrop for mobile */}

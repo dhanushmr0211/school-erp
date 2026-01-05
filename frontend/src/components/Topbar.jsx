@@ -61,7 +61,7 @@ export default function Topbar() {
         alignItems: "center",
         boxShadow: "var(--shadow-sm)"
       }}>
-        <h2 style={{ margin: 0, fontSize: "1.25rem", color: "var(--text-primary)" }}>
+        <h2 className="topbar-welcome" style={{ margin: 0, fontSize: "1.25rem", color: "var(--text-primary)" }}>
           Welcome, <span className="text-royal">{user?.email?.split('@')[0]}</span>
         </h2>
 
