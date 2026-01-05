@@ -57,7 +57,7 @@ export default function Login() {
       // 1. Verify Student Credentials against Database
       // Note: 'password' state holds the DOB for students
       try {
-        const response = await fetch("http://localhost:5000/student/verify", {
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/student/verify`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ admission_number: admissionNumber, dob: password })
