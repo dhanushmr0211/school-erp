@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import {
   Home, Users, BookOpen, Layers,
-  GraduationCap, FileText, DollarSign, Calendar, Menu, X
+  GraduationCap, FileText, DollarSign, Calendar, Menu, X, MessageSquare
 } from "lucide-react";
 import { NavLink, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
@@ -27,6 +27,7 @@ export default function Sidebar() {
       { name: "Promote Class", path: "/admin/promote-class", icon: Layers },
       { name: "Students & Fees", path: "/admin/students", icon: GraduationCap },
       { name: "Reports", path: "/admin/reports", icon: FileText },
+      { name: "Queries", path: "/admin/queries", icon: MessageSquare },
     ],
     FACULTY: [
       { name: "Dashboard", path: "/faculty/dashboard", icon: Home },

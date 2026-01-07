@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { User, ChevronDown, GraduationCap, BookOpen, Users, LogIn, ArrowRight } from "lucide-react";
+import { User, ChevronDown, GraduationCap, BookOpen, Users, LogIn, ArrowRight, Send } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { supabase } from "../services/supabaseClient";
 
 export default function LandingPage() {
     const navigate = useNavigate();
@@ -137,8 +138,17 @@ export default function LandingPage() {
                 </div>
             </section>
 
+
+            {/* Contact Section */}
+            <section className="container" style={{ paddingBottom: "5rem" }}>
+                <div className="card" style={{ maxWidth: "600px", margin: "0 auto" }}>
+                    <h3 style={{ textAlign: "center", marginBottom: "1.5rem" }}>Get in Touch</h3>
+                    <ContactForm />
+                </div>
+            </section>
+
             {/* Footer */}
-            <footer style={{ borderTop: "1px solid var(--glass-border)", padding: "3rem 1rem", background: "rgba(0,0,0,0.2)" }}>
+            <footer style={{ borderTop: "1px solid var(--glass-border)", padding: "3rem 1rem", background: "rgba(217, 119, 232, 0.85)" }}>
                 <div className="container text-center">
                     <div className="flex items-center justify-center gap-sm mb-md opacity-50">
                         <img src="/logo.png" alt="Logo" style={{ width: "30px", filter: "grayscale(1)" }} />
@@ -161,5 +171,72 @@ function FeatureCard({ icon, title, desc }) {
             <h3 style={{ fontSize: "1.25rem", marginBottom: "0.5rem" }}>{title}</h3>
             <p className="text-gray" style={{ fontSize: "0.95rem" }}>{desc}</p>
         </div>
+    );
+}
+
+function ContactForm() {
+    const [formData, setFormData] = useState({ name: "", phone: "", query: "" });
+    const [loading, setLoading] = useState(false);
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setLoading(true);
+
+        const { error } = await supabase.from("contact_queries").insert([
+            { name: formData.name, phone: formData.phone, query: formData.query }
+        ]);
+
+        setLoading(false);
+
+        if (error) {
+            alert("Error sending message: " + error.message);
+        } else {
+            alert("Message sent successfully!");
+            setFormData({ name: "", phone: "", query: "" });
+        }
+    };
+
+    return (
+        <form onSubmit={handleSubmit} className="space-y-4" style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            <div>
+                <label className="text-sm font-semibold text-gray-400">Your Name</label>
+                <input
+                    type="text"
+                    required
+                    value={formData.name}
+                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    placeholder="John Doe"
+                />
+            </div>
+            <div>
+                <label className="text-sm font-semibold text-gray-400">Phone Number</label>
+                <input
+                    type="tel"
+                    required
+                    value={formData.phone}
+                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                    placeholder="+91 98765 43210"
+                />
+            </div>
+            <div>
+                <label className="text-sm font-semibold text-gray-400">Query</label>
+                <textarea
+                    required
+                    value={formData.query}
+                    onChange={(e) => setFormData({ ...formData, query: e.target.value })}
+                    placeholder="How can we help you?"
+                    rows={4}
+                    style={{ width: "100%", padding: "0.75rem", borderRadius: "0.5rem", border: "1px solid var(--border-soft)" }}
+                />
+            </div>
+            <button
+                type="submit"
+                disabled={loading}
+                className="btn btn-primary w-full"
+                style={{ justifyContent: 'center' }}
+            >
+                {loading ? "Sending..." : <>Send Message <Send size={18} /></>}
+            </button>
+        </form>
     );
 }

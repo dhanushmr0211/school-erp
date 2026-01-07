@@ -17,6 +17,7 @@ import FacultyPage from "./pages/admin/FacultyPage";
 import Classes from "./pages/admin/Classes";
 import Students from "./pages/admin/Students";
 import Reports from "./pages/admin/Reports";
+import Queries from "./pages/admin/Queries";
 import PromoteClass from "./pages/admin/PromoteClass";
 
 // Faculty Pages
@@ -47,6 +48,7 @@ export default function App() {
               <Route path="/admin/classes" element={<ProtectedRoute role="ADMIN"><Classes /></ProtectedRoute>} />
               <Route path="/admin/students" element={<ProtectedRoute role="ADMIN"><Students /></ProtectedRoute>} />
               <Route path="/admin/reports" element={<ProtectedRoute role="ADMIN"><Reports /></ProtectedRoute>} />
+              <Route path="/admin/queries" element={<ProtectedRoute role="ADMIN"><Queries /></ProtectedRoute>} />
               <Route path="/admin/promote-class" element={<ProtectedRoute role="ADMIN"><PromoteClass /></ProtectedRoute>} />
 
 
