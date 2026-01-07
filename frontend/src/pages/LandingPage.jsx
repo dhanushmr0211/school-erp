@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { User, ChevronDown, GraduationCap, BookOpen, Users, LogIn, ArrowRight, Send } from "lucide-react";
+import { User, ChevronDown, GraduationCap, BookOpen, Users, LogIn, ArrowRight, Send, MapPin, Phone, Mail, Navigation } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "../services/supabaseClient";
 
@@ -49,36 +49,83 @@ export default function LandingPage() {
                         </h1>
                     </div>
 
-                    <div style={{ position: "relative" }}>
+                    {/* Center Navigation */}
+                    {/* Center Navigation */}
+                    <div style={{ display: "flex", alignItems: "center", gap: "2rem" }} className="hidden md:flex">
+                        {["Home", "About", "Course", "Gallery", "Teacher", "Blog", "Contact"].map((item) => (
+                            <button
+                                key={item}
+                                onClick={() => {
+                                    if (item === "Contact") {
+                                        document.getElementById('contact').scrollIntoView({ behavior: 'smooth' });
+                                    } else if (item === "About") {
+                                        document.getElementById('features').scrollIntoView({ behavior: 'smooth' });
+                                    } else if (item === "Gallery") {
+                                        document.getElementById('gallery').scrollIntoView({ behavior: 'smooth' });
+                                    } else {
+                                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                                    }
+                                }}
+                                style={{
+                                    background: "none", border: "none", fontSize: "1rem", fontWeight: 600,
+                                    color: "#1e293b", cursor: "pointer", transition: "color 0.2s"
+                                }}
+                                onMouseEnter={(e) => e.target.style.color = "#4f46e5"}
+                                onMouseLeave={(e) => e.target.style.color = "#1e293b"}
+                            >
+                                {item}
+                            </button>
+                        ))}
+                    </div>
+
+                    <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
                         <button
-                            onClick={() => setDropdownOpen(!dropdownOpen)}
+                            onClick={() => document.getElementById('contact').scrollIntoView({ behavior: 'smooth' })}
                             className="btn"
                             style={{
                                 padding: "0.5rem 1.25rem",
-                                borderRadius: "2rem",
-                                gap: "0.5rem",
-                                background: "white",
-                                border: "1px solid #e2e8f0",
-                                color: "#475569",
-                                boxShadow: "0 1px 2px rgba(0,0,0,0.05)"
+                                borderRadius: "0.5rem",
+                                background: "#f59e0b",
+                                color: "white",
+                                fontWeight: 600,
+                                border: "none",
+                                boxShadow: "0 2px 4px rgba(245, 158, 11, 0.3)"
                             }}
                         >
-                            <User size={18} />
-                            <span>Login Portal</span>
-                            <ChevronDown size={16} />
+                            Admission Now
                         </button>
 
-                        {dropdownOpen && (
-                            <div className="card" style={{
-                                position: "absolute", top: "120%", right: 0, width: "220px", padding: "0.5rem",
-                                display: "flex", flexDirection: "column", gap: "0.25rem", zIndex: 101,
-                                boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.1)"
-                            }}>
-                                <RoleOption label="Admin Login" icon={<BookOpen size={16} />} onClick={() => handleLogin('ADMIN')} />
-                                <RoleOption label="Faculty Login" icon={<Users size={16} />} onClick={() => handleLogin('FACULTY')} />
-                                <RoleOption label="Student Login" icon={<GraduationCap size={16} />} onClick={() => handleLogin('STUDENT')} />
-                            </div>
-                        )}
+                        <div style={{ position: "relative" }}>
+                            <button
+                                onClick={() => setDropdownOpen(!dropdownOpen)}
+                                className="btn"
+                                style={{
+                                    padding: "0.5rem 1rem",
+                                    borderRadius: "2rem",
+                                    gap: "0.5rem",
+                                    background: "white",
+                                    border: "1px solid #e2e8f0",
+                                    color: "#475569",
+                                    boxShadow: "0 1px 2px rgba(0,0,0,0.05)"
+                                }}
+                            >
+                                <User size={18} />
+                                <span className="hidden sm:inline">Login</span>
+                                <ChevronDown size={16} />
+                            </button>
+
+                            {dropdownOpen && (
+                                <div className="card" style={{
+                                    position: "absolute", top: "120%", right: 0, width: "220px", padding: "0.5rem",
+                                    display: "flex", flexDirection: "column", gap: "0.25rem", zIndex: 101,
+                                    boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.1)"
+                                }}>
+                                    <RoleOption label="Admin Login" icon={<BookOpen size={16} />} onClick={() => handleLogin('ADMIN')} />
+                                    <RoleOption label="Faculty Login" icon={<Users size={16} />} onClick={() => handleLogin('FACULTY')} />
+                                    <RoleOption label="Student Login" icon={<GraduationCap size={16} />} onClick={() => handleLogin('STUDENT')} />
+                                </div>
+                            )}
+                        </div>
                     </div>
                 </div>
             </nav>
@@ -147,7 +194,7 @@ export default function LandingPage() {
             </section>
 
             {/* Gallery Section */}
-            <section className="container" style={{ paddingBottom: "5rem" }}>
+            <section id="gallery" className="container" style={{ paddingBottom: "5rem" }}>
                 <h3 style={{ textAlign: "center", marginBottom: "3rem" }}>Campus Life</h3>
                 <div style={{
                     display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "1.5rem"
@@ -165,10 +212,91 @@ export default function LandingPage() {
 
 
             {/* Contact Section */}
-            <section className="container" style={{ paddingBottom: "5rem" }}>
-                <div className="card" style={{ maxWidth: "600px", margin: "0 auto" }}>
-                    <h3 style={{ textAlign: "center", marginBottom: "1.5rem" }}>Get in Touch</h3>
-                    <ContactForm />
+            {/* Contact Section */}
+            <section id="contact" className="container" style={{ paddingBottom: "5rem" }}>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(350px, 1fr))", gap: "2rem" }}>
+
+                    {/* Left: Contact Form */}
+                    <div>
+                        <div className="card" style={{ padding: "2rem", height: "100%", borderTop: "4px solid var(--royal-blue)" }}>
+                            <h3 className="text-royal" style={{ fontSize: "1.75rem", marginBottom: "2rem", fontWeight: 700 }}>Write a Message</h3>
+                            <ContactForm />
+                        </div>
+                    </div>
+
+                    {/* Right: Location & Info */}
+                    <div>
+                        <div className="card" style={{ padding: "2rem", height: "100%", borderTop: "4px solid var(--rose)" }}>
+                            <h3 className="text-royal" style={{ fontSize: "1.75rem", marginBottom: "2rem", fontWeight: 700 }}>Our Location</h3>
+
+                            <div style={{ display: "flex", flexDirection: "column", gap: "2rem" }}>
+                                <div style={{ display: "flex", gap: "1rem" }}>
+                                    <div style={{
+                                        width: "48px", height: "48px", borderRadius: "50%", background: "#ef4444",
+                                        display: "flex", alignItems: "center", justifyContent: "center", color: "white", flexShrink: 0
+                                    }}>
+                                        <MapPin size={24} />
+                                    </div>
+                                    <div>
+                                        <h4 style={{ fontSize: "1.1rem", marginBottom: "0.25rem", color: "#1f2937" }}>Address</h4>
+                                        <p className="text-gray" style={{ lineHeight: 1.5 }}>
+                                            Chikkamagalur, Kadur Rd,<br />
+                                            9th Cross, Karnataka<br />
+                                            Pin Code: 577138
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <div style={{ display: "flex", gap: "1rem" }}>
+                                    <div style={{
+                                        width: "48px", height: "48px", borderRadius: "50%", background: "#ef4444",
+                                        display: "flex", alignItems: "center", justifyContent: "center", color: "white", flexShrink: 0
+                                    }}>
+                                        <Phone size={24} />
+                                    </div>
+                                    <div>
+                                        <h4 style={{ fontSize: "1.1rem", marginBottom: "0.25rem", color: "#1f2937" }}>Phone Number</h4>
+                                        <p className="text-gray">7411291438</p>
+                                    </div>
+                                </div>
+
+                                <div style={{ display: "flex", gap: "1rem" }}>
+                                    <div style={{
+                                        width: "48px", height: "48px", borderRadius: "50%", background: "#ef4444",
+                                        display: "flex", alignItems: "center", justifyContent: "center", color: "white", flexShrink: 0
+                                    }}>
+                                        <Mail size={24} />
+                                    </div>
+                                    <div>
+                                        <h4 style={{ fontSize: "1.1rem", marginBottom: "0.25rem", color: "#1f2937" }}>Email Address</h4>
+                                        <p className="text-gray" style={{ wordBreak: "break-all" }}>aesanikethanaschool@gmail.com</p>
+                                    </div>
+                                </div>
+
+                                <div style={{ display: "flex", gap: "1rem" }}>
+                                    <div style={{
+                                        width: "48px", height: "48px", borderRadius: "50%", background: "#ef4444",
+                                        display: "flex", alignItems: "center", justifyContent: "center", color: "white", flexShrink: 0
+                                    }}>
+                                        <Navigation size={24} />
+                                    </div>
+                                    <div>
+                                        <h4 style={{ fontSize: "1.1rem", marginBottom: "0.25rem", color: "#1f2937" }}>Google Maps</h4>
+                                        <a
+                                            href="https://maps.app.goo.gl/CAW4i7gLEbWX7bXZ8?g_st=aw"
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="text-royal hover:underline"
+                                            style={{ color: "var(--royal-blue)" }}
+                                        >
+                                            View Location
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
             </section>
 
