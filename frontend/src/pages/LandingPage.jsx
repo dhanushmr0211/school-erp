@@ -35,34 +35,44 @@ export default function LandingPage() {
     return (
         <div className="animate-fade-in" style={{ minHeight: "100vh" }}>
             {/* Navbar */}
+            {/* Navbar */}
             <nav style={{
                 position: "fixed", top: 0, width: "100%", zIndex: 100,
-                background: "rgba(162, 136, 209, 0.85)", backdropFilter: "blur(12px)",
-                borderBottom: "1px solid var(--glass-border)"
+                background: "rgba(255, 255, 255, 0.95)", backdropFilter: "blur(8px)",
+                borderBottom: "1px solid var(--border-soft)"
             }}>
                 <div className="container" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "1rem" }}>
                     <div className="flex items-center gap-md">
-                        <img src="/logo.png" alt="Logo" style={{ width: "40px", height: "40px", borderRadius: "50%", border: "2px solid var(--accent-violet)" }} />
-                        <h1 style={{ fontSize: "1.25rem", margin: 0, background: "none", WebkitTextFillColor: "white" }}>
-                            Anikethana <span className="text-violet">Education</span>
+                        <img src="/logo.png" alt="Logo" style={{ width: "45px", height: "45px" }} />
+                        <h1 style={{ fontSize: "1.5rem", margin: 0, color: "#4f46e5", fontWeight: 700 }}>
+                            Anikethana <span style={{ color: "#4338ca" }}>Educational Institution</span>
                         </h1>
                     </div>
 
                     <div style={{ position: "relative" }}>
                         <button
                             onClick={() => setDropdownOpen(!dropdownOpen)}
-                            className="btn btn-secondary"
-                            style={{ padding: "0.5rem 1rem", borderRadius: "2rem", gap: "0.5rem" }}
+                            className="btn"
+                            style={{
+                                padding: "0.5rem 1.25rem",
+                                borderRadius: "2rem",
+                                gap: "0.5rem",
+                                background: "white",
+                                border: "1px solid #e2e8f0",
+                                color: "#475569",
+                                boxShadow: "0 1px 2px rgba(0,0,0,0.05)"
+                            }}
                         >
                             <User size={18} />
-                            <span>Portal Login</span>
+                            <span>Login Portal</span>
                             <ChevronDown size={16} />
                         </button>
 
                         {dropdownOpen && (
                             <div className="card" style={{
                                 position: "absolute", top: "120%", right: 0, width: "220px", padding: "0.5rem",
-                                display: "flex", flexDirection: "column", gap: "0.25rem", zIndex: 101
+                                display: "flex", flexDirection: "column", gap: "0.25rem", zIndex: 101,
+                                boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.1)"
                             }}>
                                 <RoleOption label="Admin Login" icon={<BookOpen size={16} />} onClick={() => handleLogin('ADMIN')} />
                                 <RoleOption label="Faculty Login" icon={<Users size={16} />} onClick={() => handleLogin('FACULTY')} />
@@ -74,32 +84,47 @@ export default function LandingPage() {
             </nav>
 
             {/* Hero */}
-            <header className="container" style={{ paddingTop: "10rem", paddingBottom: "5rem", textAlign: "center" }}>
+            <header className="container" style={{ paddingTop: "12rem", paddingBottom: "6rem", textAlign: "center" }}>
                 <div className="animate-fade-in stagger-1">
-                    <span className="badge badge-blue" style={{ marginBottom: "1rem", display: "inline-block" }}>Excellence Since 2010</span>
-                    <h2 style={{ fontSize: "4rem", lineHeight: 1.1, marginBottom: "1.5rem" }}>
-                        The Future of <br />
-                        <span className="text-violet">Learning</span> & <span className="text-rose">Innovation</span>
+                    <h2 style={{ fontSize: "4.5rem", lineHeight: 1.1, marginBottom: "1.5rem", color: "#1e293b", fontWeight: 800 }}>
+                        Excellence in <span style={{ color: "#6366f1" }}>Education</span> since 15 years
                     </h2>
                 </div>
 
-                <p className="text-gray animate-fade-in stagger-2" style={{ fontSize: "1.25rem", maxWidth: "700px", margin: "0 auto 2.5rem" }}>
-                    Empowering the next generation with world-class facilities and a holistic approach to education.
+                <p className="text-gray animate-fade-in stagger-2" style={{ fontSize: "1.25rem", maxWidth: "700px", margin: "0 auto 3rem", lineHeight: 1.6 }}>
+                    Empowering the next generation of leaders with world-class facilities, experienced faculty, and a holistic approach to learning.
                 </p>
 
                 <div className="animate-fade-in stagger-3">
                     <button
                         onClick={() => document.getElementById('features').scrollIntoView({ behavior: 'smooth' })}
-                        className="btn btn-primary"
-                        style={{ fontSize: "1.1rem", padding: "1rem 2rem" }}
+                        className="btn"
+                        style={{
+                            fontSize: "1.1rem",
+                            padding: "1rem 2.5rem",
+                            background: "linear-gradient(90deg, #4f46e5 0%, #7c3aed 100%)",
+                            color: "white",
+                            border: "none",
+                            borderRadius: "0.5rem",
+                            boxShadow: "0 4px 6px -1px rgba(79, 70, 229, 0.3)"
+                        }}
                     >
-                        Explore Campus <ArrowRight size={18} />
+                        Explore Campus
                     </button>
                 </div>
             </header>
 
             {/* Features Grid */}
             <section id="features" className="container" style={{ paddingBottom: "5rem" }}>
+                <div style={{ textAlign: "center", marginBottom: "4rem" }}>
+                    <h3 style={{ fontSize: "0.875rem", color: "#4f46e5", textTransform: "uppercase", letterSpacing: "0.05em", fontWeight: 700, marginBottom: "0.5rem" }}>
+                        About Our School
+                    </h3>
+                    <h2 style={{ fontSize: "2.5rem", color: "#1e293b", fontWeight: 800 }}>
+                        Where Potential Meets Opportunity
+                    </h2>
+                </div>
+
                 <div style={{
                     display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: "2rem"
                 }}>
@@ -205,7 +230,7 @@ function ContactForm() {
                     required
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    placeholder="John Doe"
+                    placeholder="your name"
                 />
             </div>
             <div>
