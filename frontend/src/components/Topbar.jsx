@@ -3,7 +3,7 @@ import { supabase } from "../services/supabaseClient";
 import { useAuth } from "../context/AuthContext";
 import { useAcademicYear } from "../context/AcademicYearContext";
 import { fetchAcademicYears } from "../services/adminApi";
-import { LogOut, KeyRound, X, ChevronDown } from "lucide-react";
+import { LogOut, KeyRound, X, ChevronDown, Eye, EyeOff } from "lucide-react";
 
 export default function Topbar() {
   const { user } = useAuth();
@@ -11,6 +11,7 @@ export default function Topbar() {
   const [years, setYears] = useState([]);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [newPassword, setNewPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -130,13 +131,31 @@ export default function Topbar() {
             <form onSubmit={handleChangePassword} style={{ marginTop: "1.5rem" }}>
               <div className="input-group" style={{ marginBottom: "1rem" }}>
                 <label style={{ display: "block", marginBottom: "0.5rem", fontSize: "0.9rem", fontWeight: 500 }}>New Password</label>
-                <input
-                  type="password"
-                  value={newPassword}
-                  onChange={(e) => setNewPassword(e.target.value)}
-                  placeholder="Min 6 chars"
-                  required
-                />
+                <div style={{ position: "relative" }}>
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    placeholder="Min 6 chars"
+                    required
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    style={{
+                      position: "absolute",
+                      right: "10px",
+                      top: "50%",
+                      transform: "translateY(-50%)",
+                      background: "none",
+                      border: "none",
+                      cursor: "pointer",
+                      color: "var(--text-muted)"
+                    }}
+                  >
+                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </button>
+                </div>
               </div>
               <button type="submit" className="btn btn-primary w-full" disabled={loading}>
                 {loading ? "Updating..." : "Update Password"}
