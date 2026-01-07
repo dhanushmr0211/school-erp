@@ -1,11 +1,12 @@
 import { useState } from "react";
-import { User, ChevronDown, GraduationCap, BookOpen, Users, LogIn, ArrowRight, Send, MapPin, Phone, Mail, Navigation } from "lucide-react";
+import { User, ChevronDown, GraduationCap, BookOpen, Users, LogIn, ArrowRight, Send, MapPin, Phone, Mail, Navigation, Menu, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "../services/supabaseClient";
 
 export default function LandingPage() {
     const navigate = useNavigate();
     const [dropdownOpen, setDropdownOpen] = useState(false);
+    const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
     const handleLogin = (role) => {
         navigate(`/login?role=${role}`);
@@ -45,12 +46,20 @@ export default function LandingPage() {
                     <div className="flex items-center gap-md">
                         <img src="/logo.png" alt="Logo" style={{ width: "45px", height: "45px" }} />
                         <h1 style={{ fontSize: "1.5rem", margin: 0, color: "#4f46e5", fontWeight: 700 }}>
-                            Anikethana <span style={{ color: "#4338ca" }}>Educational Institution</span>
+                            Anikethana <span style={{ color: "#4338ca", display: "none" }} className="md:inline">Educational Institution</span>
                         </h1>
                     </div>
 
-                    {/* Center Navigation */}
-                    {/* Center Navigation */}
+                    {/* Mobile Toggle */}
+                    <button
+                        className="md:hidden"
+                        onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                        style={{ background: "none", border: "none", color: "#1e293b", cursor: "pointer" }}
+                    >
+                        {mobileMenuOpen ? <X size={28} /> : <Menu size={28} />}
+                    </button>
+
+                    {/* Desktop Navigation */}
                     <div style={{ display: "flex", alignItems: "center", gap: "2rem" }} className="hidden md:flex">
                         {["Home", "About", "Course", "Gallery", "Teacher", "Blog", "Contact"].map((item) => (
                             <button
@@ -78,12 +87,13 @@ export default function LandingPage() {
                         ))}
                     </div>
 
-                    <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+                    {/* Desktop Actions */}
+                    <div className="hidden md:flex" style={{ alignItems: "center", gap: "1rem" }}>
                         <button
                             onClick={() => document.getElementById('contact').scrollIntoView({ behavior: 'smooth' })}
                             className="btn"
                             style={{
-                                padding: "0.5rem 1.25rem",
+                                padding: "0.5rem 1rem",
                                 borderRadius: "0.5rem",
                                 background: "#f59e0b",
                                 color: "white",
@@ -128,6 +138,57 @@ export default function LandingPage() {
                         </div>
                     </div>
                 </div>
+
+                {/* Mobile Menu Overlay */}
+                {mobileMenuOpen && (
+                    <div className="md:hidden animate-fade-in" style={{
+                        position: "absolute", top: "100%", left: 0, width: "100%",
+                        background: "white", borderBottom: "1px solid var(--border-soft)",
+                        padding: "1rem", display: "flex", flexDirection: "column", gap: "1rem",
+                        boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)"
+                    }}>
+                        {["Home", "About", "Course", "Gallery", "Teacher", "Blog", "Contact"].map((item) => (
+                            <button
+                                key={item}
+                                onClick={() => {
+                                    setMobileMenuOpen(false);
+                                    if (item === "Contact") {
+                                        document.getElementById('contact').scrollIntoView({ behavior: 'smooth' });
+                                    } else if (item === "About") {
+                                        document.getElementById('features').scrollIntoView({ behavior: 'smooth' });
+                                    } else if (item === "Gallery") {
+                                        document.getElementById('gallery').scrollIntoView({ behavior: 'smooth' });
+                                    } else {
+                                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                                    }
+                                }}
+                                style={{
+                                    background: "none", border: "none", fontSize: "1.1rem", fontWeight: 600,
+                                    color: "#1e293b", textAlign: "left", padding: "0.5rem"
+                                }}
+                            >
+                                {item}
+                            </button>
+                        ))}
+                        <hr style={{ border: "none", borderTop: "1px solid var(--border-soft)" }} />
+                        <button
+                            onClick={() => { setMobileMenuOpen(false); document.getElementById('contact').scrollIntoView({ behavior: 'smooth' }); }}
+                            className="btn"
+                            style={{
+                                padding: "0.75rem", borderRadius: "0.5rem", background: "#f59e0b",
+                                color: "white", fontWeight: 600, border: "none", width: "100%", justifyContent: "center"
+                            }}
+                        >
+                            Admission Now
+                        </button>
+                        <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+                            <p style={{ color: "var(--text-muted)", fontSize: "0.9rem", fontWeight: 600 }}>Login Portal</p>
+                            <RoleOption label="Admin Login" icon={<BookOpen size={16} />} onClick={() => handleLogin('ADMIN')} />
+                            <RoleOption label="Faculty Login" icon={<Users size={16} />} onClick={() => handleLogin('FACULTY')} />
+                            <RoleOption label="Student Login" icon={<GraduationCap size={16} />} onClick={() => handleLogin('STUDENT')} />
+                        </div>
+                    </div>
+                )}
             </nav>
 
             {/* Hero */}
