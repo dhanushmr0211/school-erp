@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { User, ChevronDown, GraduationCap, BookOpen, Users, LogIn, ArrowRight, Send, MapPin, Phone, Mail, Navigation, Menu, X } from "lucide-react";
+import { User, ChevronDown, GraduationCap, BookOpen, Users, LogIn, ArrowRight, Send, MapPin, Phone, Mail, Navigation, Menu, X, Facebook, Instagram, Linkedin, Twitter, Dribbble } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "../services/supabaseClient";
 
@@ -61,7 +61,7 @@ export default function LandingPage() {
                             onClick={() => document.getElementById('contact').scrollIntoView({ behavior: 'smooth' })}
                             className="btn"
                             style={{
-                                padding: "0.5rem 1rem",
+                                padding: "0.5rem 0.5rem",
                                 borderRadius: "0.5rem",
                                 background: "#f59e0b",
                                 color: "white",
@@ -335,6 +335,125 @@ export default function LandingPage() {
                         <img src="/logo.png" alt="Logo" style={{ width: "30px", filter: "grayscale(1)" }} />
                         <span style={{ fontWeight: 700, color: "white" }}>Anikethana</span>
                     </div>
+
+                    {/* Social Media Icons */}
+                    <div style={{ display: "flex", justifyContent: "center", gap: "1rem", marginBottom: "1.5rem" }}>
+                        <a
+                            href="https://facebook.com"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            style={{
+                                width: "48px", height: "48px", borderRadius: "8px",
+                                border: "2px solid rgba(255, 255, 255, 0.3)",
+                                display: "flex", alignItems: "center", justifyContent: "center",
+                                color: "white", transition: "all 0.3s",
+                                background: "rgba(255, 255, 255, 0.1)"
+                            }}
+                            onMouseEnter={(e) => {
+                                e.currentTarget.style.background = "rgba(255, 255, 255, 0.2)";
+                                e.currentTarget.style.borderColor = "white";
+                            }}
+                            onMouseLeave={(e) => {
+                                e.currentTarget.style.background = "rgba(255, 255, 255, 0.1)";
+                                e.currentTarget.style.borderColor = "rgba(255, 255, 255, 0.3)";
+                            }}
+                        >
+                            <Facebook size={20} />
+                        </a>
+
+                        <a
+                            href="https://dribbble.com"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            style={{
+                                width: "48px", height: "48px", borderRadius: "8px",
+                                border: "2px solid rgba(255, 255, 255, 0.3)",
+                                display: "flex", alignItems: "center", justifyContent: "center",
+                                color: "white", transition: "all 0.3s",
+                                background: "rgba(255, 255, 255, 0.1)"
+                            }}
+                            onMouseEnter={(e) => {
+                                e.currentTarget.style.background = "rgba(255, 255, 255, 0.2)";
+                                e.currentTarget.style.borderColor = "white";
+                            }}
+                            onMouseLeave={(e) => {
+                                e.currentTarget.style.background = "rgba(255, 255, 255, 0.1)";
+                                e.currentTarget.style.borderColor = "rgba(255, 255, 255, 0.3)";
+                            }}
+                        >
+                            <Dribbble size={20} />
+                        </a>
+
+                        <a
+                            href="https://www.instagram.com/anikethana2010?igsh=MWo0NWdqZmJrcTg2Yg=="
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            style={{
+                                width: "48px", height: "48px", borderRadius: "8px",
+                                border: "2px solid rgba(255, 255, 255, 0.3)",
+                                display: "flex", alignItems: "center", justifyContent: "center",
+                                color: "white", transition: "all 0.3s",
+                                background: "rgba(255, 255, 255, 0.1)"
+                            }}
+                            onMouseEnter={(e) => {
+                                e.currentTarget.style.background = "rgba(255, 255, 255, 0.2)";
+                                e.currentTarget.style.borderColor = "white";
+                            }}
+                            onMouseLeave={(e) => {
+                                e.currentTarget.style.background = "rgba(255, 255, 255, 0.1)";
+                                e.currentTarget.style.borderColor = "rgba(255, 255, 255, 0.3)";
+                            }}
+                        >
+                            <Instagram size={20} />
+                        </a>
+
+                        <a
+                            href="https://linkedin.com"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            style={{
+                                width: "48px", height: "48px", borderRadius: "8px",
+                                border: "2px solid rgba(255, 255, 255, 0.3)",
+                                display: "flex", alignItems: "center", justifyContent: "center",
+                                color: "white", transition: "all 0.3s",
+                                background: "rgba(255, 255, 255, 0.1)"
+                            }}
+                            onMouseEnter={(e) => {
+                                e.currentTarget.style.background = "rgba(255, 255, 255, 0.2)";
+                                e.currentTarget.style.borderColor = "white";
+                            }}
+                            onMouseLeave={(e) => {
+                                e.currentTarget.style.background = "rgba(255, 255, 255, 0.1)";
+                                e.currentTarget.style.borderColor = "rgba(255, 255, 255, 0.3)";
+                            }}
+                        >
+                            <Linkedin size={20} />
+                        </a>
+
+                        <a
+                            href="https://twitter.com"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            style={{
+                                width: "48px", height: "48px", borderRadius: "8px",
+                                border: "2px solid rgba(255, 255, 255, 0.3)",
+                                display: "flex", alignItems: "center", justifyContent: "center",
+                                color: "white", transition: "all 0.3s",
+                                background: "rgba(255, 255, 255, 0.1)"
+                            }}
+                            onMouseEnter={(e) => {
+                                e.currentTarget.style.background = "rgba(255, 255, 255, 0.2)";
+                                e.currentTarget.style.borderColor = "white";
+                            }}
+                            onMouseLeave={(e) => {
+                                e.currentTarget.style.background = "rgba(255, 255, 255, 0.1)";
+                                e.currentTarget.style.borderColor = "rgba(255, 255, 255, 0.3)";
+                            }}
+                        >
+                            <Twitter size={20} />
+                        </a>
+                    </div>
+
                     <p className="text-gray" style={{ fontSize: "0.9rem" }}>© 2025 Anikethana Educational Institution. All rights reserved.</p>
                 </div>
             </footer>
