@@ -29,10 +29,11 @@ const createStudent = async (req, res) => {
             return res.status(400).json({ error: 'Academic year is required' });
         }
 
-        // 1️⃣ Auto-generate Admission Number
+        // 1️⃣ Auto-generate Admission Number (scoped to academic year)
         const { data: maxAdData } = await supabaseAdmin
             .from('students')
             .select('admission_number')
+            .eq('academic_year_id', academicYearId)
             .order('admission_number', { ascending: false })
             .limit(1)
             .single();

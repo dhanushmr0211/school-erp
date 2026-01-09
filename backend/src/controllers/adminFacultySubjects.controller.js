@@ -15,7 +15,30 @@ const assignSubjectToFaculty = async (req, res) => {
             });
         }
 
-        // 1. Delete existing assignments for this faculty
+        // 1. Get current subject assignments to identify removed subjects
+        const { data: currentAssignments } = await supabaseAdmin
+            .from("faculty_subjects")
+            .select("subject_id")
+            .eq("faculty_id", faculty_id);
+
+        const currentSubjectIds = currentAssignments?.map(a => a.subject_id) || [];
+        const removedSubjectIds = currentSubjectIds.filter(id => !subject_ids.includes(id));
+
+        // 2. If subjects are being removed, clean up class_subject_faculty assignments
+        if (removedSubjectIds.length > 0) {
+            const { error: classCleanupError } = await supabaseAdmin
+                .from("class_subject_faculty")
+                .delete()
+                .eq("faculty_id", faculty_id)
+                .in("subject_id", removedSubjectIds);
+
+            if (classCleanupError) {
+                console.error("Error cleaning up class assignments:", classCleanupError);
+                throw classCleanupError;
+            }
+        }
+
+        // 3. Delete existing faculty_subjects assignments
         const { error: deleteError } = await supabaseAdmin
             .from("faculty_subjects")
             .delete()
@@ -23,7 +46,7 @@ const assignSubjectToFaculty = async (req, res) => {
 
         if (deleteError) throw deleteError;
 
-        // 2. If there are new subjects to assign, insert them
+        // 4. If there are new subjects to assign, insert them
         if (subject_ids.length > 0) {
             const rows = subject_ids.map((subject_id) => ({
                 faculty_id,
