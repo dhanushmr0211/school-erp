@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { User, ChevronDown, GraduationCap, BookOpen, Users, LogIn, ArrowRight, Send, MapPin, Phone, Mail, Navigation, Menu, X, Facebook, Instagram, Linkedin, Twitter, Dribbble } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "../services/supabaseClient";
@@ -7,6 +7,67 @@ export default function LandingPage() {
     const navigate = useNavigate();
     const [dropdownOpen, setDropdownOpen] = useState(false);
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+    const [typewriterText, setTypewriterText] = useState("");
+    const [isDeleting, setIsDeleting] = useState(false);
+    const [loopNum, setLoopNum] = useState(0);
+    const [currentLang, setCurrentLang] = useState(0);
+    const [fadeOut, setFadeOut] = useState(false);
+    const [isEntering, setIsEntering] = useState(false);
+
+    const texts = ["15 years", "2010"];
+    const descriptions = [
+        '"We are committed to the overall development of children through quality, value-based education in a safe environment."',
+        '"ನಾವು ಭದ್ರ ಮತ್ತು ಸಹಾಯಕ ವಾತಾವರಣದಲ್ಲಿ ಗುಣಮಟ್ಟದ ಹಾಗೂ ಮೌಲ್ಯಾಧಾರಿತ ಶಿಕ್ಷಣದ ಮೂಲಕ ಮಕ್ಕಳ ಸಮಗ್ರ ಬೆಳವಣಿಗೆಗೆ ಬದ್ಧರಾಗಿದ್ದೇವೆ."'
+    ];
+
+    // Typewriter effect
+    useEffect(() => {
+        const currentText = texts[loopNum % texts.length];
+
+        let timeout;
+
+        if (!isDeleting && typewriterText === currentText) {
+            // Finished typing, pause then start deleting
+            timeout = setTimeout(() => setIsDeleting(true), 3000);
+        } else if (isDeleting && typewriterText === "") {
+            // Finished deleting, move to next text
+            timeout = setTimeout(() => {
+                setIsDeleting(false);
+                setLoopNum(loopNum + 1);
+            }, 1000);
+        } else {
+            // Continue typing or deleting - faster typing speed
+            const typeSpeed = isDeleting ? 120 : 130;
+            timeout = setTimeout(() => {
+                if (isDeleting) {
+                    setTypewriterText(currentText.substring(0, typewriterText.length - 1));
+                } else {
+                    setTypewriterText(currentText.substring(0, typewriterText.length + 1));
+                }
+            }, typeSpeed);
+        }
+
+        return () => clearTimeout(timeout);
+    }, [typewriterText, isDeleting, loopNum]);
+
+    // Language switching effect
+    useEffect(() => {
+        const interval = setInterval(() => {
+            setFadeOut(true);
+            setTimeout(() => {
+                setCurrentLang((prev) => (prev + 1) % descriptions.length);
+                setIsEntering(true);
+                setTimeout(() => {
+                    setFadeOut(false);
+                    setTimeout(() => {
+                        setIsEntering(false);
+                    }, 100);
+                }, 50);
+            }, 800);
+        }, 6000);
+
+        return () => clearInterval(interval);
+    }, []);
 
     const handleLogin = (role) => {
         navigate(`/login?role=${role}`);
@@ -47,9 +108,14 @@ export default function LandingPage() {
                     {/* Brand */}
                     <div className="flex items-center gap-md">
                         <img src="/logo.png" alt="Logo" style={{ width: "45px", height: "45px" }} />
-                        <h1 style={{ fontSize: "1.5rem", margin: 0, color: "#4f46e5", fontWeight: 700 }}>
-                            Anikethana <span style={{ color: "#4338ca", display: "none" }} className="md:inline">Educational Institution</span>
-                        </h1>
+                        <div style={{ display: "flex", flexDirection: "column", gap: "0.1rem" }}>
+                            <h1 style={{ fontSize: "1.5rem", margin: 0, color: "#4f46e5", fontWeight: 700, lineHeight: 1.2 }}>
+                                Anikethana <span style={{ color: "#4338ca", display: "none" }} className="md:inline">Educational Institution</span>
+                            </h1>
+                            <p style={{ fontSize: "0.75rem", margin: 0, color: "#64748b", fontWeight: 300, letterSpacing: "0.5px" }}>
+                                An English Medium School
+                            </p>
+                        </div>
                     </div>
 
 
@@ -162,12 +228,36 @@ export default function LandingPage() {
             <header className="container" style={{ paddingTop: "12rem", paddingBottom: "6rem", textAlign: "center" }}>
                 <div className="animate-fade-in stagger-1">
                     <h2 style={{ fontSize: "4.5rem", lineHeight: 1.1, marginBottom: "1.5rem", color: "#1e293b", fontWeight: 800 }}>
-                        Excellence in <span style={{ color: "#6366f1" }}>Education</span> since 15 years
+                        Excellence in <span style={{ color: "#6366f1" }}>Education</span> since{" "}
+                        <span style={{
+                            color: "#f59e0b",
+                            borderRight: "2px solid #f59e0b",
+                            paddingRight: "5px",
+                            transition: "all 0.6s cubic-bezier(0.4, 0, 0.2, 1)",
+                            display: "inline-block",
+                            opacity: typewriterText.length > 0 ? 1 : 0.2,
+                            transform: typewriterText.length > 0 ? "translateY(0)" : "translateY(2px)",
+                            filter: typewriterText.length > 0 ? "blur(0px)" : "blur(0.5px)"
+                        }}>
+                            {typewriterText}
+                        </span>
                     </h2>
                 </div>
 
-                <p className="text-gray animate-fade-in stagger-2" style={{ fontSize: "1.25rem", maxWidth: "700px", margin: "0 auto 3rem", lineHeight: 1.6 }}>
-                    Empowering the next generation of leaders with world-class facilities, experienced faculty, and a holistic approach to learning.
+                <p
+                    className="text-gray animate-fade-in stagger-2"
+                    style={{
+                        fontSize: "1.25rem",
+                        maxWidth: "700px",
+                        margin: "0 auto 3rem",
+                        lineHeight: 1.6,
+                        fontStyle: "italic",
+                        transition: "opacity 0.8s ease-in-out, transform 0.8s ease-in-out",
+                        opacity: fadeOut ? 0 : 1,
+                        transform: fadeOut ? "translateY(-20px)" : (isEntering ? "translateY(20px)" : "translateY(0)")
+                    }}
+                >
+                    {descriptions[currentLang]}
                 </p>
 
                 <div className="animate-fade-in stagger-3">
@@ -329,7 +419,7 @@ export default function LandingPage() {
             </section>
 
             {/* Footer */}
-            <footer style={{ borderTop: "1px solid var(--glass-border)", padding: "3rem 1rem", background: "rgba(217, 119, 232, 0.85)" }}>
+            <footer style={{ borderTop: "1px solid var(--glass-border)", padding: "3rem 1rem", background: "rgba(30, 43, 119, 0.85)" }}>
                 <div className="container text-center">
                     <div className="flex items-center justify-center gap-sm mb-md opacity-50">
                         <img src="/logo.png" alt="Logo" style={{ width: "30px", filter: "grayscale(1)" }} />
@@ -454,7 +544,7 @@ export default function LandingPage() {
                         </a>
                     </div>
 
-                    <p className="text-gray" style={{ fontSize: "0.9rem" }}>© 2025 Anikethana Educational Institution. All rights reserved.</p>
+                    <p className="text-white" style={{ fontSize: "0.9rem" }}>© 2025 Anikethana Education Society. All rights reserved.</p>
                 </div>
             </footer>
         </div >
