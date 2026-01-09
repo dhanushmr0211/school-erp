@@ -131,6 +131,7 @@ const getStudents = async (req, res) => {
 const getStudentById = async (req, res) => {
     try {
         const { id } = req.params;
+        const academicYearId = req.headers['x-academic-year'];
 
         const { data, error } = await supabaseAdmin
             .from('students')
@@ -140,6 +141,16 @@ const getStudentById = async (req, res) => {
                     id,
                     name,
                     age
+                ),
+                enrollments:student_class_enrollments (
+                    roll_number,
+                    class_id,
+                    academic_year_id,
+                    class:classes (
+                        id,
+                        name,
+                        section
+                    )
                 )
             `)
             .eq('id', id)
@@ -151,6 +162,19 @@ const getStudentById = async (req, res) => {
 
         if (!data) {
             return res.status(404).json({ error: 'Student not found' });
+        }
+
+        // Filter enrollments for current academic year if provided
+        if (academicYearId && data.enrollments) {
+            data.enrollments = data.enrollments.filter(
+                e => e.academic_year_id === academicYearId
+            );
+
+            // Set roll_number from current enrollment
+            if (data.enrollments.length > 0) {
+                data.roll_number = data.enrollments[0].roll_number;
+                data.current_class = data.enrollments[0].class;
+            }
         }
 
         res.json(data);
