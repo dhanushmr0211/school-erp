@@ -74,7 +74,7 @@ export default function AcademicYears() {
                             required
                         />
                     </div>
-                    <button type="submit" className="btn btn-primary mb-md" disabled={isSubmitting}>
+                    <button type="submit" className="btn btn-primary" disabled={isSubmitting}>
                         {isSubmitting ? "Creating..." : "Create Year"}
                     </button>
                 </form>

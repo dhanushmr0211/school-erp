@@ -53,7 +53,7 @@ export default function Reports() {
                             required
                         />
                     </div>
-                    <button onClick={handleGenerate} className="btn btn-primary mb-md" disabled={loading}>
+                    <button onClick={handleGenerate} className="btn btn-primary" disabled={loading}>
                         {loading ? "Generating..." : "Generate PDF"}
                     </button>
                 </div>

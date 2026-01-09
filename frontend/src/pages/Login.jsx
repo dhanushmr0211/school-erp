@@ -126,14 +126,112 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4">
+    <div
+      style={{
+        minHeight: "100vh",
+        height: "100vh",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        padding: "1rem",
+        background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+        position: "relative",
+        overflow: "hidden"
+      }}
+    >
+      {/* Animated Background Elements */}
+      <div style={{
+        position: "absolute",
+        top: "-10%",
+        right: "-10%",
+        width: "500px",
+        height: "500px",
+        background: "rgba(255, 255, 255, 0.1)",
+        borderRadius: "50%",
+        animation: "float 6s ease-in-out infinite"
+      }} />
+      <div style={{
+        position: "absolute",
+        bottom: "-10%",
+        left: "-10%",
+        width: "400px",
+        height: "400px",
+        background: "rgba(255, 255, 255, 0.1)",
+        borderRadius: "50%",
+        animation: "float 8s ease-in-out infinite reverse"
+      }} />
+
+      <style>{`
+        @keyframes float {
+          0%, 100% { transform: translateY(0px) translateX(0px); }
+          50% { transform: translateY(-20px) translateX(20px); }
+        }
+        
+        @keyframes fadeInUp {
+          from {
+            opacity: 0;
+            transform: translateY(30px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        
+        @keyframes scaleIn {
+          from {
+            opacity: 0;
+            transform: scale(0.9);
+          }
+          to {
+            opacity: 1;
+            transform: scale(1);
+          }
+        }
+        
+        .login-form {
+          animation: scaleIn 0.5s ease-out;
+        }
+        
+        .login-form > * {
+          animation: fadeInUp 0.6s ease-out backwards;
+        }
+        
+        .login-form > *:nth-child(1) { animation-delay: 0.1s; }
+        .login-form > *:nth-child(2) { animation-delay: 0.2s; }
+        .login-form > *:nth-child(3) { animation-delay: 0.3s; }
+        .login-form > *:nth-child(4) { animation-delay: 0.4s; }
+        .login-form > *:nth-child(5) { animation-delay: 0.5s; }
+        .login-form > *:nth-child(6) { animation-delay: 0.6s; }
+      `}</style>
+
       {!showForgot ? (
         <form
           onSubmit={handleLogin}
-          className="card w-96 space-y-4"
+          className="card login-form"
+          style={{
+            width: "100%",
+            maxWidth: "480px",
+            padding: "3rem",
+            background: "rgba(255, 255, 255, 0.95)",
+            backdropFilter: "blur(10px)",
+            boxShadow: "0 20px 60px rgba(0, 0, 0, 0.3)",
+            borderRadius: "20px",
+            border: "1px solid rgba(255, 255, 255, 0.2)",
+            display: "flex",
+            flexDirection: "column",
+            gap: "1.5rem"
+          }}
         >
-          <div className="text-center mb-md">
-            <h1 className="text-xl font-bold">{isStudent ? "Student Login" : "Portal Login"}</h1>
+          <div className="text-center" style={{ marginBottom: "0.5rem" }}>
+            <h1 className="text-3xl font-bold" style={{
+              background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+              WebkitBackgroundClip: "text",
+              WebkitTextFillColor: "transparent",
+              marginBottom: "0.5rem"
+            }}>
+              {isStudent ? "Student Login" : "Portal Login"}
+            </h1>
             {isStudent && <p className="text-sm text-gray-400 mt-1">Enter your admission number and date of birth to continue.</p>}
           </div>
 
@@ -146,6 +244,12 @@ export default function Login() {
                 value={admissionNumber}
                 onChange={(e) => setAdmissionNumber(e.target.value)}
                 required
+                style={{
+                  padding: "0.875rem",
+                  fontSize: "1rem",
+                  borderRadius: "10px",
+                  transition: "all 0.3s ease"
+                }}
               />
             </div>
           ) : (
@@ -155,6 +259,12 @@ export default function Login() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
+              style={{
+                padding: "0.875rem",
+                fontSize: "1rem",
+                borderRadius: "10px",
+                transition: "all 0.3s ease"
+              }}
             />
           )}
 
@@ -166,6 +276,12 @@ export default function Login() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
+                style={{
+                  padding: "0.875rem",
+                  fontSize: "1rem",
+                  borderRadius: "10px",
+                  transition: "all 0.3s ease"
+                }}
               />
             </div>
           ) : (
@@ -176,6 +292,13 @@ export default function Login() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
+                style={{
+                  padding: "0.875rem",
+                  fontSize: "1rem",
+                  borderRadius: "10px",
+                  transition: "all 0.3s ease",
+                  width: "100%"
+                }}
               />
               <button
                 type="button"
@@ -200,21 +323,72 @@ export default function Login() {
             type="submit"
             disabled={loading}
             className="btn btn-primary w-full"
+            style={{
+              padding: "0.875rem",
+              fontSize: "1.05rem",
+              fontWeight: "600",
+              borderRadius: "10px",
+              background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+              border: "none",
+              color: "white",
+              cursor: loading ? "not-allowed" : "pointer",
+              transition: "all 0.3s ease",
+              transform: loading ? "scale(0.98)" : "scale(1)",
+              boxShadow: "0 4px 15px rgba(102, 126, 234, 0.4)"
+            }}
+            onMouseEnter={(e) => {
+              if (!loading) {
+                e.target.style.transform = "translateY(-2px)";
+                e.target.style.boxShadow = "0 6px 20px rgba(102, 126, 234, 0.6)";
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (!loading) {
+                e.target.style.transform = "translateY(0)";
+                e.target.style.boxShadow = "0 4px 15px rgba(102, 126, 234, 0.4)";
+              }
+            }}
           >
             {loading ? "Logging in..." : "Login"}
           </button>
 
-          <p className="text-center text-sm text-gray-400 cursor-pointer hover:text-royal-blue mt-4" onClick={() => setShowForgot(true)}>
+          <p
+            className="text-center text-sm text-gray-400 cursor-pointer hover:text-royal-blue"
+            onClick={() => setShowForgot(true)}
+            style={{ transition: "color 0.3s ease", marginTop: "0" }}
+          >
             Forgot Password?
           </p>
         </form>
       ) : (
         <form
           onSubmit={handleReset}
-          className="card w-96 space-y-4"
+          className="card login-form"
+          style={{
+            width: "100%",
+            maxWidth: "480px",
+            padding: "3rem",
+            background: "rgba(255, 255, 255, 0.95)",
+            backdropFilter: "blur(10px)",
+            boxShadow: "0 20px 60px rgba(0, 0, 0, 0.3)",
+            borderRadius: "20px",
+            border: "1px solid rgba(255, 255, 255, 0.2)",
+            display: "flex",
+            flexDirection: "column",
+            gap: "1.5rem"
+          }}
         >
-          <h1 className="text-xl font-bold text-center mb-md">Reset Password</h1>
-          <p className="text-center text-sm text-gray-400 mb-4">Enter your email to receive a password reset link.</p>
+          <div>
+            <h1 className="text-3xl font-bold text-center" style={{
+              background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+              WebkitBackgroundClip: "text",
+              WebkitTextFillColor: "transparent",
+              marginBottom: "0.5rem"
+            }}>
+              Reset Password
+            </h1>
+            <p className="text-center text-sm text-gray-400">Enter your email to receive a password reset link.</p>
+          </div>
 
           <input
             type="email"
@@ -222,17 +396,52 @@ export default function Login() {
             value={resetEmail}
             onChange={(e) => setResetEmail(e.target.value)}
             required
+            style={{
+              padding: "0.875rem",
+              fontSize: "1rem",
+              borderRadius: "10px",
+              transition: "all 0.3s ease"
+            }}
           />
 
           <button
             type="submit"
             disabled={resetLoading}
             className="btn btn-primary w-full"
+            style={{
+              padding: "0.875rem",
+              fontSize: "1.05rem",
+              fontWeight: "600",
+              borderRadius: "10px",
+              background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+              border: "none",
+              color: "white",
+              cursor: resetLoading ? "not-allowed" : "pointer",
+              transition: "all 0.3s ease",
+              transform: resetLoading ? "scale(0.98)" : "scale(1)",
+              boxShadow: "0 4px 15px rgba(102, 126, 234, 0.4)"
+            }}
+            onMouseEnter={(e) => {
+              if (!resetLoading) {
+                e.target.style.transform = "translateY(-2px)";
+                e.target.style.boxShadow = "0 6px 20px rgba(102, 126, 234, 0.6)";
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (!resetLoading) {
+                e.target.style.transform = "translateY(0)";
+                e.target.style.boxShadow = "0 4px 15px rgba(102, 126, 234, 0.4)";
+              }
+            }}
           >
             {resetLoading ? "Sending..." : "Send Reset Link"}
           </button>
 
-          <p className="text-center text-sm text-gray-400 cursor-pointer hover:text-royal-blue mt-4" onClick={() => setShowForgot(false)}>
+          <p
+            className="text-center text-sm text-gray-400 cursor-pointer hover:text-royal-blue"
+            onClick={() => setShowForgot(false)}
+            style={{ transition: "color 0.3s ease", marginTop: "0" }}
+          >
             Back to Login
           </p>
         </form>

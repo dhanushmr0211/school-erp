@@ -19,8 +19,14 @@ const createStudent = async (req, res) => {
             registered_date // Optional, date string
         } = req.body;
 
+        const academicYearId = req.headers['x-academic-year'];
+
         if (!name) {
             return res.status(400).json({ error: 'Name is required' });
+        }
+
+        if (!academicYearId) {
+            return res.status(400).json({ error: 'Academic year is required' });
         }
 
         // 1️⃣ Auto-generate Admission Number
@@ -46,7 +52,8 @@ const createStudent = async (req, res) => {
                 mother_occupation,
                 address,
                 contact,
-                registered_date: new Date().toISOString().split('T')[0]
+                registered_date: new Date().toISOString().split('T')[0],
+                academic_year_id: academicYearId
             }])
             .select()
             .single();
@@ -84,6 +91,11 @@ const createStudent = async (req, res) => {
  */
 const getStudents = async (req, res) => {
     try {
+        const academicYearId = req.headers['x-academic-year'];
+
+        if (!academicYearId) {
+            return res.status(400).json({ error: 'Academic year is required' });
+        }
 
         const { data, error } = await supabaseAdmin
             .from('students')
@@ -94,6 +106,7 @@ const getStudents = async (req, res) => {
                     academic_year_id
                 )
             `)
+            .eq('academic_year_id', academicYearId)
             .order('roll_number', { ascending: true });
 
         if (error) {
@@ -213,12 +226,59 @@ const updateStudent = async (req, res) => {
 const deleteStudent = async (req, res) => {
     try {
         const { id } = req.params;
+        const academicYearId = req.headers['x-academic-year'];
+
         if (!id) return res.status(400).json({ error: "Student ID required" });
 
-        // Cascade delete should handle siblings if configured, but let's be explicit if needed.
-        // Usually, foreign key constraints set to CASCADE. If not, we might need to delete siblings first.
-        // Assuming database handles cascade or no siblings constraints block it.
+        if (!academicYearId) {
+            return res.status(400).json({ error: 'Academic year is required' });
+        }
 
+        // Verify student belongs to current academic year
+        const { data: student, error: fetchError } = await supabaseAdmin
+            .from('students')
+            .select('academic_year_id')
+            .eq('id', id)
+            .single();
+
+        if (fetchError) {
+            console.error('Error fetching student:', fetchError);
+            throw fetchError;
+        }
+
+        if (!student) {
+            return res.status(404).json({ error: 'Student not found' });
+        }
+
+        if (student.academic_year_id !== academicYearId) {
+            return res.status(403).json({
+                error: 'Cannot delete student from a different academic year'
+            });
+        }
+
+        // Delete enrollments first (cascade)
+        const { error: enrollmentError } = await supabaseAdmin
+            .from('student_class_enrollments')
+            .delete()
+            .eq('student_id', id);
+
+        if (enrollmentError) {
+            console.error('Error deleting enrollments:', enrollmentError);
+            throw enrollmentError;
+        }
+
+        // Delete siblings
+        const { error: siblingsError } = await supabaseAdmin
+            .from('student_siblings')
+            .delete()
+            .eq('student_id', id);
+
+        if (siblingsError) {
+            console.error('Error deleting siblings:', siblingsError);
+            throw siblingsError;
+        }
+
+        // Delete student
         const { error } = await supabaseAdmin
             .from('students')
             .delete()
@@ -226,7 +286,7 @@ const deleteStudent = async (req, res) => {
 
         if (error) throw error;
 
-        res.json({ success: true, message: "Student deleted successfully" });
+        res.json({ success: true, message: "Student and all related records deleted successfully" });
     } catch (err) {
         console.error("Delete student error:", err);
         res.status(500).json({ error: "Failed to delete student" });

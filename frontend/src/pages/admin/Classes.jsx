@@ -99,7 +99,7 @@ export default function Classes() {
                             required
                         />
                     </div>
-                    <button type="submit" className="btn btn-primary mb-md" disabled={isSubmitting}>
+                    <button type="submit" className="btn btn-primary" disabled={isSubmitting}>
                         Create Class
                     </button>
                 </form>

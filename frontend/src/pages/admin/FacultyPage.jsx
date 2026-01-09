@@ -97,7 +97,7 @@ export default function FacultyPage() {
                             required
                         />
                     </div>
-                    <button type="submit" className="btn btn-primary mb-md">Add Faculty</button>
+                    <button type="submit" className="btn btn-primary">Add Faculty</button>
                 </form>
             </div>
 

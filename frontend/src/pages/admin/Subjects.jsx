@@ -88,7 +88,7 @@ export default function Subjects() {
                             <option value="LAB">Lab</option>
                         </select>
                     </div>
-                    <button type="submit" className="btn btn-primary mb-md" disabled={isSubmitting}>
+                    <button type="submit" className="btn btn-primary" disabled={isSubmitting}>
                         {isSubmitting ? "Adding..." : "Add Subject"}
                     </button>
                 </form>

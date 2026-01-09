@@ -68,16 +68,37 @@ export default function AdminDashboard() {
                 </div>
             </div>
 
-            <div className="card animate-fade-in" style={{ animationDelay: '0.2s', marginTop: '2.5rem' }}>
-                <h3 style={{ marginBottom: '1.5rem', fontSize: '1.25rem' }}>Quick Actions</h3>
-                <div className="flex" style={{ flexWrap: 'wrap', gap: '1.5rem' }}>
-                    <a href="/admin/students" className="btn btn-primary" style={{ padding: '0.8rem 1.5rem' }}>
+            <div className="card animate-fade-in" style={{ animationDelay: '0.2s', marginTop: '2.5rem', padding: '2rem' }}>
+                <h3 style={{ marginBottom: '1.5rem', fontSize: '1.25rem', fontWeight: 700 }}>Quick Actions</h3>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem' }}>
+                    <a href="/admin/students" className="btn btn-primary" style={{
+                        padding: '0.875rem 1.5rem',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '0.5rem',
+                        fontSize: '1rem',
+                        fontWeight: 600
+                    }}>
                         <Users size={20} /> Manage Students
                     </a>
-                    <a href="/admin/classes" className="btn btn-secondary" style={{ padding: '0.8rem 1.5rem' }}>
+                    <a href="/admin/classes" className="btn btn-secondary" style={{
+                        padding: '0.875rem 1.5rem',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '0.5rem',
+                        fontSize: '1rem',
+                        fontWeight: 600
+                    }}>
                         <Layers size={20} /> Manage Classes
                     </a>
-                    <a href="/admin/reports" className="btn btn-secondary" style={{ padding: '0.8rem 1.5rem' }}>
+                    <a href="/admin/reports" className="btn btn-secondary" style={{
+                        padding: '0.875rem 1.5rem',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '0.5rem',
+                        fontSize: '1rem',
+                        fontWeight: 600
+                    }}>
                         <BookOpen size={20} /> Generate Reports
                     </a>
                 </div>

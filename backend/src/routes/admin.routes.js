@@ -9,7 +9,7 @@ const { getAcademicYears, createAcademicYear } =
 const { getSubjects, createSubject, deleteSubject } =
   require('../controllers/adminSubjects.controller');
 
-const { createFaculty, getFaculties, getFacultyById } =
+const { createFaculty, getFaculties, getFacultyById, deleteFaculty } =
   require('../controllers/adminFaculty.controller');
 
 const { assignSubjectToFaculty, getFacultiesBySubject } =
@@ -48,6 +48,7 @@ router.delete('/subjects/:id', requireAdmin, deleteSubject);
 router.post('/faculty', requireAdmin, createFaculty);
 router.get('/faculty', requireAdmin, getFaculties);
 router.get('/faculty/:id', requireAdmin, getFacultyById);
+router.delete('/faculty/:id', requireAdmin, deleteFaculty);
 
 /* Faculty Subjects */
 router.post('/faculty-subjects', requireAdmin, assignSubjectToFaculty);
