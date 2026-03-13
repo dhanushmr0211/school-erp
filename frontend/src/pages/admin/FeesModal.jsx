@@ -169,16 +169,16 @@ export default function FeesModal({ student, academicYearId, onClose }) {
                         <div className="mt-6 pt-4 border-t border-gray-700 bg-gray-800/30 p-4 rounded text-sm">
                             <div className="flex justify-between mb-2">
                                 <span>Total Fee:</span>
-                                <span className="font-bold">{totalFee}</span>
+                                <span className="font-bold">₹{totalFee}</span>
                             </div>
                             <div className="flex justify-between mb-2">
                                 <span>Total Paid:</span>
-                                <span className="font-bold text-green-400">{totalPaid}</span>
+                                <span className="font-bold text-green-400">₹{totalPaid}</span>
                             </div>
                             <div className="flex justify-between text-lg">
                                 <span>Balance:</span>
                                 <span className={`font-bold ${balance > 0 ? "text-red-400" : "text-green-400"}`}>
-                                    {balance}
+                                    ₹{balance}
                                 </span>
                             </div>
                         </div>

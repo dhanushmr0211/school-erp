@@ -64,7 +64,7 @@ function FeeCard({ fee }) {
             <div className="flex justify-between items-center cursor-pointer" onClick={() => setExpanded(!expanded)}>
                 <div>
                     <h3 className="m-0">Semester {fee.semester}</h3>
-                    <p className="text-gray-400 text-sm mt-1">Total: ${totalFee} | Paid: ${totalPaid}</p>
+                    <p className="text-gray-400 text-sm mt-1">Total: ₹{totalFee} | Paid: ₹{totalPaid}</p>
                 </div>
                 <div className="flex items-center gap-md">
                     <span className={`badge ${statusColor}`}>{status}</span>
@@ -82,7 +82,7 @@ function FeeCard({ fee }) {
                     <div className="mt-md pt-md border-t border-gray-800 flex justify-between items-center">
                         <span className="font-bold">Balance Due:</span>
                         <span className={`text-xl font-bold ${balance > 0 ? "text-red-400" : "text-green-400"}`}>
-                            ${balance}
+                            ₹{balance}
                         </span>
                     </div>
                 </div>
@@ -102,10 +102,10 @@ function FeeRow({ label, total, paid }) {
     return (
         <div className="grid grid-cols-3 gap-sm text-sm">
             <div className="font-medium text-gray-300">{label}</div>
-            <div className="text-right">Fee: {t}</div>
+            <div className="text-right">Fee: ₹{t}</div>
             <div className="text-right">
-                <span className="text-green-400">Paid: {p}</span>
-                {due > 0 && <span className="text-red-400 ml-2">(Due: {due})</span>}
+                <span className="text-green-400">Paid: ₹{p}</span>
+                {due > 0 && <span className="text-red-400 ml-2">(Due: ₹{due})</span>}
             </div>
         </div>
     );
