@@ -6,8 +6,10 @@ import { AuthProvider } from "./context/AuthContext";
 import LandingPage from "./pages/LandingPage";
 import Login from "./pages/Login";
 import UpdatePassword from "./pages/UpdatePassword";
+import SessionExpired from "./pages/SessionExpired";
 import DashboardLayout from "./layouts/DashboardLayout";
 import ProtectedRoute from "./components/ProtectedRoute";
+import InactivityTracker from "./components/InactivityTracker";
 
 // Admin Pages
 import AdminDashboard from "./pages/admin/AdminDashboard";
@@ -33,10 +35,12 @@ export default function App() {
     <BrowserRouter>
       <AuthProvider>
         <AcademicYearProvider>
+          <InactivityTracker />
           <Routes>
             <Route path="/" element={<LandingPage />} />
             <Route path="/login" element={<Login />} />
             <Route path="/update-password" element={<UpdatePassword />} />
+            <Route path="/session-expired" element={<SessionExpired />} />
 
             <Route element={<DashboardLayout />}>
 

@@ -138,24 +138,31 @@ const getStudentClasses = async (req, res) => {
 // --- NEW VERIFICATION FUNCTION ---
 const verifyStudent = async (req, res) => {
     try {
+        console.log("verifyStudent called with body:", req.body);
         const { admission_number, dob } = req.body;
 
         if (!admission_number || !dob) {
+            console.log("Missing fields");
             return res.status(400).json({ error: "Admission Number and DOB are required" });
         }
 
+        console.log("Querying Supabase...");
         // Query with Service Key (Admin) to bypass RLS
-        const { data: student, error } = await supabaseAdmin
+        const { data: students, error } = await supabaseAdmin
             .from('students')
             .select('id, name')
             .eq('admission_number', admission_number)
             .eq('dob', dob)
-            .maybeSingle();
+            .limit(1);
+
+        console.log("Supabase response:", { students, error });
 
         if (error) {
             console.error("Supabase Error:", error);
             return res.status(500).json({ error: "Verification failed due to server error" });
         }
+
+        const student = students && students.length > 0 ? students[0] : null;
 
         if (!student) {
             return res.status(404).json({ error: "Invalid Admission Number or Date of Birth" });

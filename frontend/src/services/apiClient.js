@@ -9,8 +9,11 @@ export async function apiFetch(path, options = {}) {
 
   const headers = {
     "Content-Type": "application/json",
-    Authorization: `Bearer ${session?.access_token}`,
   };
+
+  if (session?.access_token) {
+    headers.Authorization = `Bearer ${session.access_token}`;
+  }
 
   const academicYearId = localStorage.getItem("academicYearId");
   if (academicYearId) {
@@ -25,7 +28,18 @@ export async function apiFetch(path, options = {}) {
 
   if (!res.ok) {
     const errData = await res.json().catch(() => ({}));
-    throw new Error(errData.error || "API Request Failed");
+    const errorMessage = errData.error || "API Request Failed";
+
+    if (
+      res.status === 401 &&
+      (errorMessage.toLowerCase().includes("token") || errorMessage.includes("JWT"))
+    ) {
+      if (window.location.pathname !== "/session-expired") {
+        window.location.href = "/session-expired";
+      }
+    }
+
+    throw new Error(errorMessage);
   }
 
   return res.json();

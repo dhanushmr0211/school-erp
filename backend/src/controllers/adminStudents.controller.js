@@ -148,7 +148,7 @@ const getStudentById = async (req, res) => {
                     academic_year_id,
                     class:classes (
                         id,
-                        name,
+                        class_name,
                         section
                     )
                 )
