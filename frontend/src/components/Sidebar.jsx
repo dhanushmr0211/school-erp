@@ -43,27 +43,29 @@ export default function Sidebar() {
 
   return (
     <>
-      <button
-        className="btn md:hidden"
-        style={{
-          position: 'fixed',
-          top: '0.75rem',
-          left: '1rem',
-          zIndex: 100,
-          padding: '0.5rem',
-          background: 'white',
-          border: '1px solid var(--border-soft)',
-          borderRadius: '50%',
-          boxShadow: 'var(--shadow-md)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          color: 'var(--royal-blue)'
-        }}
-        onClick={() => setIsOpen(!isOpen)}
-      >
-        {isOpen ? <X size={24} /> : <Menu size={24} />}
-      </button>
+      {!isOpen && (
+        <button
+          className="btn md:hidden"
+          style={{
+            position: 'fixed',
+            top: '0.75rem',
+            left: '1rem',
+            zIndex: 100,
+            padding: '0.5rem',
+            background: 'white',
+            border: '1px solid var(--border-soft)',
+            borderRadius: '50%',
+            boxShadow: 'var(--shadow-md)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            color: 'var(--royal-blue)'
+          }}
+          onClick={() => setIsOpen(true)}
+        >
+          <Menu size={24} />
+        </button>
+      )}
 
       {/* Backdrop for mobile */}
       {isOpen && (
@@ -75,9 +77,30 @@ export default function Sidebar() {
       )}
 
       <aside className={`sidebar ${isOpen ? "open" : ""}`}>
-        <div className="sidebar-title">
-          <img src="/logo.png" alt="Logo" style={{ width: 32, height: 32 }} />
-          <span>Anikethana</span>
+        <div className="sidebar-title" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+            <img src="/logo.png" alt="Logo" style={{ width: 32, height: 32 }} />
+            <span>Anikethana</span>
+          </div>
+          {isOpen && (
+            <button
+              className="md:hidden"
+              onClick={() => setIsOpen(false)}
+              style={{
+                padding: '0.4rem',
+                background: 'var(--royal-light)',
+                border: 'none',
+                borderRadius: '50%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: 'var(--royal-blue)',
+                cursor: 'pointer'
+              }}
+            >
+              <X size={20} />
+            </button>
+          )}
         </div>
 
         <nav style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
