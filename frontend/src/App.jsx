@@ -10,6 +10,7 @@ import SessionExpired from "./pages/SessionExpired";
 import DashboardLayout from "./layouts/DashboardLayout";
 import ProtectedRoute from "./components/ProtectedRoute";
 import InactivityTracker from "./components/InactivityTracker";
+import InstallPrompt from "./components/InstallPrompt";
 
 // Admin Pages
 import AdminDashboard from "./pages/admin/AdminDashboard";
@@ -36,6 +37,7 @@ export default function App() {
       <AuthProvider>
         <AcademicYearProvider>
           <InactivityTracker />
+          <InstallPrompt />
           <Routes>
             <Route path="/" element={<LandingPage />} />
             <Route path="/login" element={<Login />} />
