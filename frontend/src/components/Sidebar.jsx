@@ -49,7 +49,7 @@ export default function Sidebar() {
           style={{
             position: 'fixed',
             top: '0.75rem',
-            left: '1rem',
+            right: '1rem',
             zIndex: 100,
             padding: '0.5rem',
             background: 'white',
@@ -79,7 +79,7 @@ export default function Sidebar() {
       <aside className={`sidebar ${isOpen ? "open" : ""}`}>
         <div className="sidebar-title" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-            <img src="/logo.png" alt="Logo" style={{ width: 32, height: 32 }} />
+            <img src="/logo.png" alt="Logo" style={{ width: 44, height: 44 }} />
             <span>Anikethana</span>
           </div>
           {isOpen && (

@@ -446,6 +446,6 @@ input[type=number] {
     }
 
     .topbar-welcome {
-        margin-left: 3rem !important;
+        margin-left: 0 !important;
     }
 }
