@@ -3,7 +3,7 @@ import { supabase } from "../services/supabaseClient";
 import { useAuth } from "../context/AuthContext";
 import { useAcademicYear } from "../context/AcademicYearContext";
 import { fetchAcademicYears } from "../services/adminApi";
-import { LogOut, KeyRound, X, ChevronDown, Eye, EyeOff } from "lucide-react";
+import { LogOut, KeyRound, X, ChevronDown, Eye, EyeOff, Menu } from "lucide-react";
 
 export default function Topbar({ onMenuClick }) {
   const { user } = useAuth();
