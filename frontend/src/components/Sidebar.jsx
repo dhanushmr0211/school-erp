@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import {
   Home, Users, BookOpen, Layers,
   GraduationCap, FileText, DollarSign, Calendar, Menu, X, MessageSquare
@@ -6,16 +6,15 @@ import {
 import { NavLink, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
-export default function Sidebar() {
+export default function Sidebar({ isOpen, setIsOpen }) {
   const { user } = useAuth();
   const role = user?.user_metadata?.role || user?.app_metadata?.role || "STUDENT";
-  const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
 
   // Close sidebar on route change (mobile)
   useEffect(() => {
     setIsOpen(false);
-  }, [location.pathname]);
+  }, [location.pathname, setIsOpen]);
 
   const menus = {
     ADMIN: [
@@ -43,30 +42,6 @@ export default function Sidebar() {
 
   return (
     <>
-      {!isOpen && (
-        <button
-          className="btn md:hidden"
-          style={{
-            position: 'fixed',
-            top: '0.75rem',
-            right: '1rem',
-            zIndex: 100,
-            padding: '0.5rem',
-            background: 'white',
-            border: '1px solid var(--border-soft)',
-            borderRadius: '50%',
-            boxShadow: 'var(--shadow-md)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            color: 'var(--royal-blue)'
-          }}
-          onClick={() => setIsOpen(true)}
-        >
-          <Menu size={24} />
-        </button>
-      )}
-
       {/* Backdrop for mobile */}
       {isOpen && (
         <div

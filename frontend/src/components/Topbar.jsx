@@ -5,7 +5,7 @@ import { useAcademicYear } from "../context/AcademicYearContext";
 import { fetchAcademicYears } from "../services/adminApi";
 import { LogOut, KeyRound, X, ChevronDown, Eye, EyeOff } from "lucide-react";
 
-export default function Topbar() {
+export default function Topbar({ onMenuClick }) {
   const { user } = useAuth();
   const { academicYearId, setAcademicYearId } = useAcademicYear();
   const [years, setYears] = useState([]);
@@ -95,21 +95,28 @@ export default function Topbar() {
 
           <div className="flex gap-sm">
             <button
-              onClick={() => setShowPasswordModal(true)}
-              className="btn btn-secondary"
-              style={{ padding: "0.5rem" }}
-              title="Change Password"
-            >
-              <KeyRound size={18} />
-            </button>
-
-            <button
               onClick={handleLogout}
               className="btn btn-secondary"
               style={{ padding: "0.5rem", color: "var(--ribbon-red)", borderColor: "var(--border-soft)" }}
               title="Logout"
             >
               <LogOut size={18} />
+            </button>
+
+            <button
+              onClick={onMenuClick}
+              className="btn btn-secondary md:hidden"
+              style={{
+                padding: "0.5rem",
+                color: "var(--royal-blue)",
+                borderColor: "var(--border-soft)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center"
+              }}
+              title="Open Menu"
+            >
+              <Menu size={18} />
             </button>
           </div>
         </div>
