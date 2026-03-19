@@ -258,15 +258,17 @@ tr:hover td {
     display: flex;
     flex-direction: column;
     height: 100%;
-    background: white; /* Ensure base inner is white */
+    background: white;
+    min-height: 0; /* Allow the inner container to shrink to fit the viewport */
 }
 
 .sidebar-header {
-    padding: 1.5rem;
-    margin-bottom: 0.5rem;
+    padding: 1.25rem 1.5rem; /* Slightly more compact */
+    margin-bottom: 0.25rem;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    flex-shrink: 0; /* Header doesn't shrink */
 }
 
 .brand-name {
@@ -288,10 +290,29 @@ tr:hover td {
 .sidebar-nav {
     flex: 1;
     overflow-y: auto;
-    padding: 0 1rem;
+    min-height: 0; /* Required for the nav list to scroll within a flex container */
+    padding: 0 0.75rem;
     display: flex;
     flex-direction: column;
-    gap: 0.25rem;
+    gap: 0.15rem; /* Tighter gap to fit more items */
+}
+
+/* Custom Scrollbar for Sidebar Nav */
+.sidebar-nav::-webkit-scrollbar {
+    width: 4px;
+}
+
+.sidebar-nav::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.sidebar-nav::-webkit-scrollbar-thumb {
+    background: var(--border-soft);
+    border-radius: 10px;
+}
+
+.sidebar-nav::-webkit-scrollbar-thumb:hover {
+    background: var(--text-muted);
 }
 
 .nav-link {
@@ -324,10 +345,10 @@ tr:hover td {
 }
 
 .sidebar-footer {
-    padding: 1.5rem;
+    padding: 1rem 1.5rem;
     border-top: 1px solid var(--border-soft);
     background: white;
-    margin-top: auto;
+    flex-shrink: 0; /* Footer doesn't shrink */
 }
 
 .portal-badge {
