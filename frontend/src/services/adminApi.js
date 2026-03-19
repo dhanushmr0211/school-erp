@@ -14,10 +14,6 @@ export function createAcademicYear(data) {
 }
 
 export function fetchAdminStats(academicYearId) {
-  return Promise.all([
-    apiFetch("/admin/students"),
-    apiFetch(`/admin/classes?academic_year_id=${academicYearId}`),
-    apiFetch("/admin/faculty"),
-  ]);
+  return apiFetch(`/admin/dashboard-stats?academic_year_id=${academicYearId}`);
 }
 

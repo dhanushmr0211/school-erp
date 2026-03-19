@@ -16,12 +16,12 @@ export default function AdminDashboard() {
 
     async function loadStats() {
         try {
-            // fetchAdminStats returns [students, classes, faculty] arrays
-            const [students, classes, faculty] = await fetchAdminStats(academicYearId);
+            // fetchAdminStats now returns optimized object: { students: count, classes: count, faculty: count }
+            const data = await fetchAdminStats(academicYearId);
             setStats({
-                students: students.length,
-                classes: classes.length,
-                faculty: faculty.length,
+                students: data.students || 0,
+                classes: data.classes || 0,
+                faculty: data.faculty || 0,
             });
         } catch (err) {
             console.error(err);

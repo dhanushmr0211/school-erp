@@ -5,6 +5,8 @@ const requireAuth = require('../middleware/requireAuth');
 const { getAcademicYears, createAcademicYear } =
   require('../controllers/adminAcademicYear.controller');
 
+const { getDashboardStats } = require('../controllers/adminDashboard.controller');
+
 
 const { getSubjects, createSubject, deleteSubject } =
   require('../controllers/adminSubjects.controller');
@@ -37,6 +39,9 @@ const router = express.Router();
 /* Academic Years */
 router.get('/academic-years', requireAuth, getAcademicYears);
 router.post('/academic-years', requireAdmin, createAcademicYear);
+
+/* Stats */
+router.get('/dashboard-stats', requireAdmin, getDashboardStats);
 
 
 /* Subjects */

@@ -17,6 +17,7 @@ export default function Topbar({ onMenuClick }) {
   useEffect(() => {
     const loadYears = async () => {
       try {
+        if (years.length > 0) return; // Only fetch if list is empty
         const yearsData = await fetchAcademicYears();
         setYears(yearsData || []);
         if (!academicYearId && yearsData.length > 0) {
@@ -27,7 +28,7 @@ export default function Topbar({ onMenuClick }) {
       }
     };
     loadYears();
-  }, [academicYearId, setAcademicYearId]);
+  }, [setAcademicYearId]); // Only run once on mount or if setter changes
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
