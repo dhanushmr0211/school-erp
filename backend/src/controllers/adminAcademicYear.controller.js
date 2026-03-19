@@ -20,7 +20,7 @@ const getAcademicYears = async (req, res) => {
 
 const createAcademicYear = async (req, res) => {
     try {
-        const { year_name } = req.body;
+        const { year_name, start_date, end_date } = req.body;
 
         if (!year_name) {
             return res.status(400).json({ error: 'Year name is required' });
@@ -29,7 +29,7 @@ const createAcademicYear = async (req, res) => {
         // 1. Create the new academic year
         const { data: newYear, error: yearError } = await supabaseAdmin
             .from('academic_years')
-            .insert([{ year_name, is_active: false }])
+            .insert([{ year_name, start_date, end_date, is_active: false }])
             .select()
             .single();
 
