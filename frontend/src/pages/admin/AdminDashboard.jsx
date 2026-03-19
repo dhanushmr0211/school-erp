@@ -42,29 +42,82 @@ export default function AdminDashboard() {
                 <span className="badge badge-blue" style={{ padding: '0.5rem 0.5rem', fontSize: '0.9rem' }}>Academic Year Active</span>
             </div>
 
-            <div className="flex gap-md" style={{ flexWrap: 'wrap', gap: '2rem' }}>
-                <div className="card flex flex-col items-center justify-center p-8 animate-fade-in" style={{ flex: 1, animationDelay: '0.05s', minWidth: '250px' }}>
+            <div className="flex overflow-x-auto whitespace-nowrap py-4 px-4 scroll-smooth" 
+                 style={{ 
+                    gap: '1rem', 
+                    scrollSnapType: 'x mandatory', 
+                    WebkitOverflowScrolling: 'touch',
+                    scrollbarWidth: 'none',
+                    msOverflowStyle: 'none',
+                 }}>
+                <style>{`
+                    .flex::-webkit-scrollbar { display: none; }
+                `}</style>
+
+                {/* Faculty Card */}
+                <div className="card flex-shrink-0 animate-fade-in" 
+                     style={{ 
+                        width: 'calc(100% - 2rem)', 
+                        minWidth: '280px', 
+                        maxWidth: '350px',
+                        scrollSnapAlign: 'start', 
+                        margin: 0,
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        padding: '2.5rem 1.5rem',
+                        animationDelay: '0.05s'
+                     }}>
                     <div style={{ padding: '1.25rem', background: 'var(--royal-light)', borderRadius: '50%', marginBottom: '1.5rem' }}>
                         <Users size={40} className="text-royal" />
                     </div>
-                    <h2 className="text-4xl font-bold" style={{ marginBottom: '0.5rem' }}>{stats.students}</h2>
-                    <p className="text-gray" style={{ fontWeight: 600, fontSize: '1.1rem' }}>Total Students</p>
+                    <h2 className="text-4xl font-bold" style={{ marginBottom: '0.5rem' }}>{stats.faculty}</h2>
+                    <p className="text-gray" style={{ fontWeight: 600, fontSize: '1.1rem' }}>Faculty List Tab</p>
                 </div>
 
-                <div className="card flex flex-col items-center justify-center p-8 animate-fade-in" style={{ flex: 1, animationDelay: '0.1s', minWidth: '250px' }}>
+                {/* Classes Card */}
+                <div className="card flex-shrink-0 animate-fade-in" 
+                     style={{ 
+                        width: 'calc(100% - 2rem)', 
+                        minWidth: '280px', 
+                        maxWidth: '350px',
+                        scrollSnapAlign: 'start', 
+                        margin: 0,
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        padding: '2.5rem 1.5rem',
+                        animationDelay: '0.1s'
+                     }}>
                     <div style={{ padding: '1.25rem', background: '#ecfccb', borderRadius: '50%', marginBottom: '1.5rem' }}>
                         <Layers size={40} style={{ color: '#65a30d' }} />
                     </div>
                     <h2 className="text-4xl font-bold" style={{ marginBottom: '0.5rem' }}>{stats.classes}</h2>
-                    <p className="text-gray" style={{ fontWeight: 600, fontSize: '1.1rem' }}>Total Classes</p>
+                    <p className="text-gray" style={{ fontWeight: 600, fontSize: '1.1rem' }}>Existing Classes Tab</p>
                 </div>
 
-                <div className="card flex flex-col items-center justify-center p-8 animate-fade-in" style={{ flex: 1, animationDelay: '0.15s', minWidth: '250px' }}>
+                {/* Students Card */}
+                <div className="card flex-shrink-0 animate-fade-in" 
+                     style={{ 
+                        width: 'calc(100% - 2rem)', 
+                        minWidth: '280px', 
+                        maxWidth: '350px',
+                        scrollSnapAlign: 'start', 
+                        margin: 0,
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        padding: '2.5rem 1.5rem',
+                        animationDelay: '0.15s'
+                     }}>
                     <div style={{ padding: '1.25rem', background: '#fffbeb', borderRadius: '50%', marginBottom: '1.5rem' }}>
-                        <BookOpen size={40} className="text-gold" />
+                        <Users size={40} className="text-gold" />
                     </div>
-                    <h2 className="text-4xl font-bold" style={{ marginBottom: '0.5rem' }}>{stats.faculty}</h2>
-                    <p className="text-gray" style={{ fontWeight: 600, fontSize: '1.1rem' }}>Total Faculty</p>
+                    <h2 className="text-4xl font-bold" style={{ marginBottom: '0.5rem' }}>{stats.students}</h2>
+                    <p className="text-gray" style={{ fontWeight: 600, fontSize: '1.1rem' }}>All Students Tab</p>
                 </div>
             </div>
 
