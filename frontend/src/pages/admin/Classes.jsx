@@ -107,65 +107,66 @@ export default function Classes() {
 
             <div className="card">
                 <h3>Existing Classes</h3>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Name</th>
-                            <th>Section</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {classes.map((c) => (
-                            <tr key={c.id}>
-                                <td>{c.class_name}</td>
-                                <td>{c.section}</td>
-                                <td>
-                                    <div className="flex gap-sm">
-                                        <button
-                                            className="btn btn-secondary"
-                                            title="Assign Subjects"
-                                            onClick={() => {
-                                                setSelectedClass(c);
-                                                setModalType('assign');
-                                            }}
-                                        >
-                                            <Pencil size={16} /> Subjects
-                                        </button>
-                                        <button
-                                            className="btn btn-secondary"
-                                            title="Add Students"
-                                            onClick={() => {
-                                                setSelectedClass(c);
-                                                setModalType('add_students');
-                                            }}
-                                        >
-                                            <UserPlus size={16} />
-                                        </button>
-                                        <button
-                                            className="btn btn-secondary"
-                                            title="View Details"
-                                            onClick={() => {
-                                                setSelectedClass(c);
-                                                setModalType('details');
-                                            }}
-                                        >
-                                            <Eye size={16} />
-                                        </button>
-                                        <button
-                                            className="btn btn-danger"
-                                            title="Delete Class"
-                                            onClick={() => handleDelete(c.id)}
-                                        >
-                                            <Trash2 size={16} />
-                                        </button>
-                                    </div>
-                                </td>
+                <div style={{ overflowX: "auto", width: "100%", WebkitOverflowScrolling: "touch" }}>
+                    <table style={{ minWidth: "600px" }}>
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Section</th>
+                                <th>Actions</th>
                             </tr>
-                        ))}
-                    </tbody>
-                </table>
-
+                        </thead>
+                        <tbody>
+                            {classes.map((c) => (
+                                <tr key={c.id}>
+                                    <td>{c.class_name}</td>
+                                    <td>{c.section}</td>
+                                    <td>
+                                        <div className="flex gap-sm">
+                                            <button
+                                                className="btn btn-secondary"
+                                                title="Assign Subjects"
+                                                onClick={() => {
+                                                    setSelectedClass(c);
+                                                    setModalType('assign');
+                                                }}
+                                            >
+                                                <Pencil size={16} /> Subjects
+                                            </button>
+                                            <button
+                                                className="btn btn-secondary"
+                                                title="Add Students"
+                                                onClick={() => {
+                                                    setSelectedClass(c);
+                                                    setModalType('add_students');
+                                                }}
+                                            >
+                                                <UserPlus size={16} />
+                                            </button>
+                                            <button
+                                                className="btn btn-secondary"
+                                                title="View Details"
+                                                onClick={() => {
+                                                    setSelectedClass(c);
+                                                    setModalType('details');
+                                                }}
+                                            >
+                                                <Eye size={16} />
+                                            </button>
+                                            <button
+                                                className="btn btn-danger"
+                                                title="Delete Class"
+                                                onClick={() => handleDelete(c.id)}
+                                            >
+                                                <Trash2 size={16} />
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
             </div>
 
             {selectedClass && (
@@ -292,24 +293,26 @@ function AssignSubjectModal({ cls, allSubjects, onClose }) {
 
             <div>
                 <h4>Current Assignments</h4>
-                <table style={{ fontSize: "0.9rem" }}>
-                    <thead>
-                        <tr>
-                            <th>Subject</th>
-                            <th>Teacher</th>
-                            {/* <th>Action</th> */}
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {assignedList.map((item, idx) => (
-                            <tr key={idx}>
-                                <td>{item.subject?.name}</td>
-                                <td>{item.faculty?.name}</td>
-                                {/* <td><button className="btn btn-danger btn-sm">X</button></td> */}
+                <div style={{ overflowX: "auto", width: "100%", WebkitOverflowScrolling: "touch" }}>
+                    <table style={{ fontSize: "0.9rem", minWidth: "400px" }}>
+                        <thead>
+                            <tr>
+                                <th>Subject</th>
+                                <th>Teacher</th>
+                                {/* <th>Action</th> */}
                             </tr>
-                        ))}
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                            {assignedList.map((item, idx) => (
+                                <tr key={idx}>
+                                    <td>{item.subject?.name}</td>
+                                    <td>{item.faculty?.name}</td>
+                                    {/* <td><button className="btn btn-danger btn-sm">X</button></td> */}
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
                 {assignedList.length === 0 && <p className="text-gray">No subjects assigned yet.</p>}
             </div>
 
@@ -393,42 +396,43 @@ function ClassDetailModal({ cls, allSubjects, onClose, onUpdate }) {
                 <button onClick={onClose} className="btn btn-secondary">Close</button>
             </div>
 
-            <div className="grid grid-cols-2 gap-md">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-md">
                 <div>
                     <h4>Assigned Subjects & Faculty</h4>
-                    {/* Reuse existing list logic or simple view */}
-                    <table style={{ fontSize: "0.85rem" }}>
-                        <thead>
-                            <tr>
-                                <th>Subject</th>
-                                <th>Teacher</th>
-                                <th>Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {subjects.map((item, idx) => (
-                                <tr key={idx}>
-                                    <td>{item.subject?.name}</td>
-                                    <td>{item.faculty?.name}</td>
-                                    <td>
-                                        <button
-                                            onClick={() => handleRemoveSubject(item.id)}
-                                            className="btn btn-danger btn-sm"
-                                            style={{ padding: '2px 6px' }}
-                                        >
-                                            <Trash2 size={12} />
-                                        </button>
-                                    </td>
+                    <div style={{ overflowX: "auto", width: "100%", WebkitOverflowScrolling: "touch" }}>
+                        <table style={{ fontSize: "0.85rem", minWidth: "350px" }}>
+                            <thead>
+                                <tr>
+                                    <th>Subject</th>
+                                    <th>Teacher</th>
+                                    <th>Action</th>
                                 </tr>
-                            ))}
-                        </tbody>
-                    </table>
+                            </thead>
+                            <tbody>
+                                {subjects.map((item, idx) => (
+                                    <tr key={idx}>
+                                        <td>{item.subject?.name}</td>
+                                        <td>{item.faculty?.name}</td>
+                                        <td>
+                                            <button
+                                                onClick={() => handleRemoveSubject(item.id)}
+                                                className="btn btn-danger btn-sm"
+                                                style={{ padding: '2px 6px' }}
+                                            >
+                                                <Trash2 size={12} />
+                                            </button>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
                     {subjects.length === 0 && <p className="text-gray text-sm">No subjects.</p>}
                 </div>
                 <div>
                     <h4>Enrolled Students ({students.length})</h4>
-                    <div style={{ maxHeight: "300px", overflowY: "auto" }}>
-                        <table style={{ fontSize: "0.85rem" }}>
+                    <div style={{ maxHeight: "300px", overflowX: "auto", overflowY: "auto", width: "100%", WebkitOverflowScrolling: "touch" }}>
+                        <table style={{ fontSize: "0.85rem", minWidth: "350px" }}>
                             <thead>
                                 <tr>
                                     <th>Roll</th>
@@ -438,7 +442,6 @@ function ClassDetailModal({ cls, allSubjects, onClose, onUpdate }) {
                             </thead>
                             <tbody>
                                 {students.map((item, idx) => (
-
                                     <tr key={idx}>
                                         <td>{item.roll_number || "-"}</td>
                                         <td>{item.students?.name}</td>
@@ -455,8 +458,8 @@ function ClassDetailModal({ cls, allSubjects, onClose, onUpdate }) {
                                 ))}
                             </tbody>
                         </table>
-                        {students.length === 0 && <p className="text-gray text-sm">No students enrolled.</p>}
                     </div>
+                    {students.length === 0 && <p className="text-gray text-sm">No students enrolled.</p>}
                 </div>
             </div>
         </div>
@@ -523,8 +526,8 @@ function AddStudentModal({ cls, academicYearId, onClose }) {
             <h3>Add Students to {cls.class_name}</h3>
             {loading ? <p>Loading students...</p> : (
                 <>
-                    <div className="mb-md" style={{ maxHeight: "400px", overflowY: "auto" }}>
-                        <table style={{ fontSize: "0.85rem" }}>
+                    <div className="mb-md" style={{ maxHeight: "400px", overflowX: "auto", overflowY: "auto", width: "100%", WebkitOverflowScrolling: "touch" }}>
+                        <table style={{ fontSize: "0.85rem", minWidth: "400px" }}>
                             <thead>
                                 <tr>
                                     <th>Select</th>

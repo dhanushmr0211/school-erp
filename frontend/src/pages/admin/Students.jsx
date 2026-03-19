@@ -224,68 +224,69 @@ export default function Students() {
 
             <div className="card">
                 <h3>All Students</h3>
-
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Adm No.</th>
-                            <th>Name</th>
-                            <th>DOB</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {students.map((s, index) => (
-                            <tr key={s.id}>
-                                <td>{s.admission_number || "-"}</td>
-                                <td>
-                                    <div className="font-bold">{s.name}</div>
-                                    <div className="text-sm text-gray">{s.registered_date}</div>
-                                </td>
-                                <td>{s.dob}</td>
-                                <td style={{ textAlign: "right" }}>
-                                    <div className="flex gap-sm justify-end">
-                                        <button
-                                            onClick={() => handleViewProfile(s)}
-                                            className="btn btn-secondary"
-                                            style={{ padding: "0.25rem 0.5rem" }}
-                                            title="View Profile"
-                                        >
-                                            <Eye size={16} />
-                                        </button>
-                                        <button
-                                            onClick={() => {
-                                                setSelectedStudentForFees(s);
-                                                setFeesModalOpen(true);
-                                            }}
-                                            className="btn btn-primary"
-                                            style={{ padding: "0.25rem 0.5rem" }}
-                                            title="Manage Fees"
-                                        >
-                                            <Banknote size={16} />
-                                        </button>
-                                        <button
-                                            onClick={() => handleEditClick(s.id)}
-                                            className="btn btn-secondary"
-                                            style={{ padding: "0.25rem 0.5rem" }}
-                                            title="Edit Student"
-                                        >
-                                            <Pencil size={16} />
-                                        </button>
-                                        <button
-                                            onClick={() => handleDelete(s.id)}
-                                            className="btn btn-danger"
-                                            style={{ padding: "0.25rem 0.5rem" }}
-                                            title="Delete Student"
-                                        >
-                                            <Trash2 size={16} />
-                                        </button>
-                                    </div>
-                                </td>
+                <div style={{ overflowX: "auto", width: "100%", WebkitOverflowScrolling: "touch" }}>
+                    <table style={{ minWidth: "600px" }}>
+                        <thead>
+                            <tr>
+                                <th>Adm No.</th>
+                                <th>Name</th>
+                                <th>DOB</th>
+                                <th>Action</th>
                             </tr>
-                        ))}
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                            {students.map((s, index) => (
+                                <tr key={s.id}>
+                                    <td>{s.admission_number || "-"}</td>
+                                    <td>
+                                        <div className="font-bold">{s.name}</div>
+                                        <div className="text-sm text-gray">{s.registered_date}</div>
+                                    </td>
+                                    <td>{s.dob}</td>
+                                    <td style={{ textAlign: "right" }}>
+                                        <div className="flex gap-sm justify-end">
+                                            <button
+                                                onClick={() => handleViewProfile(s)}
+                                                className="btn btn-secondary"
+                                                style={{ padding: "0.25rem 0.5rem" }}
+                                                title="View Profile"
+                                            >
+                                                <Eye size={16} />
+                                            </button>
+                                            <button
+                                                onClick={() => {
+                                                    setSelectedStudentForFees(s);
+                                                    setFeesModalOpen(true);
+                                                }}
+                                                className="btn btn-primary"
+                                                style={{ padding: "0.25rem 0.5rem" }}
+                                                title="Manage Fees"
+                                            >
+                                                <Banknote size={16} />
+                                            </button>
+                                            <button
+                                                onClick={() => handleEditClick(s.id)}
+                                                className="btn btn-secondary"
+                                                style={{ padding: "0.25rem 0.5rem" }}
+                                                title="Edit Student"
+                                            >
+                                                <Pencil size={16} />
+                                            </button>
+                                            <button
+                                                onClick={() => handleDelete(s.id)}
+                                                className="btn btn-danger"
+                                                style={{ padding: "0.25rem 0.5rem" }}
+                                                title="Delete Student"
+                                            >
+                                                <Trash2 size={16} />
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
             </div>
 
             {/* ENROLL MODAL */}
@@ -445,8 +446,8 @@ function StudentProfileModal({ profile, onClose }) {
                 </div>
 
                 <h4>Academic Performance</h4>
-                <div style={{ overflowX: "auto" }}>
-                    <table style={{ fontSize: "0.9rem" }}>
+                <div style={{ overflowX: "auto", width: "100%", WebkitOverflowScrolling: "touch" }}>
+                    <table style={{ fontSize: "0.9rem", minWidth: "700px" }}>
                         <thead>
                             <tr>
                                 <th>Subject</th>

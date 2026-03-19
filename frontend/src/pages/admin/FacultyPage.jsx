@@ -103,78 +103,80 @@ export default function FacultyPage() {
 
             <div className="card">
                 <h3>Faculty List</h3>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Name</th>
-                            <th>Email</th>
-                            <th>Assigned Subjects</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {faculties.map((f) => {
-                            const isEditing = editingId === f.id;
-                            const assignedIds = selectedSubjects[f.id] || [];
+                <div style={{ overflowX: "auto", width: "100%", WebkitOverflowScrolling: "touch" }}>
+                    <table style={{ minWidth: "800px" }}>
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Assigned Subjects</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {faculties.map((f) => {
+                                const isEditing = editingId === f.id;
+                                const assignedIds = selectedSubjects[f.id] || [];
 
-                            return (
-                                <tr key={f.id}>
-                                    <td>{f.name}</td>
-                                    <td>{f.email}</td>
-                                    <td>
-                                        {isEditing ? (
-                                            <select
-                                                multiple
-                                                value={assignedIds}
-                                                onChange={(e) => {
-                                                    const values = Array.from(e.target.selectedOptions).map(o => o.value);
-                                                    setSelectedSubjects({ ...selectedSubjects, [f.id]: values });
-                                                }}
-                                                style={{ height: "100px" }}
-                                            >
-                                                {subjects.map((s) => (
-                                                    <option key={s.id} value={s.id}>{s.name} ({s.code})</option>
-                                                ))}
-                                            </select>
-                                        ) : (
-                                            <span>{getSubjectNames(assignedIds)}</span>
-                                        )}
-                                    </td>
-                                    <td>
-                                        {isEditing ? (
-                                            <div className="flex gap-sm">
-                                                <button
-                                                    className="btn btn-primary"
-                                                    style={{ padding: "0.25rem 0.5rem", fontSize: "0.8rem" }}
-                                                    onClick={() => handleSave(f.id)}
+                                return (
+                                    <tr key={f.id}>
+                                        <td>{f.name}</td>
+                                        <td>{f.email}</td>
+                                        <td>
+                                            {isEditing ? (
+                                                <select
+                                                    multiple
+                                                    value={assignedIds}
+                                                    onChange={(e) => {
+                                                        const values = Array.from(e.target.selectedOptions).map(o => o.value);
+                                                        setSelectedSubjects({ ...selectedSubjects, [f.id]: values });
+                                                    }}
+                                                    style={{ height: "100px" }}
                                                 >
-                                                    Save
-                                                </button>
+                                                    {subjects.map((s) => (
+                                                        <option key={s.id} value={s.id}>{s.name} ({s.code})</option>
+                                                    ))}
+                                                </select>
+                                            ) : (
+                                                <span>{getSubjectNames(assignedIds)}</span>
+                                            )}
+                                        </td>
+                                        <td>
+                                            {isEditing ? (
+                                                <div className="flex gap-sm">
+                                                    <button
+                                                        className="btn btn-primary"
+                                                        style={{ padding: "0.25rem 0.5rem", fontSize: "0.8rem" }}
+                                                        onClick={() => handleSave(f.id)}
+                                                    >
+                                                        Save
+                                                    </button>
+                                                    <button
+                                                        className="btn btn-secondary"
+                                                        style={{ padding: "0.25rem 0.5rem", fontSize: "0.8rem" }}
+                                                        onClick={() => {
+                                                            setEditingId(null);
+                                                            loadData(); // Reset changes by reloading
+                                                        }}
+                                                    >
+                                                        Cancel
+                                                    </button>
+                                                </div>
+                                            ) : (
                                                 <button
                                                     className="btn btn-secondary"
-                                                    style={{ padding: "0.25rem 0.5rem", fontSize: "0.8rem" }}
-                                                    onClick={() => {
-                                                        setEditingId(null);
-                                                        loadData(); // Reset changes by reloading
-                                                    }}
+                                                    onClick={() => setEditingId(f.id)}
                                                 >
-                                                    Cancel
+                                                    Edit Assignments
                                                 </button>
-                                            </div>
-                                        ) : (
-                                            <button
-                                                className="btn btn-secondary"
-                                                onClick={() => setEditingId(f.id)}
-                                            >
-                                                Edit Assignments
-                                            </button>
-                                        )}
-                                    </td>
-                                </tr>
-                            );
-                        })}
-                    </tbody>
-                </table>
+                                            )}
+                                        </td>
+                                    </tr>
+                                );
+                            })}
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     );
