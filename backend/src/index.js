@@ -13,11 +13,11 @@ const app = express();
 const port = process.env.PORT || 5000;
 
 // Trust the reverse proxy (Render) so rate limiting uses the correct client IP
-app.set('trust proxy', 1);
+app.set('trust proxy', true);
 
 app.use(
   cors({
-    origin: ['https://anikethainfoedu.vercel.app', 'http://localhost:5173'],
+    origin: ['https://anikethanainfoedu.vercel.app', 'http://localhost:5173'],
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     allowedHeaders: ['Content-Type', 'Authorization', 'x-academic-year'],
   })
