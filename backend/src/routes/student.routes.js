@@ -8,11 +8,6 @@ const { supabaseAdmin } = require('../services/supabaseClient'); // add import
 const router = express.Router();
 
 router.post('/verify', verifyStudent); // Public endpoint for login
-// temp route to debug students
-router.get('/debug-students', async (req, res) => {
-    const { data } = await supabaseAdmin.from('students').select('*').limit(5);
-    res.json(data);
-});
 
 router.get('/marks', requireStudent, academicYearGuard, getStudentMarks);
 router.get('/fees', requireStudent, academicYearGuard, getStudentFees);
