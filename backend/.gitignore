@@ -7,3 +7,6 @@ coverage
 prisma
 prisma.config.ts
 /src/generated/prisma
+
+# local scripts
+scripts/makeAdmin.js
