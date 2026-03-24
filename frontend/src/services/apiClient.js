@@ -30,10 +30,7 @@ export async function apiFetch(path, options = {}) {
     const errData = await res.json().catch(() => ({}));
     const errorMessage = errData.error || "API Request Failed";
 
-    if (
-      res.status === 401 &&
-      (errorMessage.toLowerCase().includes("token") || errorMessage.includes("JWT"))
-    ) {
+    if (res.status === 401) {
       if (window.location.pathname !== "/session-expired") {
         window.location.href = "/session-expired";
       }
