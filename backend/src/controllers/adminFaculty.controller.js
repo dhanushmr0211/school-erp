@@ -13,9 +13,11 @@ const createFaculty = async (req, res) => {
       });
     }
 
+    const cleanEmail = email.trim();
+
     // 1. Create Supabase Auth User
     const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
-      email,
+      email: cleanEmail,
       password: "Faculty@123", // Default password
       email_confirm: true,
       user_metadata: { role: 'FACULTY', name }
@@ -37,7 +39,7 @@ const createFaculty = async (req, res) => {
       .insert([
         {
           name,
-          email,
+          email: cleanEmail,
           academic_year_id,
           user_id: userId,
         },
