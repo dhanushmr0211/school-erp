@@ -15,22 +15,30 @@ const port = process.env.PORT || 5000;
 // Trust the reverse proxy (Render) so rate limiting uses the correct client IP
 app.set('trust proxy', true);
 
+// 1. CORS - MUST BE FIRST
 app.use(
   cors({
     origin: ['https://anikethanainfoedu.vercel.app', 'http://localhost:5173'],
-    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'x-academic-year'],
+    credentials: true,
+    optionsSuccessStatus: 204
   })
 );
 
-// General rate limiter — 100 requests per 15 minutes per IP
+app.use(express.json());
+
+// 2. RATE LIMITING
+// Increased limit for ERP dashboards (1000 requests per 15 mins)
 const generalLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 100,
+  max: 1000, 
   message: { error: 'Too many requests, please try again later.' },
   standardHeaders: true,
   legacyHeaders: false,
 });
+
+app.use(generalLimiter);
 
 // Strict limiter for student login (prevents brute force on DOB/admission number)
 const studentVerifyLimiter = rateLimit({
@@ -40,10 +48,6 @@ const studentVerifyLimiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
 });
-
-app.use(generalLimiter);
-
-app.use(express.json());
 
 // ✅ HEALTH CHECK
 app.get('/health', (req, res) => {
