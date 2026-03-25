@@ -228,6 +228,60 @@ const syncAcademicYearData = async (req, res) => {
             }
         }
 
+        // 4. Copy faculty-subject assignments
+        // A. Get faculty mapping (user_id -> new_id)
+        const { data: targetFaculties } = await supabaseAdmin
+            .from('faculties')
+            .select('id, user_id')
+            .eq('academic_year_id', to_year_id);
+        const facultyMap = new Map(targetFaculties?.map(f => [f.user_id, f.id]) || []);
+
+        // B. Get subject mapping (name -> new_id)
+        const { data: targetSubjectsList } = await supabaseAdmin
+            .from('subjects')
+            .select('id, name')
+            .eq('academic_year_id', to_year_id);
+        const subjectMap = new Map(targetSubjectsList?.map(s => [s.name, s.id]) || []);
+
+        // C. Get old assignments
+        const { data: oldAssignments } = await supabaseAdmin
+            .from('faculty_subjects')
+            .select('faculty_id, subject_id, faculties!inner(user_id), subjects!inner(name)')
+            .eq('faculties.academic_year_id', from_year_id);
+
+        if (oldAssignments && oldAssignments.length > 0) {
+            const newAssignments = [];
+            for (const assignment of oldAssignments) {
+                const newFacultyId = facultyMap.get(assignment.faculties.user_id);
+                const newSubjectId = subjectMap.get(assignment.subjects.name);
+
+                if (newFacultyId && newSubjectId) {
+                    newAssignments.push({
+                        faculty_id: newFacultyId,
+                        subject_id: newSubjectId
+                    });
+                }
+            }
+
+            if (newAssignments.length > 0) {
+                // Deduplicate current target assignments
+                const { data: existingAssignments } = await supabaseAdmin
+                    .from('faculty_subjects')
+                    .select('faculty_id, subject_id')
+                    .in('faculty_id', Array.from(facultyMap.values()));
+                
+                const existingKeys = new Set(existingAssignments?.map(a => `${a.faculty_id}-${a.subject_id}`) || []);
+                const finalAssignments = newAssignments.filter(a => !existingKeys.has(`${a.faculty_id}-${a.subject_id}`));
+
+                if (finalAssignments.length > 0) {
+                    const { error: assignError } = await supabaseAdmin
+                        .from('faculty_subjects')
+                        .insert(finalAssignments);
+                    if (assignError) console.error("Faculty-Subject sync error:", assignError.message);
+                }
+            }
+        }
+
         res.json({ success: true, message: 'Data synced successfully (Duplicates avoided)' });
     } catch (error) {
         console.error('Error syncing academic year data:', error);
