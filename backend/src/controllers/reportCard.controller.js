@@ -9,11 +9,12 @@ const generateReportCard = async (req, res) => {
             return res.status(400).json({ error: 'Admission Number and Academic Year ID are required' });
         }
 
-        // 1. Fetch Student Details (lookup by Admission Number)
+        // 1. Fetch Student Details (lookup by Admission Number + Academic Year)
         const { data: student, error: studentError } = await supabaseAdmin
             .from('students')
             .select('id, name, father_name, class_enrollments:student_class_enrollments(roll_number, class:classes(class_name, section))')
             .eq('admission_number', admission_number)
+            .eq('academic_year_id', academic_year_id)
             .eq('student_class_enrollments.academic_year_id', academic_year_id)
             .single();
 
@@ -30,6 +31,14 @@ const generateReportCard = async (req, res) => {
         const section = enrollment?.class?.section || '';
         const className = section ? `${classNameRaw} - ${section}` : classNameRaw;
         const rollNumber = enrollment?.roll_number || 'N/A';
+
+        // Fetch academic year name
+        const { data: yearData } = await supabaseAdmin
+            .from('academic_years')
+            .select('year_name')
+            .eq('id', academic_year_id)
+            .single();
+        const academicYearName = yearData?.year_name || '';
 
         // 2. Fetch Marks
         const { data: marks, error: marksError } = await supabaseAdmin
@@ -116,16 +125,53 @@ const generateReportCard = async (req, res) => {
 
         doc.pipe(res);
 
-        // Header
-        doc.fontSize(20).text('Student Report Card', { align: 'center' });
-        doc.moveDown();
+        // ===== SCHOOL LETTERHEAD =====
+        // Try to load logo from multiple locations
+        const path = require('path');
+        const fs = require('fs');
+        const logoPaths = [
+            path.join(__dirname, '../../public/logo.png'),
+            path.join(__dirname, '../../../frontend/public/logo.png'),
+        ];
+        const logoPath = logoPaths.find(p => fs.existsSync(p));
 
-        doc.fontSize(12);
-        doc.text(`Name: ${student.name}`);
-        doc.text(`Roll Number: ${rollNumber}`);
-        doc.text(`Father's Name: ${student.father_name || 'N/A'}`);
-        doc.text(`Class: ${className}`);
-        doc.moveDown();
+        if (logoPath) {
+            doc.image(logoPath, 460, 25, { width: 80 });
+        }
+
+        // School Name & Details (left side)
+        doc.fontSize(18).font('Helvetica-Bold').text('ANIKETHANA SCHOOL', 30, 30, { width: 420 });
+        doc.fontSize(9).font('Helvetica')
+            .text('Affiliated to CBSE | Estd. 2010', 30, 52, { width: 420 })
+            .text('Sagar Road, Shimoga, Karnataka - 577201', 30, 64, { width: 420 })
+            .text('Phone: +91 98765 43210  |  Email: info@anikethana.edu', 30, 76, { width: 420 });
+
+        // Divider line
+        doc.moveTo(30, 100).lineTo(570, 100).lineWidth(1.5).stroke();
+
+        // Report Card Title
+        doc.moveDown(1);
+        doc.fontSize(14).font('Helvetica-Bold').text('STUDENT REPORT CARD', { align: 'center' });
+        doc.fontSize(10).font('Helvetica').text(`Academic Year: ${academicYearName}`, { align: 'center' });
+        doc.moveDown(0.5);
+
+        // Divider
+        doc.moveTo(30, doc.y).lineTo(570, doc.y).lineWidth(0.5).stroke();
+        doc.moveDown(0.5);
+
+        // Student Info Grid
+        const infoY = doc.y;
+        doc.fontSize(10).font('Helvetica');
+        doc.text(`Name: `, 30, infoY, { continued: true }).font('Helvetica-Bold').text(student.name);
+        doc.font('Helvetica').text(`Father's Name: `, 300, infoY, { continued: true }).font('Helvetica-Bold').text(student.father_name || 'N/A');
+
+        doc.font('Helvetica').text(`Admission No: `, 30, infoY + 18, { continued: true }).font('Helvetica-Bold').text(admission_number);
+        doc.font('Helvetica').text(`Roll Number: `, 300, infoY + 18, { continued: true }).font('Helvetica-Bold').text(rollNumber);
+
+        doc.font('Helvetica').text(`Class: `, 30, infoY + 36, { continued: true }).font('Helvetica-Bold').text(className);
+
+        doc.y = infoY + 60;
+        doc.moveDown(0.5);
 
         // Table Constants
         const tableTop = doc.y;
