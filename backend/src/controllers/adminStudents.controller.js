@@ -328,6 +328,25 @@ const deleteStudent = async (req, res) => {
 
         if (error) throw error;
 
+        // Re-sequence admission numbers (fill the gap)
+        const { data: remainingStudents, error: fetchRemaining } = await supabaseAdmin
+            .from('students')
+            .select('id, admission_number')
+            .eq('academic_year_id', academicYearId)
+            .order('admission_number', { ascending: true });
+
+        if (!fetchRemaining && remainingStudents && remainingStudents.length > 0) {
+            for (let i = 0; i < remainingStudents.length; i++) {
+                const correctNumber = i + 1;
+                if (remainingStudents[i].admission_number !== correctNumber) {
+                    await supabaseAdmin
+                        .from('students')
+                        .update({ admission_number: correctNumber })
+                        .eq('id', remainingStudents[i].id);
+                }
+            }
+        }
+
         res.json({ success: true, message: "Student and all related records deleted successfully" });
     } catch (err) {
         console.error("Delete student error:", err);

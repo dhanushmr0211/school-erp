@@ -186,6 +186,25 @@ export default function FeesModal({ student, academicYearId, onClose }) {
                         <div className="flex justify-end gap-3 mt-4">
                             <button className="btn btn-secondary" onClick={onClose}>Close</button>
                             <button
+                                className="btn"
+                                style={{ background: '#22c55e', color: '#fff', fontWeight: 600 }}
+                                onClick={() => {
+                                    setFeesMap(prev => ({
+                                        ...prev,
+                                        [activeTab]: {
+                                            ...prev[activeTab],
+                                            tuition_paid: prev[activeTab].tuition_total,
+                                            books_paid: prev[activeTab].books_total,
+                                            uniform_paid: prev[activeTab].uniform_total,
+                                            bus_paid: prev[activeTab].bus_total,
+                                        }
+                                    }));
+                                }}
+                                title="Set all paid amounts equal to total fees"
+                            >
+                                ✅ Fees Cleared
+                            </button>
+                            <button
                                 className="btn btn-primary"
                                 onClick={handleSave}
                                 disabled={saving}

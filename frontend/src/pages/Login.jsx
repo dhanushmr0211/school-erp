@@ -44,7 +44,7 @@ export default function Login() {
 
 
   /* ... inside Login component ... */
-  const [admissionNumber, setAdmissionNumber] = useState("");
+  const [studentName, setStudentName] = useState("");
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -62,7 +62,7 @@ export default function Login() {
         const response = await fetch(`${import.meta.env.VITE_API_URL}/student/verify`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ admission_number: admissionNumber, dob: password })
+          body: JSON.stringify({ name: studentName, dob: password })
         });
 
         const result = await response.json();
@@ -232,17 +232,17 @@ export default function Login() {
             }}>
               {isStudent ? "Student Login" : "Portal Login"}
             </h1>
-            {isStudent && <p className="text-sm text-gray-400 mt-1">Enter your admission number and date of birth to continue.</p>}
+            {isStudent && <p className="text-sm text-gray-400 mt-1">Enter your name and date of birth to continue.</p>}
           </div>
 
           {isStudent ? (
             <div className="flex flex-col gap-1">
-              <label className="text-xs text-gray-400 font-semibold ml-1">Admission Number</label>
+              <label className="text-xs text-gray-400 font-semibold ml-1">Student Name</label>
               <input
-                type="number"
-                placeholder="Enter Admission Number"
-                value={admissionNumber}
-                onChange={(e) => setAdmissionNumber(e.target.value)}
+                type="text"
+                placeholder="Enter Student Name"
+                value={studentName}
+                onChange={(e) => setStudentName(e.target.value)}
                 required
                 style={{
                   padding: "0.875rem",

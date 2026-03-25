@@ -139,19 +139,19 @@ const getStudentClasses = async (req, res) => {
 const verifyStudent = async (req, res) => {
     try {
         console.log("verifyStudent called with body:", req.body);
-        const { admission_number, dob } = req.body;
+        const { name, dob } = req.body;
 
-        if (!admission_number || !dob) {
+        if (!name || !dob) {
             console.log("Missing fields");
-            return res.status(400).json({ error: "Admission Number and DOB are required" });
+            return res.status(400).json({ error: "Name and DOB are required" });
         }
 
         console.log("Querying Supabase...");
         // Query with Service Key (Admin) to bypass RLS
         const { data: students, error } = await supabaseAdmin
             .from('students')
-            .select('id, name')
-            .eq('admission_number', admission_number)
+            .select('id, name, admission_number')
+            .ilike('name', name)
             .eq('dob', dob)
             .limit(1);
 
@@ -165,11 +165,11 @@ const verifyStudent = async (req, res) => {
         const student = students && students.length > 0 ? students[0] : null;
 
         if (!student) {
-            return res.status(404).json({ error: "Invalid Admission Number or Date of Birth" });
+            return res.status(404).json({ error: "Invalid Name or Date of Birth" });
         }
 
         // Construct email
-        const effectiveEmail = `student${admission_number}@anikethana.edu`;
+        const effectiveEmail = `student${student.admission_number}@anikethana.edu`;
 
         // Auto-Register Auth User if not exists
         try {

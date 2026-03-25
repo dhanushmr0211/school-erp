@@ -47,6 +47,7 @@ export default function Students() {
 
     const [profileModalOpen, setProfileModalOpen] = useState(false);
     const [selectedProfile, setSelectedProfile] = useState(null);
+    const [searchQuery, setSearchQuery] = useState("");
 
     useEffect(() => {
         if (academicYearId) {
@@ -311,7 +312,26 @@ export default function Students() {
             </div>
 
             <div className="card">
-                <h3>All Students</h3>
+                <div className="flex justify-between items-center flex-wrap gap-md mb-md">
+                    <h3 style={{ margin: 0 }}>All Students ({students.length})</h3>
+                    <div style={{ position: 'relative', minWidth: '250px', flex: '0 1 350px' }}>
+                        <input
+                            type="text"
+                            placeholder="🔍 Search by student name..."
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            style={{
+                                width: '100%',
+                                padding: '10px 14px 10px 14px',
+                                borderRadius: '8px',
+                                border: '1px solid var(--border-color, #333)',
+                                background: 'var(--card-bg, #1e1e2e)',
+                                color: 'inherit',
+                                fontSize: '0.95rem'
+                            }}
+                        />
+                    </div>
+                </div>
                 <div style={{ overflowX: "auto", width: "100%", WebkitOverflowScrolling: "touch" }}>
                     <table style={{ minWidth: "600px" }}>
                         <thead>
@@ -323,7 +343,7 @@ export default function Students() {
                             </tr>
                         </thead>
                         <tbody>
-                            {students.map((s, index) => (
+                            {students.filter(s => s.name?.toLowerCase().includes(searchQuery.toLowerCase())).map((s, index) => (
                                 <tr key={s.id}>
                                     <td>{s.admission_number || "-"}</td>
                                     <td>
