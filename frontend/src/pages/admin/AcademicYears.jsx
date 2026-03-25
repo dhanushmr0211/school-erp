@@ -4,6 +4,7 @@ import { fetchAcademicYears, createAcademicYear, activateAcademicYear, syncAcade
 export default function AcademicYears() {
     const [years, setYears] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [syncedYears, setSyncedYears] = useState(new Set()); // Track synced years in this session
     const [form, setForm] = useState({ year_name: "", start_date: "", end_date: "" });
     const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -46,14 +47,18 @@ export default function AcademicYears() {
         }
     }
 
-    async function handleSync(fromYearId, toYearId) {
-        if (!confirm("This will copy all Students, Faculty, and Subjects from the source year to this year. Continue?")) return;
+    async function handleSync(fromYearId, toYearId, fromYearName, toYearName) {
+        const warningMessage = `⚠️ PROFESSIONAL WARNING: SYNC IN PROGRESS\n\nYou are about to copy all Subjects, Faculty, and Student master records from academic year ${fromYearName} into ${toYearName}.\n\n- Existing records in ${toYearName} will NOT be deleted or overwritten.\n- This action is permanent and helpful for setting up new years quickly.\n\nAre you sure you want to proceed with this data migration?`;
+
+        if (!confirm(warningMessage)) return;
+
         try {
             await syncAcademicYearData(fromYearId, toYearId);
-            alert("Data synced successfully!");
+            alert(`✅ SUCCESS: Data from ${fromYearName} has been successfully migrated to ${toYearName}.`);
+            setSyncedYears(prev => new Set([...prev, toYearId])); // Hide button for this session
             loadData();
         } catch (err) {
-            alert("Failed to sync data");
+            alert("❌ ERROR: Data synchronization failed. Please check your network or contact support.");
         }
     }
 
@@ -134,13 +139,13 @@ export default function AcademicYears() {
                                                         Set Active
                                                     </button>
                                                 )}
-                                                {!y.is_active && activeYear && (
+                                                {!y.is_active && activeYear && y.year_name > activeYear.year_name && !syncedYears.has(y.id) && (
                                                     <button
                                                         className="btn btn-primary btn-sm"
-                                                        style={{ background: '#6366f1' }}
-                                                        onClick={() => handleSync(activeYear.id, y.id)}
+                                                        style={{ background: '#6366f1', display: 'flex', alignItems: 'center', gap: '4px' }}
+                                                        onClick={() => handleSync(activeYear.id, y.id, activeYear.year_name, y.year_name)}
                                                     >
-                                                        Sync from {activeYear.year_name}
+                                                        <span>🔄</span> Sync Data from {activeYear.year_name}
                                                     </button>
                                                 )}
                                             </div>
