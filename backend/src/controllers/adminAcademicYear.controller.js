@@ -155,42 +155,80 @@ const syncAcademicYearData = async (req, res) => {
             return res.status(400).json({ error: 'Source and target year IDs are required' });
         }
 
-        console.log(`Syncing data from academic year ${from_year_id} to ${to_year_id}`);
+        console.log(`Syncing data from ${from_year_id} to ${to_year_id}`);
 
-        // 1. Copy subjects
+        // 1. Copy subjects (Skip if name already exists in target)
         const { data: oldSubjects } = await supabaseAdmin
             .from('subjects')
             .select('name, code, type')
             .eq('academic_year_id', from_year_id);
 
         if (oldSubjects && oldSubjects.length > 0) {
-            const newSubjects = oldSubjects.map(s => ({ ...s, academic_year_id: to_year_id }));
-            await supabaseAdmin.from('subjects').insert(newSubjects);
+            // Get existing subjects in target year
+            const { data: targetSubjects } = await supabaseAdmin
+                .from('subjects')
+                .select('name')
+                .eq('academic_year_id', to_year_id);
+            const targetSubjectNames = new Set(targetSubjects?.map(s => s.name) || []);
+
+            const newSubjects = oldSubjects
+                .filter(s => !targetSubjectNames.has(s.name))
+                .map(s => ({ ...s, academic_year_id: to_year_id }));
+
+            if (newSubjects.length > 0) {
+                const { error } = await supabaseAdmin.from('subjects').insert(newSubjects);
+                if (error) console.error("Subject sync error:", error.message);
+            }
         }
 
-        // 2. Copy faculty
+        // 2. Copy faculty (Skip if user_id already exists in target)
         const { data: oldFaculty } = await supabaseAdmin
             .from('faculties')
             .select('name, email, user_id, qualification')
             .eq('academic_year_id', from_year_id);
 
         if (oldFaculty && oldFaculty.length > 0) {
-            const newFaculty = oldFaculty.map(f => ({ ...f, academic_year_id: to_year_id }));
-            await supabaseAdmin.from('faculties').insert(newFaculty);
+            // Get existing faculty in target
+            const { data: targetFaculty } = await supabaseAdmin
+                .from('faculties')
+                .select('user_id')
+                .eq('academic_year_id', to_year_id);
+            const targetUserIds = new Set(targetFaculty?.map(f => f.user_id) || []);
+
+            const newFaculty = oldFaculty
+                .filter(f => !targetUserIds.has(f.user_id))
+                .map(f => ({ ...f, academic_year_id: to_year_id }));
+
+            if (newFaculty.length > 0) {
+                const { error } = await supabaseAdmin.from('faculties').insert(newFaculty);
+                if (error) console.error("Faculty sync error:", error.message);
+            }
         }
 
-        // 3. Copy students
+        // 3. Copy students (Deduplicate by admission_number)
         const { data: oldStudents } = await supabaseAdmin
             .from('students')
             .select('admission_number, dob, name, father_name, mother_name, father_occupation, mother_occupation, address, contact, registered_date, roll_number')
             .eq('academic_year_id', from_year_id);
 
         if (oldStudents && oldStudents.length > 0) {
-            const newStudents = oldStudents.map(s => ({ ...s, academic_year_id: to_year_id }));
-            await supabaseAdmin.from('students').insert(newStudents);
+            const { data: targetStudents } = await supabaseAdmin
+                .from('students')
+                .select('admission_number')
+                .eq('academic_year_id', to_year_id);
+            const targetAdmissionNumbers = new Set(targetStudents?.map(s => s.admission_number) || []);
+
+            const newStudents = oldStudents
+                .filter(s => !targetAdmissionNumbers.has(s.admission_number))
+                .map(s => ({ ...s, academic_year_id: to_year_id }));
+
+            if (newStudents.length > 0) {
+                const { error } = await supabaseAdmin.from('students').insert(newStudents);
+                if (error) console.error("Student sync error:", error.message);
+            }
         }
 
-        res.json({ success: true, message: 'Data synced successfully' });
+        res.json({ success: true, message: 'Data synced successfully (Duplicates avoided)' });
     } catch (error) {
         console.error('Error syncing academic year data:', error);
         res.status(500).json({ error: 'Failed to sync academic year data' });

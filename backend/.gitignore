@@ -10,3 +10,15 @@ prisma.config.ts
 
 # local scripts
 scripts/makeAdmin.js
+fix_constraints_db.js
+inspect_data.js
+check_constraints.js
+test_rpc.js
+test_db.js
+check_schema.js
+*.log
+backend/test_rpc.js
+backend/fix_constraints_db.js
+backend/inspect_data.js
+backend/check_constraints.js
+backend/check_schema.js
