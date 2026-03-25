@@ -322,11 +322,7 @@ export default function Students() {
                             onChange={(e) => setSearchQuery(e.target.value)}
                             style={{
                                 width: '100%',
-                                padding: '10px 14px 10px 14px',
-                                borderRadius: '8px',
-                                border: '1px solid var(--border-color, #333)',
-                                background: 'var(--card-bg, #1e1e2e)',
-                                color: 'inherit',
+                                padding: '10px 14px',
                                 fontSize: '0.95rem'
                             }}
                         />

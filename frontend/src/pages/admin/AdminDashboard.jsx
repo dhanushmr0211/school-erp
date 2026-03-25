@@ -60,14 +60,9 @@ export default function AdminDashboard() {
                         onChange={(e) => setSearchQuery(e.target.value)}
                         style={{ 
                             width: '100%', 
-                            padding: '12px 16px 12px 48px', 
-                            borderRadius: '12px',
-                            border: '1px solid var(--border-color, #444)',
-                            background: 'var(--bg-secondary, #1a1a2e)',
-                            color: 'white',
+                            padding: '12px 16px 12px 48px',
                             fontSize: '1.05rem',
                             outline: 'none',
-                            boxShadow: '0 4px 6px rgba(0,0,0,0.1)'
                         }}
                     />
                 </div>
@@ -75,16 +70,17 @@ export default function AdminDashboard() {
                 {searchQuery.trim().length > 0 && (
                     <div style={{ 
                         marginTop: '1rem', 
-                        background: 'var(--bg-secondary, #1a1a2e)', 
+                        background: 'var(--card-bg, #fff)', 
                         borderRadius: '12px', 
-                        border: '1px solid var(--border-color, #444)',
-                        overflow: 'hidden'
+                        border: '1px solid var(--border-color, #e2e8f0)',
+                        overflow: 'hidden',
+                        boxShadow: '0 4px 6px rgba(0,0,0,0.05)'
                     }}>
                         <ul style={{ listStyle: 'none', margin: 0, padding: 0 }}>
                             {allStudents.filter(s => s.name?.toLowerCase().includes(searchQuery.toLowerCase())).slice(0, 5).map(student => (
                                 <li key={student.id} style={{ 
                                     padding: '12px 16px', 
-                                    borderBottom: '1px solid var(--border-color, #333)', 
+                                    borderBottom: '1px solid var(--border-color, #e2e8f0)', 
                                     display: 'flex', 
                                     justifyContent: 'space-between',
                                     alignItems: 'center'
