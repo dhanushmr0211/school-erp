@@ -298,6 +298,16 @@ const deleteStudent = async (req, res) => {
             });
         }
 
+        // Get student's class_id before we delete them
+        const { data: enrollment } = await supabaseAdmin
+            .from('student_class_enrollments')
+            .select('class_id')
+            .eq('student_id', id)
+            .eq('academic_year_id', academicYearId)
+            .single();
+
+        const studentClassId = enrollment?.class_id;
+
         // Delete enrollments first (cascade)
         const { error: enrollmentError } = await supabaseAdmin
             .from('student_class_enrollments')
@@ -343,6 +353,27 @@ const deleteStudent = async (req, res) => {
                         .from('students')
                         .update({ admission_number: correctNumber })
                         .eq('id', remainingStudents[i].id);
+                }
+            }
+        }
+
+        // Re-sequence Roll Numbers (if student was in a class)
+        if (studentClassId) {
+            const { data: remainingEnrollments, error: fetchRolls } = await supabaseAdmin
+                .from('student_class_enrollments')
+                .select('id, students(name)')
+                .eq('class_id', studentClassId);
+
+            if (!fetchRolls && remainingEnrollments && remainingEnrollments.length > 0) {
+                // Sort by name alphabetically (standard school practice)
+                remainingEnrollments.sort((a, b) => (a.students?.name || '').localeCompare(b.students?.name || ''));
+
+                for (let i = 0; i < remainingEnrollments.length; i++) {
+                    const correctRoll = i + 1;
+                    await supabaseAdmin
+                        .from('student_class_enrollments')
+                        .update({ roll_number: correctRoll })
+                        .eq('id', remainingEnrollments[i].id);
                 }
             }
         }

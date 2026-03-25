@@ -144,19 +144,42 @@ const getClassStudents = async (req, res) => {
 const removeStudentFromClass = async (req, res) => {
     try {
         const { class_id, student_id } = req.params;
+        const academicYearId = req.headers['x-academic-year'];
 
         if (!class_id || !student_id) {
             return res.status(400).json({ error: 'Class ID and Student ID are required' });
         }
 
-        const { error } = await supabaseAdmin
+        // 1. Delete the enrollment
+        const { error: deleteError } = await supabaseAdmin
             .from('student_class_enrollments')
             .delete()
             .match({ class_id, student_id });
 
-        if (error) throw error;
+        if (deleteError) throw deleteError;
 
-        res.json({ message: 'Student removed from class successfully' });
+        // 2. Re-sequence all remaining students in THIS class
+        // Fetch all students in the class, joined with student table to get names for sorting
+        const { data: remainingEnrollments, error: fetchError } = await supabaseAdmin
+            .from('student_class_enrollments')
+            .select('id, student_id, students(name)')
+            .eq('class_id', class_id);
+
+        if (!fetchError && remainingEnrollments && remainingEnrollments.length > 0) {
+            // Sort them alphabetically to stay consistent with enrollment logic
+            remainingEnrollments.sort((a, b) => (a.students?.name || '').localeCompare(b.students?.name || ''));
+
+            // Update roll numbers
+            for (let i = 0; i < remainingEnrollments.length; i++) {
+                const correctRollNumber = i + 1;
+                await supabaseAdmin
+                    .from('student_class_enrollments')
+                    .update({ roll_number: correctRollNumber })
+                    .eq('id', remainingEnrollments[i].id);
+            }
+        }
+
+        res.json({ message: 'Student removed from class and roll numbers reassigned successfully' });
     } catch (error) {
         console.error('Error removing student from class:', error);
         res.status(500).json({ error: 'Failed to remove student from class' });
