@@ -2,7 +2,7 @@ const express = require('express');
 const requireAdmin = require('../middleware/requireAdmin');
 const requireAuth = require('../middleware/requireAuth');
 
-const { getAcademicYears, createAcademicYear } =
+const { getAcademicYears, createAcademicYear, activateAcademicYear, syncAcademicYearData } =
   require('../controllers/adminAcademicYear.controller');
 
 const { getDashboardStats } = require('../controllers/adminDashboard.controller');
@@ -39,6 +39,8 @@ const router = express.Router();
 /* Academic Years */
 router.get('/academic-years', requireAuth, getAcademicYears);
 router.post('/academic-years', requireAdmin, createAcademicYear);
+router.post('/academic-years/sync-data', requireAdmin, syncAcademicYearData);
+router.put('/academic-years/:id/activate', requireAdmin, activateAcademicYear);
 
 /* Stats */
 router.get('/dashboard-stats', requireAdmin, getDashboardStats);

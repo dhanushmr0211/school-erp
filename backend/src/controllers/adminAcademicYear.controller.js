@@ -118,7 +118,88 @@ const createAcademicYear = async (req, res) => {
     }
 };
 
+const activateAcademicYear = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        // 1. Deactivate all years
+        const { error: deactivateError } = await supabaseAdmin
+            .from('academic_years')
+            .update({ is_active: false })
+            .neq('id', id);
+
+        if (deactivateError) throw deactivateError;
+
+        // 2. Activate the selected year
+        const { data, error: activateError } = await supabaseAdmin
+            .from('academic_years')
+            .update({ is_active: true })
+            .eq('id', id)
+            .select()
+            .single();
+
+        if (activateError) throw activateError;
+
+        res.json(data);
+    } catch (error) {
+        console.error('Error activating academic year:', error);
+        res.status(500).json({ error: 'Failed to activate academic year' });
+    }
+};
+
+const syncAcademicYearData = async (req, res) => {
+    try {
+        const { from_year_id, to_year_id } = req.body;
+
+        if (!from_year_id || !to_year_id) {
+            return res.status(400).json({ error: 'Source and target year IDs are required' });
+        }
+
+        console.log(`Syncing data from academic year ${from_year_id} to ${to_year_id}`);
+
+        // 1. Copy subjects
+        const { data: oldSubjects } = await supabaseAdmin
+            .from('subjects')
+            .select('name, code, type')
+            .eq('academic_year_id', from_year_id);
+
+        if (oldSubjects && oldSubjects.length > 0) {
+            const newSubjects = oldSubjects.map(s => ({ ...s, academic_year_id: to_year_id }));
+            await supabaseAdmin.from('subjects').insert(newSubjects);
+        }
+
+        // 2. Copy faculty
+        const { data: oldFaculty } = await supabaseAdmin
+            .from('faculties')
+            .select('name, email, user_id, qualification')
+            .eq('academic_year_id', from_year_id);
+
+        if (oldFaculty && oldFaculty.length > 0) {
+            const newFaculty = oldFaculty.map(f => ({ ...f, academic_year_id: to_year_id }));
+            await supabaseAdmin.from('faculties').insert(newFaculty);
+        }
+
+        // 3. Copy students
+        const { data: oldStudents } = await supabaseAdmin
+            .from('students')
+            .select('admission_number, dob, name, father_name, mother_name, father_occupation, mother_occupation, address, contact, registered_date, roll_number')
+            .eq('academic_year_id', from_year_id);
+
+        if (oldStudents && oldStudents.length > 0) {
+            const newStudents = oldStudents.map(s => ({ ...s, academic_year_id: to_year_id }));
+            await supabaseAdmin.from('students').insert(newStudents);
+        }
+
+        res.json({ success: true, message: 'Data synced successfully' });
+    } catch (error) {
+        console.error('Error syncing academic year data:', error);
+        res.status(500).json({ error: 'Failed to sync academic year data' });
+    }
+};
+
 module.exports = {
     getAcademicYears,
     createAcademicYear,
+    activateAcademicYear,
+    syncAcademicYearData,
 };

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { fetchAcademicYears, createAcademicYear } from "../../services/adminApi";
+import { fetchAcademicYears, createAcademicYear, activateAcademicYear, syncAcademicYearData } from "../../services/adminApi";
 
 export default function AcademicYears() {
     const [years, setYears] = useState([]);
@@ -33,6 +33,27 @@ export default function AcademicYears() {
             alert("Failed to create academic year");
         } finally {
             setIsSubmitting(false);
+        }
+    }
+
+    async function handleSetActive(id) {
+        if (!confirm("Are you sure you want to set this as the active year? This will deactivate all other years.")) return;
+        try {
+            await activateAcademicYear(id);
+            loadData();
+        } catch (err) {
+            alert("Failed to activate academic year");
+        }
+    }
+
+    async function handleSync(fromYearId, toYearId) {
+        if (!confirm("This will copy all Students, Faculty, and Subjects from the source year to this year. Continue?")) return;
+        try {
+            await syncAcademicYearData(fromYearId, toYearId);
+            alert("Data synced successfully!");
+            loadData();
+        } catch (err) {
+            alert("Failed to sync data");
         }
     }
 
@@ -92,18 +113,42 @@ export default function AcademicYears() {
                         </tr>
                     </thead>
                     <tbody>
-                        {years.map((y) => (
-                            <tr key={y.id}>
-                                <td>{y.year_name}</td>
-                                <td>{y.start_date}</td>
-                                <td>{y.end_date}</td>
-                                <td>
-                                    <span className={`badge ${y.is_current ? "badge-green" : "badge-blue"}`}>
-                                        {y.is_current ? "Current" : "Historical"}
-                                    </span>
-                                </td>
-                            </tr>
-                        ))}
+                        {years.map((y) => {
+                            const activeYear = years.find(yr => yr.is_active);
+                            return (
+                                <tr key={y.id}>
+                                    <td>{y.year_name}</td>
+                                    <td>{y.start_date}</td>
+                                    <td>{y.end_date}</td>
+                                    <td>
+                                        <div className="flex items-center gap-md">
+                                            <span className={`badge ${y.is_active ? "badge-green" : "badge-blue"}`}>
+                                                {y.is_active ? "Active" : "Historical"}
+                                            </span>
+                                            <div className="flex gap-sm">
+                                                {!y.is_active && (
+                                                    <button
+                                                        className="btn btn-secondary btn-sm"
+                                                        onClick={() => handleSetActive(y.id)}
+                                                    >
+                                                        Set Active
+                                                    </button>
+                                                )}
+                                                {!y.is_active && activeYear && (
+                                                    <button
+                                                        className="btn btn-primary btn-sm"
+                                                        style={{ background: '#6366f1' }}
+                                                        onClick={() => handleSync(activeYear.id, y.id)}
+                                                    >
+                                                        Sync from {activeYear.year_name}
+                                                    </button>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            );
+                        })}
                     </tbody>
                 </table>
             </div>

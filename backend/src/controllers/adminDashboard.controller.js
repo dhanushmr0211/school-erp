@@ -16,7 +16,7 @@ const getDashboardStats = async (req, res) => {
         ] = await Promise.all([
             supabaseAdmin.from('students').select('*', { count: 'exact', head: true }).eq('academic_year_id', academicYearId),
             supabaseAdmin.from('classes').select('*', { count: 'exact', head: true }).eq('academic_year_id', academicYearId),
-            supabaseAdmin.from('faculties').select('*', { count: 'exact', head: true })
+            supabaseAdmin.from('faculties').select('*', { count: 'exact', head: true }).eq('academic_year_id', academicYearId)
         ]);
 
         if (studentError) throw studentError;
