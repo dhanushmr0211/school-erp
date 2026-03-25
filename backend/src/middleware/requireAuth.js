@@ -30,6 +30,6 @@ module.exports = async function requireAuth(req, res, next) {
         next();
     } catch (err) {
         console.error("Auth error:", err);
-        res.status(500).json({ error: "Auth failed" });
+        res.status(500).json({ error: "Auth failed: " + (err.message || err) });
     }
 };

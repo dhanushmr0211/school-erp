@@ -1,6 +1,6 @@
 
 import { useEffect, useState } from "react";
-import { fetchFaculties, createFaculty } from "../../services/adminFacultyApi";
+import { fetchFaculties, createFaculty, updateFaculty } from "../../services/adminFacultyApi";
 import { fetchSubjects, assignSubjectsToFaculty } from "../../services/adminSubjectApi";
 import { useAcademicYear } from "../../context/AcademicYearContext";
 
@@ -11,9 +11,10 @@ export default function FacultyPage() {
     const { academicYearId } = useAcademicYear();
 
 
-    const [form, setForm] = useState({ name: "", email: "" });
+    const [form, setForm] = useState({ name: "", email: "", qualification: "" });
     const [selectedSubjects, setSelectedSubjects] = useState({});
     const [editingId, setEditingId] = useState(null); // ID of the faculty currently being edited
+    const [editForm, setEditForm] = useState({ name: "", email: "", qualification: "" });
 
     useEffect(() => {
         loadData();
@@ -45,17 +46,18 @@ export default function FacultyPage() {
             academic_year_id: academicYearId,
         });
 
-        setForm({ name: "", email: "" });
+        setForm({ name: "", email: "", qualification: "" });
         loadData();
     }
 
     async function handleSave(facultyId) {
         try {
+            await updateFaculty(facultyId, editForm);
             await assignSubjectsToFaculty(facultyId, selectedSubjects[facultyId] || []);
             setEditingId(null);
             await loadData(); // Reload to refresh view
         } catch (err) {
-            alert("Failed to assign subjects");
+            alert("Failed to save changes");
         }
     }
 
@@ -97,6 +99,15 @@ export default function FacultyPage() {
                             required
                         />
                     </div>
+                    <div className="input-group flex-1">
+                        <label>Qualification</label>
+                        <input
+                            name="qualification"
+                            value={form.qualification}
+                            onChange={(e) => setForm({ ...form, qualification: e.target.value })}
+                            placeholder="e.g. B.Ed, PhD"
+                        />
+                    </div>
                     <button type="submit" className="btn btn-primary">Add Faculty</button>
                 </form>
             </div>
@@ -120,8 +131,45 @@ export default function FacultyPage() {
 
                                 return (
                                     <tr key={f.id}>
-                                        <td>{f.name}</td>
-                                        <td>{f.email}</td>
+                                        <td>
+                                            {isEditing ? (
+                                                <div className="flex flex-col gap-xs">
+                                                    <input
+                                                        value={editForm.name}
+                                                        onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
+                                                        placeholder="Name"
+                                                        style={{ padding: '2px 4px', fontSize: '0.9em' }}
+                                                    />
+                                                    <input
+                                                        value={editForm.qualification}
+                                                        onChange={(e) => setEditForm({ ...editForm, qualification: e.target.value })}
+                                                        placeholder="Qualification"
+                                                        style={{ padding: '2px 4px', fontSize: '0.8em' }}
+                                                    />
+                                                </div>
+                                            ) : (
+                                                <>
+                                                    {f.name}
+                                                    {f.qualification && (
+                                                        <sub style={{ marginLeft: '4px', opacity: 0.7, fontSize: '0.7em' }}>
+                                                            {f.qualification}
+                                                        </sub>
+                                                    )}
+                                                </>
+                                            )}
+                                        </td>
+                                        <td>
+                                            {isEditing ? (
+                                                <input
+                                                    value={editForm.email}
+                                                    onChange={(e) => setEditForm({ ...editForm, email: e.target.value })}
+                                                    placeholder="Email"
+                                                    style={{ padding: '2px 4px', fontSize: '0.9em' }}
+                                                />
+                                            ) : (
+                                                f.email
+                                            )}
+                                        </td>
                                         <td>
                                             {isEditing ? (
                                                 <select
@@ -165,9 +213,12 @@ export default function FacultyPage() {
                                             ) : (
                                                 <button
                                                     className="btn btn-secondary"
-                                                    onClick={() => setEditingId(f.id)}
+                                                    onClick={() => {
+                                                        setEditingId(f.id);
+                                                        setEditForm({ name: f.name, email: f.email, qualification: f.qualification || "" });
+                                                    }}
                                                 >
-                                                    Edit Assignments
+                                                    Edit
                                                 </button>
                                             )}
                                         </td>

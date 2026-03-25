@@ -11,7 +11,7 @@ const { getDashboardStats } = require('../controllers/adminDashboard.controller'
 const { getSubjects, createSubject, deleteSubject } =
   require('../controllers/adminSubjects.controller');
 
-const { createFaculty, getFaculties, getFacultyById, deleteFaculty } =
+const { createFaculty, getFaculties, getFacultyById, updateFaculty, deleteFaculty } =
   require('../controllers/adminFaculty.controller');
 
 const { assignSubjectToFaculty, getFacultiesBySubject } =
@@ -49,10 +49,12 @@ router.get('/subjects', requireAdmin, getSubjects);
 router.post('/subjects', requireAdmin, createSubject);
 router.delete('/subjects/:id', requireAdmin, deleteSubject);
 
+
 /* Faculty */
 router.post('/faculty', requireAdmin, createFaculty);
 router.get('/faculty', requireAdmin, getFaculties);
 router.get('/faculty/:id', requireAdmin, getFacultyById);
+router.put('/faculty/:id', requireAdmin, updateFaculty);
 router.delete('/faculty/:id', requireAdmin, deleteFaculty);
 
 /* Faculty Subjects */

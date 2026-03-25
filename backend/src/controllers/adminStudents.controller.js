@@ -194,11 +194,18 @@ const updateStudent = async (req, res) => {
             roll_number,
             dob,
             name,
+            father_name,
+            mother_name,
+            father_occupation,
+            mother_occupation,
+            address,
+            contact,
             siblings // [{ name, age }] (Full replacement list is easier, but let's handle smart update?)
             // For simplicity in this user request context: delete existing siblings and re-insert is safest unless IDs are provided.
             // Since frontend sends "name, age" (maybe no IDs for new ones), re-creating is an option.
             // However, to keep IDs stable, let's just delete all and insert new ones or user upsert. 
             // Given the requirement "siblings... in editable form", let's replace them.
+            // For simplicity, we also delete siblings here and recreate.
         } = req.body;
 
         if (!id) return res.status(400).json({ error: "Student ID required" });
@@ -206,7 +213,17 @@ const updateStudent = async (req, res) => {
         // 1. Update Student Table
         const { error: updateError } = await supabaseAdmin
             .from('students')
-            .update({ roll_number, dob, name })
+            .update({
+                roll_number,
+                dob,
+                name,
+                father_name,
+                mother_name,
+                father_occupation,
+                mother_occupation,
+                address,
+                contact
+            })
             .eq('id', id);
 
         if (updateError) throw updateError;

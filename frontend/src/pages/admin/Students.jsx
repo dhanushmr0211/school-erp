@@ -14,8 +14,13 @@ export default function Students() {
 
     const [form, setForm] = useState({
         name: "",
-        roll_number: "",
         dob: "",
+        father_name: "",
+        mother_name: "",
+        father_occupation: "",
+        mother_occupation: "",
+        address: "",
+        contact: "",
         siblings: []
     });
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -24,7 +29,18 @@ export default function Students() {
 
     const [editModalOpen, setEditModalOpen] = useState(false);
     const [editingId, setEditingId] = useState(null);
-    const [editForm, setEditForm] = useState({ name: "", roll_number: "", dob: "", siblings: [] });
+    const [editForm, setEditForm] = useState({
+        name: "",
+        roll_number: "",
+        dob: "",
+        father_name: "",
+        mother_name: "",
+        father_occupation: "",
+        mother_occupation: "",
+        address: "",
+        contact: "",
+        siblings: []
+    });
 
     const [feesModalOpen, setFeesModalOpen] = useState(false);
     const [selectedStudentForFees, setSelectedStudentForFees] = useState(null);
@@ -65,7 +81,17 @@ export default function Students() {
                 siblings: validSiblings,
                 academic_year_id: academicYearId
             });
-            setForm({ name: "", roll_number: "", dob: "", siblings: [] });
+            setForm({
+                name: "",
+                dob: "",
+                father_name: "",
+                mother_name: "",
+                father_occupation: "",
+                mother_occupation: "",
+                address: "",
+                contact: "",
+                siblings: []
+            });
             loadData();
         } catch (err) {
             alert("Failed to create student");
@@ -104,7 +130,13 @@ export default function Students() {
                 name: data.name,
                 roll_number: data.roll_number,
                 dob: data.dob,
-                siblings: data.student_siblings || [] // Ensure siblings are loaded
+                father_name: data.father_name || "",
+                mother_name: data.mother_name || "",
+                father_occupation: data.father_occupation || "",
+                mother_occupation: data.mother_occupation || "",
+                address: data.address || "",
+                contact: data.contact || "",
+                siblings: data.student_siblings || []
             });
             setEditModalOpen(true);
         } catch (err) {
@@ -168,6 +200,62 @@ export default function Students() {
                                 required
                             />
                         </div>
+                        <div className="input-group flex-1">
+                            <label>Contact Number (Parents)</label>
+                            <input
+                                value={form.contact}
+                                onChange={(e) => setForm({ ...form, contact: e.target.value })}
+                                placeholder="Phone No."
+                            />
+                        </div>
+                    </div>
+
+                    <div className="flex gap-md flex-wrap mb-md">
+                        <div className="input-group flex-1">
+                            <label>Father's Name</label>
+                            <input
+                                value={form.father_name}
+                                onChange={(e) => setForm({ ...form, father_name: e.target.value })}
+                                placeholder="Father's Name"
+                            />
+                        </div>
+                        <div className="input-group flex-1">
+                            <label>Mother's Name</label>
+                            <input
+                                value={form.mother_name}
+                                onChange={(e) => setForm({ ...form, mother_name: e.target.value })}
+                                placeholder="Mother's Name"
+                            />
+                        </div>
+                    </div>
+
+                    <div className="flex gap-md flex-wrap mb-md">
+                        <div className="input-group flex-1">
+                            <label>Father's Occupation</label>
+                            <input
+                                value={form.father_occupation}
+                                onChange={(e) => setForm({ ...form, father_occupation: e.target.value })}
+                                placeholder="Farmer, Teacher, etc."
+                            />
+                        </div>
+                        <div className="input-group flex-1">
+                            <label>Mother's Occupation</label>
+                            <input
+                                value={form.mother_occupation}
+                                onChange={(e) => setForm({ ...form, mother_occupation: e.target.value })}
+                                placeholder="Housewife, Professional, etc."
+                            />
+                        </div>
+                    </div>
+
+                    <div className="input-group mb-md">
+                        <label>Home Address</label>
+                        <textarea
+                            value={form.address}
+                            onChange={(e) => setForm({ ...form, address: e.target.value })}
+                            placeholder="Complete street, city, pin code"
+                            style={{ width: "100%", height: "80px", padding: "8px" }}
+                        />
                     </div>
 
                     <div className="mb-md">
@@ -346,6 +434,56 @@ export default function Students() {
                                             required
                                         />
                                     </div>
+                                    <div className="input-group flex-1">
+                                        <label>Contact</label>
+                                        <input
+                                            value={editForm.contact}
+                                            onChange={(e) => setEditForm({ ...editForm, contact: e.target.value })}
+                                        />
+                                    </div>
+                                </div>
+
+                                <div className="flex gap-md flex-wrap mb-md">
+                                    <div className="input-group flex-1">
+                                        <label>Father's Name</label>
+                                        <input
+                                            value={editForm.father_name}
+                                            onChange={(e) => setEditForm({ ...editForm, father_name: e.target.value })}
+                                        />
+                                    </div>
+                                    <div className="input-group flex-1">
+                                        <label>Mother's Name</label>
+                                        <input
+                                            value={editForm.mother_name}
+                                            onChange={(e) => setEditForm({ ...editForm, mother_name: e.target.value })}
+                                        />
+                                    </div>
+                                </div>
+
+                                <div className="flex gap-md flex-wrap mb-md">
+                                    <div className="input-group flex-1">
+                                        <label>Father's Occupation</label>
+                                        <input
+                                            value={editForm.father_occupation}
+                                            onChange={(e) => setEditForm({ ...editForm, father_occupation: e.target.value })}
+                                        />
+                                    </div>
+                                    <div className="input-group flex-1">
+                                        <label>Mother's Occupation</label>
+                                        <input
+                                            value={editForm.mother_occupation}
+                                            onChange={(e) => setEditForm({ ...editForm, mother_occupation: e.target.value })}
+                                        />
+                                    </div>
+                                </div>
+
+                                <div className="input-group mb-md">
+                                    <label>Home Address</label>
+                                    <textarea
+                                        value={editForm.address}
+                                        onChange={(e) => setEditForm({ ...editForm, address: e.target.value })}
+                                        style={{ width: "100%", height: "80px", padding: "8px" }}
+                                    />
                                 </div>
 
                                 <div className="mb-md">

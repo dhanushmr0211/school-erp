@@ -5,7 +5,7 @@ const { supabaseAdmin } = require('../services/supabaseClient');
 /* ================= CREATE FACULTY ================= */
 const createFaculty = async (req, res) => {
   try {
-    const { name, email, academic_year_id } = req.body;
+    const { name, email, academic_year_id, qualification } = req.body;
 
     if (!name || !email || !academic_year_id) {
       return res.status(400).json({
@@ -42,6 +42,7 @@ const createFaculty = async (req, res) => {
           email: cleanEmail,
           academic_year_id,
           user_id: userId,
+          qualification,
         },
       ])
       .select()
@@ -187,10 +188,32 @@ const deleteFaculty = async (req, res) => {
   }
 };
 
+/* ================= UPDATE FACULTY ================= */
+const updateFaculty = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { name, email, qualification } = req.body;
+
+    const { data, error } = await supabaseAdmin
+      .from('faculties')
+      .update({ name, email, qualification })
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error) throw error;
+    res.json(data);
+  } catch (err) {
+    console.error('Update faculty error:', err);
+    res.status(500).json({ error: err.message });
+  }
+};
+
 /* ================= EXPORTS ================= */
 module.exports = {
   createFaculty,
   getFaculties,
   getFacultyById,
+  updateFaculty,
   deleteFaculty,
 };

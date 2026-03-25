@@ -14,7 +14,7 @@ const getAcademicYears = async (req, res) => {
         res.json(data);
     } catch (error) {
         console.error('Error fetching academic years:', error);
-        res.status(500).json({ error: 'Failed to fetch academic years' });
+        res.status(500).json({ error: 'Failed to fetch academic years: ' + (error.message || JSON.stringify(error)) });
     }
 };
 
@@ -68,10 +68,9 @@ const createAcademicYear = async (req, res) => {
                 }
             }
 
-            // 4. Copy faculty
             const { data: oldFaculty } = await supabaseAdmin
                 .from('faculties')
-                .select('name, email, user_id')
+                .select('name, email, user_id, qualification')
                 .eq('academic_year_id', activeYear.id);
 
             if (oldFaculty && oldFaculty.length > 0) {
@@ -89,7 +88,6 @@ const createAcademicYear = async (req, res) => {
                 }
             }
 
-            // 5. Copy students
             const { data: oldStudents } = await supabaseAdmin
                 .from('students')
                 .select('admission_number, dob, name, father_name, mother_name, father_occupation, mother_occupation, address, contact, registered_date, roll_number')
