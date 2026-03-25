@@ -13,7 +13,7 @@ const app = express();
 const port = process.env.PORT || 5000;
 
 // Trust the reverse proxy (Render) so rate limiting uses the correct client IP
-app.set('trust proxy', true);
+app.set('trust proxy', 1);
 
 // 1. CORS - MUST BE FIRST
 app.use(
