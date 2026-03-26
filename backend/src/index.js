@@ -18,7 +18,12 @@ app.set('trust proxy', 1);
 // 1. CORS - MUST BE FIRST
 app.use(
   cors({
-    origin: ['https://anikethanainfoedu.vercel.app', 'http://localhost:5173'],
+    origin: [
+      'https://anikethanainfoedu.vercel.app', 
+      'https://www.anikethana.in', 
+      'https://anikethana.in', 
+      'http://localhost:5173'
+    ],
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'x-academic-year'],
     credentials: true,
