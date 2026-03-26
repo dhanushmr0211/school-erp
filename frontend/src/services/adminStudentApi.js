@@ -1,8 +1,10 @@
 import { apiFetch } from "./apiClient";
 
 export function fetchStudents(academicYearId) {
-    const query = academicYearId ? `?academic_year_id=${academicYearId}` : "";
-    return apiFetch(`/admin/students${query}`);
+    if (!academicYearId || academicYearId === "null" || academicYearId === "undefined") {
+        return apiFetch("/admin/students");
+    }
+    return apiFetch(`/admin/students?academic_year_id=${academicYearId}`);
 }
 
 

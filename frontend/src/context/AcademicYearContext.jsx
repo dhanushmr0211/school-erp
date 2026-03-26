@@ -3,7 +3,11 @@ import { createContext, useContext, useState } from "react";
 const AcademicYearContext = createContext(null);
 
 export function AcademicYearProvider({ children }) {
-  const [academicYearId, setId] = useState(() => localStorage.getItem("academicYearId"));
+  const [academicYearId, setId] = useState(() => {
+    const saved = localStorage.getItem("academicYearId");
+    if (saved === "null" || saved === "undefined") return null;
+    return saved || null;
+  });
 
   const setAcademicYearId = (id) => {
     setId(id);

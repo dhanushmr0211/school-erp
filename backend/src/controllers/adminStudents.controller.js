@@ -92,7 +92,7 @@ const createStudent = async (req, res) => {
  */
 const getStudents = async (req, res) => {
     try {
-        const academicYearId = req.headers['x-academic-year'];
+        const academicYearId = req.headers['x-academic-year'] || req.query.academic_year_id;
 
         if (!academicYearId) {
             return res.status(400).json({ error: 'Academic year is required' });

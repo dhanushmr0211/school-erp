@@ -12,7 +12,7 @@ export default function AdminDashboard() {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        if (academicYearId) {
+        if (academicYearId && academicYearId !== "null" && academicYearId !== "undefined") {
             loadStats();
         }
     }, [academicYearId]);
