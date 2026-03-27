@@ -44,7 +44,7 @@ export default function AdminDashboard() {
             <div className="page-header flex justify-between items-center" style={{ marginBottom: '2.5rem' }}>
                 <div>
                     <h1 style={{ marginBottom: "0.5rem", fontSize: '2rem' }}>Dashboard Overview</h1>
-                    <p className="text-gray" style={{ margin: 0, fontSize: '1.1rem' }}>Welcome to the Anikethana administration portal.</p>
+                    <p className="text-gray" style={{ margin: 0, fontSize: '1.1rem' }}>Welcome to the Anikethana Education Society administration portal.</p>
                 </div>
                 <span className="badge badge-blue" style={{ padding: '0.5rem 0.5rem', fontSize: '0.9rem' }}>Academic Year Active</span>
             </div>

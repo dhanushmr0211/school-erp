@@ -56,10 +56,10 @@ export default function Sidebar({ isOpen, setIsOpen }) {
         <div className="sidebar-inner">
           <div className="sidebar-header">
             <div className="flex items-center gap-sm">
-              <img src="/logo.png" alt="Logo" style={{ width: 52, height: 52, objectFit: 'contain' }} />
+              <img src="/logo.png" alt="Anikethana Education Society" style={{ width: 52, height: 52, objectFit: 'contain' }} />
               <div className="flex flex-col">
                 <span className="brand-name">Anikethana</span>
-                <span className="brand-subtitle">School ERP</span>
+                <span className="brand-subtitle">Education Society</span>
               </div>
             </div>
             {isOpen && (

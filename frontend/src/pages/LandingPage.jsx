@@ -107,10 +107,10 @@ export default function LandingPage() {
                 <div className="container" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "1rem" }}>
                     {/* Brand */}
                     <div className="flex items-center gap-md">
-                        <img src="/logo.png" alt="Logo" style={{ width: "45px", height: "45px" }} />
+                        <img src="/logo.png" alt="Anikethana Education Society" style={{ width: "45px", height: "45px" }} />
                         <div style={{ display: "flex", flexDirection: "column", gap: "0.1rem" }}>
                             <h1 style={{ fontSize: "1.5rem", margin: 0, color: "#4f46e5", fontWeight: 700, lineHeight: 1.2 }}>
-                                Anikethana <span style={{ color: "#4338ca", display: "none" }} className="md:inline">Educational Institution</span>
+                                Anikethana <span style={{ color: "#4338ca", display: "none" }} className="md:inline">Education Society</span>
                             </h1>
                             <p style={{ fontSize: "0.75rem", margin: 0, color: "#64748b", fontWeight: 300, letterSpacing: "0.5px" }}>
                                 An English Medium School
@@ -422,8 +422,8 @@ export default function LandingPage() {
             <footer style={{ borderTop: "1px solid var(--glass-border)", padding: "3rem 1rem", background: "rgba(30, 43, 119, 0.85)" }}>
                 <div className="container text-center">
                     <div className="flex items-center justify-center gap-sm mb-md opacity-50">
-                        <img src="/logo.png" alt="Logo" style={{ width: "30px", filter: "grayscale(1)" }} />
-                        <span style={{ fontWeight: 700, color: "white" }}>Anikethana</span>
+                        <img src="/logo.png" alt="Anikethana Education Society" style={{ width: "30px", filter: "grayscale(1)" }} />
+                        <span style={{ fontWeight: 700, color: "white" }}>Anikethana Education Society</span>
                     </div>
 
                     {/* Social Media Icons */}

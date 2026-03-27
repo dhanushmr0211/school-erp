@@ -140,11 +140,11 @@ const generateReportCard = async (req, res) => {
         }
 
         // School Name & Details (left side)
-        doc.fontSize(18).font('Helvetica-Bold').text('ANIKETHANA SCHOOL', 30, 30, { width: 420 });
+        doc.fontSize(18).font('Helvetica-Bold').text('ANIKETHANA EDUCATION SOCIETY', 30, 30, { width: 420 });
         doc.fontSize(9).font('Helvetica')
-            .text('Affiliated to CBSE | Estd. 2010', 30, 52, { width: 420 })
-            .text('Sagar Road, Shimoga, Karnataka - 577201', 30, 64, { width: 420 })
-            .text('Phone: +91 98765 43210  |  Email: info@anikethana.edu', 30, 76, { width: 420 });
+            .text('English Medium School | Estd. 2010', 30, 52, { width: 420 })
+            .text('Kadur Road, 9th Cross, Chikkamagaluru, Karnataka - 577138', 30, 64, { width: 420 })
+            .text('Phone: +91 74112 91438  |  Email: aesanikethanaschool@gmail.com', 30, 76, { width: 420 });
 
         // Divider line
         doc.moveTo(30, 100).lineTo(570, 100).lineWidth(1.5).stroke();
