@@ -16,10 +16,10 @@
     /* Text */
     --text-primary: #0f172a;
     /* Slate 900 */
-    --text-secondary: #475569;
-    /* Slate 600 */
-    --text-muted: #94a3b8;
-    /* Slate 400 */
+    --text-secondary: #334155;
+    /* Slate 700 */
+    --text-muted: #64748b;
+    /* Slate 500 */
 
     /* Borders & Shadows */
     --border-soft: #e2e8f0;

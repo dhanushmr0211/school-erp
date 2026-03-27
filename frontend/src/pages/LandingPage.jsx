@@ -97,8 +97,6 @@ export default function LandingPage() {
     return (
         <div className="animate-fade-in" style={{ minHeight: "100vh" }}>
             {/* Navbar */}
-            {/* Navbar */}
-            {/* Navbar */}
             <nav style={{
                 position: "fixed", top: 0, width: "100%", zIndex: 100,
                 background: "rgba(255, 255, 255, 0.95)", backdropFilter: "blur(8px)",
@@ -107,7 +105,7 @@ export default function LandingPage() {
                 <div className="container" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "1rem" }}>
                     {/* Brand */}
                     <div className="flex items-center gap-md">
-                        <img src="/logo.png" alt="Anikethana Education Society" style={{ width: "45px", height: "45px" }} />
+                        <img src="/logo.png" alt="Anikethana Education Society" width="45" height="45" style={{ width: "45px", height: "45px" }} />
                         <div style={{ display: "flex", flexDirection: "column", gap: "0.1rem" }}>
                             <h1 style={{ fontSize: "1.5rem", margin: 0, color: "#4f46e5", fontWeight: 700, lineHeight: 1.2 }}>
                                 Anikethana <span style={{ color: "#4338ca", display: "none" }} className="md:inline">Education Society</span>
@@ -130,8 +128,8 @@ export default function LandingPage() {
                                 padding: "0.5rem 0.5rem",
                                 borderRadius: "0.5rem",
                                 background: "#f59e0b",
-                                color: "white",
-                                fontWeight: 600,
+                                color: "#1e293b",
+                                fontWeight: 700,
                                 border: "none",
                                 boxShadow: "0 2px 4px rgba(245, 158, 11, 0.3)",
                                 fontSize: "0.9rem"
@@ -180,6 +178,7 @@ export default function LandingPage() {
                         <button
                             className="md:hidden"
                             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                            aria-label="Toggle Navigation Menu"
                             style={{
                                 background: "none", border: "none", color: "#1e293b", cursor: "pointer",
                                 padding: "0.25rem", display: "flex", alignItems: "center"
@@ -224,205 +223,206 @@ export default function LandingPage() {
                 )}
             </nav>
 
-            {/* Hero */}
-            <header className="container" style={{ paddingTop: "12rem", paddingBottom: "6rem", textAlign: "center" }}>
-                <div className="animate-fade-in stagger-1">
-                    <h2 style={{ fontSize: "4.5rem", lineHeight: 1.1, marginBottom: "1.5rem", color: "#1e293b", fontWeight: 800 }}>
-                        Excellence in <span style={{ color: "#6366f1" }}>Education</span> since{" "}
-                        <span style={{
-                            color: "#f59e0b",
-                            borderRight: "2px solid #f59e0b",
-                            paddingRight: "5px",
-                            transition: "all 0.6s cubic-bezier(0.4, 0, 0.2, 1)",
-                            display: "inline-block",
-                            opacity: typewriterText.length > 0 ? 1 : 0.2,
-                            transform: typewriterText.length > 0 ? "translateY(0)" : "translateY(2px)",
-                            filter: typewriterText.length > 0 ? "blur(0px)" : "blur(0.5px)"
-                        }}>
-                            {typewriterText}
-                        </span>
-                    </h2>
-                </div>
-
-                <p
-                    className="text-gray animate-fade-in stagger-2"
-                    style={{
-                        fontSize: "1.25rem",
-                        maxWidth: "700px",
-                        margin: "0 auto 3rem",
-                        lineHeight: 1.6,
-                        fontStyle: "italic",
-                        transition: "opacity 0.8s ease-in-out, transform 0.8s ease-in-out",
-                        opacity: fadeOut ? 0 : 1,
-                        transform: fadeOut ? "translateY(-20px)" : (isEntering ? "translateY(20px)" : "translateY(0)")
-                    }}
-                >
-                    {descriptions[currentLang]}
-                </p>
-
-                <div className="animate-fade-in stagger-3">
-                    <button
-                        onClick={() => document.getElementById('features').scrollIntoView({ behavior: 'smooth' })}
-                        className="btn"
-                        style={{
-                            fontSize: "1.1rem",
-                            padding: "1rem 2.5rem",
-                            background: "linear-gradient(90deg, #4f46e5 0%, #7c3aed 100%)",
-                            color: "white",
-                            border: "none",
-                            borderRadius: "0.5rem",
-                            boxShadow: "0 4px 6px -1px rgba(79, 70, 229, 0.3)"
-                        }}
-                    >
-                        Explore Campus
-                    </button>
-                </div>
-            </header>
-
-            {/* Features Grid */}
-            <section id="features" className="container" style={{ paddingBottom: "5rem" }}>
-                <div style={{ textAlign: "center", marginBottom: "4rem" }}>
-                    <h3 style={{ fontSize: "0.875rem", color: "#4f46e5", textTransform: "uppercase", letterSpacing: "0.05em", fontWeight: 700, marginBottom: "0.5rem" }}>
-                        About Our School
-                    </h3>
-                    <h2 style={{ fontSize: "2.5rem", color: "#1e293b", fontWeight: 800 }}>
-                        Where Potential Meets Opportunity
-                    </h2>
-                </div>
-
-                <div style={{
-                    display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: "2rem"
-                }}>
-                    <FeatureCard
-                        icon={<BookOpen size={32} className="text-violet" />}
-                        title="Modern Curriculum"
-                        desc="A forward-looking curriculum that blends tradition with future-ready skills."
-                    />
-                    <FeatureCard
-                        icon={<Users size={32} className="text-rose" />}
-                        title="Expert Faculty"
-                        desc="Dedicated mentors who guide students towards their valid career paths."
-                    />
-                    <FeatureCard
-                        icon={<GraduationCap size={32} className="text-accent" />}
-                        title="Holistic Growth"
-                        desc="A perfect balance of Sports, Arts, and Academics for total development."
-                    />
-                </div>
-            </section>
-
-            {/* Gallery Section */}
-            <section id="gallery" className="container" style={{ paddingBottom: "5rem" }}>
-                <h3 style={{ textAlign: "center", marginBottom: "3rem" }}>Campus Life</h3>
-                <div style={{
-                    display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "1.5rem"
-                }}>
-                    {["Library", "Science Lab", "Sports Complex", "Pool", "Auditorium", "Art Studio"].map((item, i) => (
-                        <div key={i} className="card" style={{
-                            height: "200px", display: "flex", alignItems: "center", justifyContent: "center",
-                            background: "rgba(255,255,255,0.03)"
-                        }}>
-                            <span className="text-gray" style={{ fontWeight: 600 }}>{item}</span>
-                        </div>
-                    ))}
-                </div>
-            </section>
-
-
-            {/* Contact Section */}
-            {/* Contact Section */}
-            <section id="contact" className="container" style={{ paddingBottom: "5rem" }}>
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(350px, 1fr))", gap: "2rem" }}>
-
-                    {/* Left: Contact Form */}
-                    <div>
-                        <div className="card" style={{ padding: "2rem", height: "100%", borderTop: "4px solid var(--royal-blue)" }}>
-                            <h3 className="text-royal" style={{ fontSize: "1.75rem", marginBottom: "2rem", fontWeight: 700 }}>Write a Message</h3>
-                            <ContactForm />
-                        </div>
+            <main>
+                {/* Hero */}
+                <header className="container" style={{ paddingTop: "12rem", paddingBottom: "6rem", textAlign: "center" }}>
+                    <div className="animate-fade-in stagger-1">
+                        <h2 style={{ fontSize: "4.5rem", lineHeight: 1.1, marginBottom: "1.5rem", color: "#1e293b", fontWeight: 800 }}>
+                            Excellence in <span style={{ color: "#6366f1" }}>Education</span> since{" "}
+                            <span style={{
+                                color: "#f59e0b",
+                                borderRight: "2px solid #f59e0b",
+                                paddingRight: "5px",
+                                transition: "all 0.6s cubic-bezier(0.4, 0, 0.2, 1)",
+                                display: "inline-block",
+                                opacity: typewriterText.length > 0 ? 1 : 0.2,
+                                transform: typewriterText.length > 0 ? "translateY(0)" : "translateY(2px)",
+                                filter: typewriterText.length > 0 ? "blur(0px)" : "blur(0.5px)"
+                            }}>
+                                {typewriterText}
+                            </span>
+                        </h2>
                     </div>
 
-                    {/* Right: Location & Info */}
-                    <div>
-                        <div className="card" style={{ padding: "2rem", height: "100%", borderTop: "4px solid var(--rose)" }}>
-                            <h3 className="text-royal" style={{ fontSize: "1.75rem", marginBottom: "2rem", fontWeight: 700 }}>Our Location</h3>
+                    <p
+                        className="text-gray animate-fade-in stagger-2"
+                        style={{
+                            fontSize: "1.25rem",
+                            maxWidth: "700px",
+                            margin: "0 auto 3rem",
+                            lineHeight: 1.6,
+                            fontStyle: "italic",
+                            transition: "opacity 0.8s ease-in-out, transform 0.8s ease-in-out",
+                            opacity: fadeOut ? 0 : 1,
+                            transform: fadeOut ? "translateY(-20px)" : (isEntering ? "translateY(20px)" : "translateY(0)")
+                        }}
+                    >
+                        {descriptions[currentLang]}
+                    </p>
 
-                            <div style={{ display: "flex", flexDirection: "column", gap: "2rem" }}>
-                                <div style={{ display: "flex", gap: "1rem" }}>
-                                    <div style={{
-                                        width: "48px", height: "48px", borderRadius: "50%", background: "#ef4444",
-                                        display: "flex", alignItems: "center", justifyContent: "center", color: "white", flexShrink: 0
-                                    }}>
-                                        <MapPin size={24} />
-                                    </div>
-                                    <div>
-                                        <h4 style={{ fontSize: "1.1rem", marginBottom: "0.25rem", color: "#1f2937" }}>Address</h4>
-                                        <p className="text-gray" style={{ lineHeight: 1.5 }}>
-                                            Chikkamagalur, Kadur Rd,<br />
-                                            9th Cross, Karnataka<br />
-                                            Pin Code: 577138
-                                        </p>
-                                    </div>
-                                </div>
+                    <div className="animate-fade-in stagger-3">
+                        <button
+                            onClick={() => document.getElementById('features').scrollIntoView({ behavior: 'smooth' })}
+                            className="btn"
+                            style={{
+                                fontSize: "1.1rem",
+                                padding: "1rem 2.5rem",
+                                background: "linear-gradient(90deg, #4f46e5 0%, #7c3aed 100%)",
+                                color: "white",
+                                border: "none",
+                                borderRadius: "0.5rem",
+                                boxShadow: "0 4px 6px -1px rgba(79, 70, 229, 0.3)"
+                            }}
+                        >
+                            Explore Campus
+                        </button>
+                    </div>
+                </header>
 
-                                <div style={{ display: "flex", gap: "1rem" }}>
-                                    <div style={{
-                                        width: "48px", height: "48px", borderRadius: "50%", background: "#ef4444",
-                                        display: "flex", alignItems: "center", justifyContent: "center", color: "white", flexShrink: 0
-                                    }}>
-                                        <Phone size={24} />
-                                    </div>
-                                    <div>
-                                        <h4 style={{ fontSize: "1.1rem", marginBottom: "0.25rem", color: "#1f2937" }}>Phone Number</h4>
-                                        <p className="text-gray">7411291438</p>
-                                    </div>
-                                </div>
+                {/* Features Grid */}
+                <section id="features" className="container" style={{ paddingBottom: "5rem" }}>
+                    <div style={{ textAlign: "center", marginBottom: "4rem" }}>
+                        <h3 style={{ fontSize: "0.875rem", color: "#4f46e5", textTransform: "uppercase", letterSpacing: "0.05em", fontWeight: 700, marginBottom: "0.5rem" }}>
+                            About Our School
+                        </h3>
+                        <h2 style={{ fontSize: "2.5rem", color: "#1e293b", fontWeight: 800 }}>
+                            Where Potential Meets Opportunity
+                        </h2>
+                    </div>
 
-                                <div style={{ display: "flex", gap: "1rem" }}>
-                                    <div style={{
-                                        width: "48px", height: "48px", borderRadius: "50%", background: "#ef4444",
-                                        display: "flex", alignItems: "center", justifyContent: "center", color: "white", flexShrink: 0
-                                    }}>
-                                        <Mail size={24} />
-                                    </div>
-                                    <div>
-                                        <h4 style={{ fontSize: "1.1rem", marginBottom: "0.25rem", color: "#1f2937" }}>Email Address</h4>
-                                        <p className="text-gray" style={{ wordBreak: "break-all" }}>aesanikethanaschool@gmail.com</p>
-                                    </div>
-                                </div>
+                    <div style={{
+                        display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: "2rem"
+                    }}>
+                        <FeatureCard
+                            icon={<BookOpen size={32} className="text-violet" />}
+                            title="Modern Curriculum"
+                            desc="A forward-looking curriculum that blends tradition with future-ready skills."
+                        />
+                        <FeatureCard
+                            icon={<Users size={32} className="text-rose" />}
+                            title="Expert Faculty"
+                            desc="Dedicated mentors who guide students towards their valid career paths."
+                        />
+                        <FeatureCard
+                            icon={<GraduationCap size={32} className="text-accent" />}
+                            title="Holistic Growth"
+                            desc="A perfect balance of Sports, Arts, and Academics for total development."
+                        />
+                    </div>
+                </section>
 
-                                <div style={{ display: "flex", gap: "1rem" }}>
-                                    <div style={{
-                                        width: "48px", height: "48px", borderRadius: "50%", background: "#ef4444",
-                                        display: "flex", alignItems: "center", justifyContent: "center", color: "white", flexShrink: 0
-                                    }}>
-                                        <Navigation size={24} />
+                {/* Gallery Section */}
+                <section id="gallery" className="container" style={{ paddingBottom: "5rem" }}>
+                    <h3 style={{ textAlign: "center", marginBottom: "3rem" }}>Campus Life</h3>
+                    <div style={{
+                        display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "1.5rem"
+                    }}>
+                        {["Library", "Science Lab", "Sports Complex", "Pool", "Auditorium", "Art Studio"].map((item, i) => (
+                            <div key={i} className="card" style={{
+                                height: "200px", display: "flex", alignItems: "center", justifyContent: "center",
+                                background: "rgba(255,255,255,0.03)"
+                            }}>
+                                <span className="text-gray" style={{ fontWeight: 600 }}>{item}</span>
+                            </div>
+                        ))}
+                    </div>
+                </section>
+
+
+                {/* Contact Section */}
+                <section id="contact" className="container" style={{ paddingBottom: "5rem" }}>
+                    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(350px, 1fr))", gap: "2rem" }}>
+
+                        {/* Left: Contact Form */}
+                        <div>
+                            <div className="card" style={{ padding: "2rem", height: "100%", borderTop: "4px solid var(--royal-blue)" }}>
+                                <h3 className="text-royal" style={{ fontSize: "1.75rem", marginBottom: "2rem", fontWeight: 700 }}>Write a Message</h3>
+                                <ContactForm />
+                            </div>
+                        </div>
+
+                        {/* Right: Location & Info */}
+                        <div>
+                            <div className="card" style={{ padding: "2rem", height: "100%", borderTop: "4px solid var(--rose)" }}>
+                                <h3 className="text-royal" style={{ fontSize: "1.75rem", marginBottom: "2rem", fontWeight: 700 }}>Our Location</h3>
+
+                                <div style={{ display: "flex", flexDirection: "column", gap: "2rem" }}>
+                                    <div style={{ display: "flex", gap: "1rem" }}>
+                                        <div style={{
+                                            width: "48px", height: "48px", borderRadius: "50%", background: "#ef4444",
+                                            display: "flex", alignItems: "center", justifyContent: "center", color: "white", flexShrink: 0
+                                        }}>
+                                            <MapPin size={24} />
+                                        </div>
+                                        <div>
+                                            <h4 style={{ fontSize: "1.1rem", marginBottom: "0.25rem", color: "#1f2937" }}>Address</h4>
+                                            <p className="text-gray" style={{ lineHeight: 1.5 }}>
+                                                Chikkamagalur, Kadur Rd,<br />
+                                                9th Cross, Karnataka<br />
+                                                Pin Code: 577138
+                                            </p>
+                                        </div>
                                     </div>
-                                    <div>
-                                        <h4 style={{ fontSize: "1.1rem", marginBottom: "0.25rem", color: "#1f2937" }}>Google Maps</h4>
-                                        <a
-                                            href="https://maps.app.goo.gl/CAW4i7gLEbWX7bXZ8?g_st=aw"
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className="text-royal hover:underline"
-                                            style={{ color: "var(--royal-blue)" }}
-                                        >
-                                            View Location
-                                        </a>
+
+                                    <div style={{ display: "flex", gap: "1rem" }}>
+                                        <div style={{
+                                            width: "48px", height: "48px", borderRadius: "50%", background: "#ef4444",
+                                            display: "flex", alignItems: "center", justifyContent: "center", color: "white", flexShrink: 0
+                                        }}>
+                                            <Phone size={24} />
+                                        </div>
+                                        <div>
+                                            <h4 style={{ fontSize: "1.1rem", marginBottom: "0.25rem", color: "#1f2937" }}>Phone Number</h4>
+                                            <p className="text-gray">7411291438</p>
+                                        </div>
+                                    </div>
+
+                                    <div style={{ display: "flex", gap: "1rem" }}>
+                                        <div style={{
+                                            width: "48px", height: "48px", borderRadius: "50%", background: "#ef4444",
+                                            display: "flex", alignItems: "center", justifyContent: "center", color: "white", flexShrink: 0
+                                        }}>
+                                            <Mail size={24} />
+                                        </div>
+                                        <div>
+                                            <h4 style={{ fontSize: "1.1rem", marginBottom: "0.25rem", color: "#1f2937" }}>Email Address</h4>
+                                            <p className="text-gray" style={{ wordBreak: "break-all" }}>aesanikethanaschool@gmail.com</p>
+                                        </div>
+                                    </div>
+
+                                    <div style={{ display: "flex", gap: "1rem" }}>
+                                        <div style={{
+                                            width: "48px", height: "48px", borderRadius: "50%", background: "#ef4444",
+                                            display: "flex", alignItems: "center", justifyContent: "center", color: "white", flexShrink: 0
+                                        }}>
+                                            <Navigation size={24} />
+                                        </div>
+                                        <div>
+                                            <h4 style={{ fontSize: "1.1rem", marginBottom: "0.25rem", color: "#1f2937" }}>Google Maps</h4>
+                                            <a
+                                                href="https://maps.app.goo.gl/CAW4i7gLEbWX7bXZ8?g_st=aw"
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="text-royal hover:underline"
+                                                style={{ color: "var(--royal-blue)" }}
+                                            >
+                                                View Location
+                                            </a>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
 
-                </div>
-            </section>
+                    </div>
+                </section>
+            </main>
 
             {/* Footer */}
-            <footer style={{ borderTop: "1px solid var(--glass-border)", padding: "3rem 1rem", background: "rgba(30, 43, 119, 0.85)" }}>
+            <footer style={{ borderTop: "1px solid var(--glass-border)", padding: "3rem 1rem", background: "#111827" }}>
                 <div className="container text-center">
                     <div className="flex items-center justify-center gap-sm mb-md opacity-50">
-                        <img src="/logo.png" alt="Anikethana Education Society" style={{ width: "30px", filter: "grayscale(1)" }} />
+                        <img src="/logo.png" alt="Anikethana Education Society" width="30" height="30" style={{ width: "30px", filter: "grayscale(1)" }} />
                         <span style={{ fontWeight: 700, color: "white" }}>Anikethana Education Society</span>
                     </div>
 
@@ -432,6 +432,7 @@ export default function LandingPage() {
                             href="https://facebook.com"
                             target="_blank"
                             rel="noopener noreferrer"
+                            aria-label="Follow us on Facebook"
                             style={{
                                 width: "48px", height: "48px", borderRadius: "8px",
                                 border: "2px solid rgba(255, 255, 255, 0.3)",
@@ -455,6 +456,7 @@ export default function LandingPage() {
                             href="https://dribbble.com"
                             target="_blank"
                             rel="noopener noreferrer"
+                            aria-label="Follow us on Dribbble"
                             style={{
                                 width: "48px", height: "48px", borderRadius: "8px",
                                 border: "2px solid rgba(255, 255, 255, 0.3)",
@@ -478,6 +480,7 @@ export default function LandingPage() {
                             href="https://www.instagram.com/anikethana2010?igsh=MWo0NWdqZmJrcTg2Yg=="
                             target="_blank"
                             rel="noopener noreferrer"
+                            aria-label="Follow us on Instagram"
                             style={{
                                 width: "48px", height: "48px", borderRadius: "8px",
                                 border: "2px solid rgba(255, 255, 255, 0.3)",
@@ -501,6 +504,7 @@ export default function LandingPage() {
                             href="https://linkedin.com"
                             target="_blank"
                             rel="noopener noreferrer"
+                            aria-label="Follow us on LinkedIn"
                             style={{
                                 width: "48px", height: "48px", borderRadius: "8px",
                                 border: "2px solid rgba(255, 255, 255, 0.3)",
@@ -524,6 +528,7 @@ export default function LandingPage() {
                             href="https://twitter.com"
                             target="_blank"
                             rel="noopener noreferrer"
+                            aria-label="Follow us on Twitter"
                             style={{
                                 width: "48px", height: "48px", borderRadius: "8px",
                                 border: "2px solid rgba(255, 255, 255, 0.3)",
