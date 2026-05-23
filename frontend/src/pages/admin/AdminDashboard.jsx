@@ -1,43 +1,52 @@
-import { useEffect, useState } from "react";
+import { useState, useMemo } from "react";
+import { Link } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
 import { fetchAdminStats } from "../../services/adminApi";
 import { fetchStudents } from "../../services/adminStudentApi";
 import { useAcademicYear } from "../../context/AcademicYearContext";
-import { Users, Layers, BookOpen, Search } from "lucide-react";
+import { Users, Layers, BookOpen, Search, Mail } from "lucide-react";
 
 export default function AdminDashboard() {
     const { academicYearId } = useAcademicYear();
-    const [stats, setStats] = useState({ students: 0, classes: 0, faculty: 0 });
     const [searchQuery, setSearchQuery] = useState("");
-    const [allStudents, setAllStudents] = useState([]);
-    const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        if (academicYearId && academicYearId !== "null" && academicYearId !== "undefined") {
-            loadStats();
-        }
-    }, [academicYearId]);
+    const isYearLoaded = academicYearId && academicYearId !== "null" && academicYearId !== "undefined";
 
-    async function loadStats() {
-        try {
-            // fetchAdminStats now returns optimized object: { students: count, classes: count, faculty: count }
-            const data = await fetchAdminStats(academicYearId);
-            setStats({
-                students: data.students || 0,
-                classes: data.classes || 0,
-                faculty: data.faculty || 0,
-            });
+    // Standardized Stats Fetch with Caching
+    const { data: stats, isLoading: statsLoading } = useQuery({
+        queryKey: ['adminStats', academicYearId],
+        queryFn: () => fetchAdminStats(academicYearId),
+        enabled: !!isYearLoaded,
+    });
 
-            // Fetch students for quick search functionality
-            const studentsData = await fetchStudents(academicYearId);
-            setAllStudents(studentsData || []);
-        } catch (err) {
-            console.error(err);
-        } finally {
-            setLoading(false);
-        }
-    }
+    // Optimized Search List Fetch (only name, id, admission_number)
+    const { data: studentsResponse, isLoading: studentsLoading } = useQuery({
+        queryKey: ['studentsSearchList', academicYearId],
+        queryFn: () => fetchStudents(academicYearId, { fields: 'id,name,admission_number,dob', limit: 1000 }),
+        enabled: !!isYearLoaded,
+    });
 
-    if (loading) return <div className="p-8 text-center text-gray">Loading stats...</div>;
+    const allStudents = studentsResponse?.data || [];
+
+    const filteredResults = useMemo(() => {
+        if (!searchQuery.trim()) return [];
+        return allStudents.filter(s => 
+            s.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            s.admission_number?.toString().includes(searchQuery)
+        ).slice(0, 5);
+    }, [searchQuery, allStudents]);
+
+    const loading = statsLoading;
+
+    const dashboardStats = stats || { students: 0, classes: 0, faculty: 0, queries: 0 };
+
+    const StatCardSkeleton = () => (
+        <div className="card animate-pulse" style={{ flex: 1, padding: '2.5rem 1.5rem', textAlign: 'center' }}>
+            <div style={{ width: 64, height: 64, borderRadius: '50%', background: '#e2e8f0', margin: '0 auto 1.5rem' }}></div>
+            <div style={{ width: '60px', height: '32px', background: '#e2e8f0', margin: '0 auto 0.5rem', borderRadius: '4px' }}></div>
+            <div style={{ width: '100px', height: '16px', background: '#e2e8f0', margin: '0 auto', borderRadius: '4px' }}></div>
+        </div>
+    );
 
     return (
         <div className="animate-fade-in" style={{ paddingBottom: '2rem' }}>
@@ -48,6 +57,31 @@ export default function AdminDashboard() {
                 </div>
                 <span className="badge badge-blue" style={{ padding: '0.5rem 0.5rem', fontSize: '0.9rem' }}>Academic Year Active</span>
             </div>
+
+            {/* Public Queries Card (if there are any) */}
+            {dashboardStats.queries > 0 && (
+                <Link to="/admin/queries" className="card animate-fade-in" style={{ 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    justifyContent: 'space-between',
+                    padding: '1rem 2rem',
+                    background: 'linear-gradient(135deg, #fef2f2 0%, #fff1f2 100%)',
+                    border: '1px solid #fecaca',
+                    marginBottom: '2.5rem',
+                    textDecoration: 'none'
+                }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                        <div style={{ padding: '0.75rem', background: '#fee2e2', borderRadius: '12px' }}>
+                            <Mail size={24} className="text-red-500" />
+                        </div>
+                        <div>
+                            <h4 style={{ margin: 0, fontSize: '1.1rem', color: '#991b1b' }}>Pending Public Inquiries</h4>
+                            <p className="text-gray" style={{ margin: 0, fontSize: '0.9rem' }}>You have {dashboardStats.queries} new queries from the website.</p>
+                        </div>
+                    </div>
+                    <span className="btn btn-secondary" style={{ padding: '8px 16px', background: 'white' }}>View All</span>
+                </Link>
+            )}
 
             {/* Quick Search Widget */}
             <div className="card animate-fade-in" style={{ animationDelay: '0.02s', marginBottom: '2.5rem', padding: '1.5rem 2rem' }}>
@@ -77,7 +111,10 @@ export default function AdminDashboard() {
                         boxShadow: '0 4px 6px rgba(0,0,0,0.05)'
                     }}>
                         <ul style={{ listStyle: 'none', margin: 0, padding: 0 }}>
-                            {allStudents.filter(s => s.name?.toLowerCase().includes(searchQuery.toLowerCase())).slice(0, 5).map(student => (
+                            {studentsLoading && (
+                                <li style={{ padding: '16px', textAlign: 'center', color: '#9ca3af' }}>Searching...</li>
+                            )}
+                            {!studentsLoading && filteredResults.map(student => (
                                 <li key={student.id} style={{ 
                                     padding: '12px 16px', 
                                     borderBottom: '1px solid var(--border-color, #e2e8f0)', 
@@ -92,21 +129,14 @@ export default function AdminDashboard() {
                                             {student.dob && ` | DOB: ${student.dob}`}
                                         </span>
                                     </div>
-                                    <a href="/admin/students" className="btn btn-secondary" style={{ padding: '6px 12px', fontSize: '0.85rem' }}>
+                                    <Link to={`/admin/students?id=${student.id}`} className="btn btn-secondary" style={{ padding: '6px 12px', fontSize: '0.85rem' }}>
                                         Go to Profile
-                                    </a>
+                                    </Link>
                                 </li>
                             ))}
-                            {allStudents.filter(s => s.name?.toLowerCase().includes(searchQuery.toLowerCase())).length === 0 && (
+                            {!studentsLoading && filteredResults.length === 0 && (
                                 <li style={{ padding: '16px', color: '#9ca3af', textAlign: 'center' }}>
                                     No students found matching "{searchQuery}"
-                                </li>
-                            )}
-                            {allStudents.filter(s => s.name?.toLowerCase().includes(searchQuery.toLowerCase())).length > 5 && (
-                                <li style={{ padding: '10px', textAlign: 'center', background: 'rgba(0,0,0,0.2)' }}>
-                                    <a href="/admin/students" style={{ color: '#60a5fa', textDecoration: 'none', fontSize: '0.9rem' }}>
-                                        See all {allStudents.filter(s => s.name?.toLowerCase().includes(searchQuery.toLowerCase())).length} results...
-                                    </a>
                                 </li>
                             )}
                         </ul>
@@ -115,68 +145,78 @@ export default function AdminDashboard() {
             </div>
 
             <div className="flex flex-col md:flex-row gap-lg" style={{ gap: '1.5rem', marginBottom: '2.5rem' }}>
-                {/* Faculty Card */}
-                <div className="card animate-fade-in" 
-                     style={{ 
-                        flex: 1,
-                        display: 'flex',
-                        flexDirection: 'column',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        padding: '2.5rem 1.5rem',
-                        animationDelay: '0.05s',
-                        textAlign: 'center'
-                     }}>
-                    <div style={{ padding: '1.25rem', background: 'var(--royal-light)', borderRadius: '50%', marginBottom: '1.5rem' }}>
-                        <Users size={40} className="text-royal" />
-                    </div>
-                    <h2 className="text-4xl font-bold" style={{ marginBottom: '0.5rem' }}>{stats.faculty}</h2>
-                    <p className="text-gray" style={{ fontWeight: 600, fontSize: '1.1rem' }}>Total Faculty</p>
-                </div>
+                {loading ? (
+                    <>
+                        <StatCardSkeleton />
+                        <StatCardSkeleton />
+                        <StatCardSkeleton />
+                    </>
+                ) : (
+                    <>
+                        {/* Faculty Card */}
+                        <div className="card animate-fade-in" 
+                            style={{ 
+                                flex: 1,
+                                display: 'flex',
+                                flexDirection: 'column',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                padding: '2.5rem 1.5rem',
+                                animationDelay: '0.05s',
+                                textAlign: 'center'
+                            }}>
+                            <div style={{ padding: '1.25rem', background: 'var(--royal-light)', borderRadius: '50%', marginBottom: '1.5rem' }}>
+                                <Users size={40} className="text-royal" />
+                            </div>
+                            <h2 className="text-4xl font-bold" style={{ marginBottom: '0.5rem' }}>{dashboardStats.faculty}</h2>
+                            <p className="text-gray" style={{ fontWeight: 600, fontSize: '1.1rem' }}>Total Faculty</p>
+                        </div>
 
-                {/* Classes Card */}
-                <div className="card animate-fade-in" 
-                     style={{ 
-                        flex: 1,
-                        display: 'flex',
-                        flexDirection: 'column',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        padding: '2.5rem 1.5rem',
-                        animationDelay: '0.1s',
-                        textAlign: 'center'
-                     }}>
-                    <div style={{ padding: '1.25rem', background: '#ecfccb', borderRadius: '50%', marginBottom: '1.5rem' }}>
-                        <Layers size={40} style={{ color: '#65a30d' }} />
-                    </div>
-                    <h2 className="text-4xl font-bold" style={{ marginBottom: '0.5rem' }}>{stats.classes}</h2>
-                    <p className="text-gray" style={{ fontWeight: 600, fontSize: '1.1rem' }}>Existing Classes</p>
-                </div>
+                        {/* Classes Card */}
+                        <div className="card animate-fade-in" 
+                            style={{ 
+                                flex: 1,
+                                display: 'flex',
+                                flexDirection: 'column',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                padding: '2.5rem 1.5rem',
+                                animationDelay: '0.1s',
+                                textAlign: 'center'
+                            }}>
+                            <div style={{ padding: '1.25rem', background: '#ecfccb', borderRadius: '50%', marginBottom: '1.5rem' }}>
+                                <Layers size={40} style={{ color: '#65a30d' }} />
+                            </div>
+                            <h2 className="text-4xl font-bold" style={{ marginBottom: '0.5rem' }}>{dashboardStats.classes}</h2>
+                            <p className="text-gray" style={{ fontWeight: 600, fontSize: '1.1rem' }}>Total Classes</p>
+                        </div>
 
-                {/* Students Card */}
-                <div className="card animate-fade-in" 
-                     style={{ 
-                        flex: 1,
-                        display: 'flex',
-                        flexDirection: 'column',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        padding: '2.5rem 1.5rem',
-                        animationDelay: '0.15s',
-                        textAlign: 'center'
-                     }}>
-                    <div style={{ padding: '1.25rem', background: '#fffbeb', borderRadius: '50%', marginBottom: '1.5rem' }}>
-                        <Users size={40} className="text-gold" />
-                    </div>
-                    <h2 className="text-4xl font-bold" style={{ marginBottom: '0.5rem' }}>{stats.students}</h2>
-                    <p className="text-gray" style={{ fontWeight: 600, fontSize: '1.1rem' }}>All Students</p>
-                </div>
+                        {/* Students Card */}
+                        <div className="card animate-fade-in" 
+                            style={{ 
+                                flex: 1,
+                                display: 'flex',
+                                flexDirection: 'column',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                padding: '2.5rem 1.5rem',
+                                animationDelay: '0.15s',
+                                textAlign: 'center'
+                            }}>
+                            <div style={{ padding: '1.25rem', background: '#e0f2fe', borderRadius: '50%', marginBottom: '1.5rem' }}>
+                                <BookOpen size={40} style={{ color: '#0284c7' }} />
+                            </div>
+                            <h2 className="text-4xl font-bold" style={{ marginBottom: '0.5rem' }}>{dashboardStats.students}</h2>
+                            <p className="text-gray" style={{ fontWeight: 600, fontSize: '1.1rem' }}>Total Students</p>
+                        </div>
+                    </>
+                )}
             </div>
 
             <div className="card animate-fade-in" style={{ animationDelay: '0.2s', marginTop: '2.5rem', padding: '2rem' }}>
                 <h3 style={{ marginBottom: '1.5rem', fontSize: '1.25rem', fontWeight: 700 }}>Quick Actions</h3>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem' }}>
-                    <a href="/admin/students" className="btn btn-primary" style={{
+                    <Link to="/admin/students" className="btn btn-primary" style={{
                         padding: '0.875rem 1.5rem',
                         display: 'flex',
                         alignItems: 'center',
@@ -185,8 +225,8 @@ export default function AdminDashboard() {
                         fontWeight: 600
                     }}>
                         <Users size={20} /> Manage Students
-                    </a>
-                    <a href="/admin/classes" className="btn btn-secondary" style={{
+                    </Link>
+                    <Link to="/admin/classes" className="btn btn-secondary" style={{
                         padding: '0.875rem 1.5rem',
                         display: 'flex',
                         alignItems: 'center',
@@ -195,9 +235,19 @@ export default function AdminDashboard() {
                         fontWeight: 600
                     }}>
                         <Layers size={20} /> Manage Classes
-                    </a>
-                    <a href="/admin/reports" className="btn btn-secondary" style={{
+                    </Link>
+                    <Link to="/admin/reports" className="btn btn-secondary" style={{
                         padding: '0.875rem 1.5rem',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '0.5rem',
+                        fontSize: '1rem',
+                        fontWeight: 600
+                    }}>
+                        <BookOpen size={20} /> View Reports
+                    </Link>
+                </div>
+            </div>
                         display: 'flex',
                         alignItems: 'center',
                         gap: '0.5rem',

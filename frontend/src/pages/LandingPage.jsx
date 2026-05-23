@@ -333,13 +333,10 @@ export default function LandingPage() {
                 <section id="contact" className="container" style={{ paddingBottom: "5rem" }}>
                     <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(350px, 1fr))", gap: "2rem" }}>
 
-                        {/* Left: Contact Form */}
-                        <div>
-                            <div className="card" style={{ padding: "2rem", height: "100%", borderTop: "4px solid var(--royal-blue)" }}>
+                        <div className="card" style={{ padding: "2rem", height: "100%", borderTop: "4px solid var(--royal-blue)" }}>
                                 <h3 className="text-royal" style={{ fontSize: "1.75rem", marginBottom: "2rem", fontWeight: 700 }}>Write a Message</h3>
                                 <ContactForm />
                             </div>
-                        </div>
 
                         {/* Right: Location & Info */}
                         <div>
@@ -572,14 +569,41 @@ function FeatureCard({ icon, title, desc }) {
 function ContactForm() {
     const [formData, setFormData] = useState({ name: "", phone: "", query: "" });
     const [loading, setLoading] = useState(false);
+    const [activeYearId, setActiveYearId] = useState(null);
+
+    useEffect(() => {
+        async function fetchActiveYear() {
+            try {
+                const { data, error } = await supabase
+                    .from("academic_years")
+                    .select("id")
+                    .eq("is_active", true)
+                    .maybeSingle();
+                
+                if (data) setActiveYearId(data.id);
+            } catch (err) {
+                console.error("Error fetching active year:", err);
+            }
+        }
+        fetchActiveYear();
+    }, []);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
 
-        const { error } = await supabase.from("contact_queries").insert([
-            { name: formData.name, phone: formData.phone, query: formData.query }
-        ]);
+        const payload = { 
+            name: formData.name, 
+            phone: formData.phone, 
+            query: formData.query 
+        };
+
+        // Only add academic_year_id if we have it
+        if (activeYearId) {
+            payload.academic_year_id = activeYearId;
+        }
+
+        const { error } = await supabase.from("contact_queries").insert([payload]);
 
         setLoading(false);
 

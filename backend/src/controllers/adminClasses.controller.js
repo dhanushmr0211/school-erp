@@ -72,7 +72,7 @@ const getClassById = async (req, res) => {
         )
       `)
             .eq('id', id)
-            .single();
+            .maybeSingle();
 
         if (error) {
             throw error;

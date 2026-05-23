@@ -1,32 +1,21 @@
-import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { fetchFacultyDashboard } from "../../services/facultyApi";
 import { useAcademicYear } from "../../context/AcademicYearContext";
 import { useNavigate } from "react-router-dom";
 
 export default function FacultyDashboard() {
   const { academicYearId } = useAcademicYear();
-  const [classes, setClasses] = useState([]);
-  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    if (academicYearId) {
-      loadData();
-    }
-  }, [academicYearId]);
+  const isYearLoaded = academicYearId && academicYearId !== "null" && academicYearId !== "undefined";
 
-  async function loadData() {
-    try {
-      const data = await fetchFacultyDashboard(academicYearId);
-      setClasses(data || []);
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  }
+  const { data: classes = [], isLoading } = useQuery({
+    queryKey: ['facultyDashboard', academicYearId],
+    queryFn: () => fetchFacultyDashboard(academicYearId),
+    enabled: !!isYearLoaded,
+  });
 
-  if (loading) return <div className="p-4">Loading...</div>;
+  if (isLoading) return <div className="p-4">Loading...</div>;
 
   return (
     <div>

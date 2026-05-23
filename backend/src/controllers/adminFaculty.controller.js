@@ -46,7 +46,7 @@ const createFaculty = async (req, res) => {
         },
       ])
       .select()
-      .single();
+      .maybeSingle();
 
     if (error) throw error;
 
@@ -94,7 +94,7 @@ const getFacultyById = async (req, res) => {
         )
       `)
       .eq('id', id)
-      .single();
+      .maybeSingle();
 
     if (error) throw error;
     res.json(data);

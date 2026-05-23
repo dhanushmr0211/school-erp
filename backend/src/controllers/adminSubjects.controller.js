@@ -73,7 +73,7 @@ const deleteSubject = async (req, res) => {
             .from('subjects')
             .select('academic_year_id')
             .eq('id', id)
-            .single();
+            .maybeSingle();
 
         if (fetchError) {
             console.error('Error fetching subject:', fetchError);

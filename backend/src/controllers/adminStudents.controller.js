@@ -36,7 +36,7 @@ const createStudent = async (req, res) => {
             .eq('academic_year_id', academicYearId)
             .order('admission_number', { ascending: false })
             .limit(1)
-            .single();
+            .maybeSingle();
 
         const newAdmissionNumber = (maxAdData?.admission_number || 0) + 1;
 
@@ -57,7 +57,7 @@ const createStudent = async (req, res) => {
                 academic_year_id: academicYearId
             }])
             .select()
-            .single();
+            .maybeSingle();
 
         if (studentError) {
             throw studentError;
@@ -88,33 +88,44 @@ const createStudent = async (req, res) => {
 };
 
 /**
- * GET ALL STUDENTS
+ * GET ALL STUDENTS (Optimized with pagination and field selection)
  */
 const getStudents = async (req, res) => {
     try {
         const academicYearId = req.headers['x-academic-year'] || req.query.academic_year_id;
+        const { page = 1, limit = 50, search = '', fields = '*' } = req.query;
 
         if (!academicYearId) {
             return res.status(400).json({ error: 'Academic year is required' });
         }
 
-        const { data, error } = await supabaseAdmin
+        const from = (parseInt(page) - 1) * parseInt(limit);
+        const to = from + parseInt(limit) - 1;
+
+        let query = supabaseAdmin
             .from('students')
-            .select(`
-                *,
-                enrollments:student_class_enrollments (
-                    class_id,
-                    academic_year_id
-                )
-            `)
+            .select(fields, { count: 'exact' })
             .eq('academic_year_id', academicYearId)
-            .order('roll_number', { ascending: true });
+            .order('name', { ascending: true })
+            .range(from, to);
+
+        if (search) {
+            query = query.ilike('name', `%${search}%`);
+        }
+
+        const { data, count, error } = await query;
 
         if (error) {
             throw error;
         }
 
-        res.json(data);
+        res.json({
+            data,
+            count,
+            page: parseInt(page),
+            limit: parseInt(limit),
+            totalPages: Math.ceil((count || 0) / limit)
+        });
     } catch (error) {
         console.error('Error fetching students:', error);
         res.status(500).json({ error: 'Failed to fetch students' });

@@ -12,7 +12,7 @@ const assignSubjectToClass = async (req, res) => {
             .from('class_subject_faculty')
             .insert([{ class_id, subject_id, faculty_id }])
             .select()
-            .single();
+            .maybeSingle();
 
         if (error) {
             throw error;

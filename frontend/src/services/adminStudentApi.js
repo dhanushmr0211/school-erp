@@ -1,10 +1,19 @@
 import { apiFetch } from "./apiClient";
 
-export function fetchStudents(academicYearId) {
-    if (!academicYearId || academicYearId === "null" || academicYearId === "undefined") {
-        return apiFetch("/admin/students");
-    }
-    return apiFetch(`/admin/students?academic_year_id=${academicYearId}`);
+export function fetchStudents(academicYearId, params = {}) {
+    const queryParams = new URLSearchParams();
+    if (academicYearId) queryParams.append("academic_year_id", academicYearId);
+    
+    Object.keys(params).forEach(key => {
+        if (params[key] !== undefined) {
+            queryParams.append(key, params[key]);
+        }
+    });
+
+    const queryString = queryParams.toString();
+    const url = `/admin/students${queryString ? `?${queryString}` : ""}`;
+    
+    return apiFetch(url);
 }
 
 

@@ -2,17 +2,31 @@ import { supabase } from "./supabaseClient";
 
 const BASE_URL = import.meta.env.VITE_API_URL;
 
+// Cache the session to avoid repeated await supabase.auth.getSession()
+let cachedSession = null;
+
+// Initialize session and listen for changes
+supabase.auth.getSession().then(({ data }) => {
+  cachedSession = data.session;
+});
+
+supabase.auth.onAuthStateChange((_event, session) => {
+  cachedSession = session;
+});
+
 export async function apiFetch(path, options = {}) {
-  const {
-    data: { session },
-  } = await supabase.auth.getSession();
+  // Use cached session if available, otherwise fetch once
+  if (!cachedSession) {
+    const { data } = await supabase.auth.getSession();
+    cachedSession = data.session;
+  }
 
   const headers = {
     "Content-Type": "application/json",
   };
 
-  if (session?.access_token) {
-    headers.Authorization = `Bearer ${session.access_token}`;
+  if (cachedSession?.access_token) {
+    headers.Authorization = `Bearer ${cachedSession.access_token}`;
   }
 
   const academicYearId = localStorage.getItem("academicYearId");

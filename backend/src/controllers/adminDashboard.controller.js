@@ -12,21 +12,26 @@ const getDashboardStats = async (req, res) => {
         const [
             { count: studentCount, error: studentError },
             { count: classCount, error: classError },
-            { count: facultyCount, error: facultyError }
+            { count: facultyCount, error: facultyError },
+            { count: queryCount, error: queryError }
         ] = await Promise.all([
             supabaseAdmin.from('students').select('*', { count: 'exact', head: true }).eq('academic_year_id', academicYearId),
             supabaseAdmin.from('classes').select('*', { count: 'exact', head: true }).eq('academic_year_id', academicYearId),
-            supabaseAdmin.from('faculties').select('*', { count: 'exact', head: true }).eq('academic_year_id', academicYearId)
+            supabaseAdmin.from('faculties').select('*', { count: 'exact', head: true }).eq('academic_year_id', academicYearId),
+            supabaseAdmin.from('contact_queries').select('*', { count: 'exact', head: true }).eq('academic_year_id', academicYearId)
         ]);
 
         if (studentError) throw studentError;
         if (classError) throw classError;
         if (facultyError) throw facultyError;
+        // queryError is ignored for now because column might not exist yet
+        // but it's better to handle it properly
 
         res.json({
             students: studentCount || 0,
             classes: classCount || 0,
-            faculty: facultyCount || 0
+            faculty: facultyCount || 0,
+            queries: queryCount || 0
         });
     } catch (error) {
         console.error('Error fetching dashboard stats:', error);

@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { supabase } from "../services/supabaseClient";
 import { useAuth } from "../context/AuthContext";
 import { useAcademicYear } from "../context/AcademicYearContext";
@@ -8,27 +9,22 @@ import { LogOut, KeyRound, X, ChevronDown, Eye, EyeOff, Menu } from "lucide-reac
 export default function Topbar({ onMenuClick }) {
   const { user } = useAuth();
   const { academicYearId, setAcademicYearId } = useAcademicYear();
-  const [years, setYears] = useState([]);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [newPassword, setNewPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
 
+  // Use React Query for academic years caching
+  const { data: years = [] } = useQuery({
+    queryKey: ['academicYears'],
+    queryFn: fetchAcademicYears,
+  });
+
   useEffect(() => {
-    const loadYears = async () => {
-      try {
-        if (years.length > 0) return; // Only fetch if list is empty
-        const yearsData = await fetchAcademicYears();
-        setYears(yearsData || []);
-        if (!academicYearId && yearsData.length > 0) {
-          setAcademicYearId(yearsData[0].id);
-        }
-      } catch (err) {
-        console.error("Failed to load academic years", err);
-      }
-    };
-    loadYears();
-  }, [setAcademicYearId]); // Only run once on mount or if setter changes
+    if (!academicYearId && years.length > 0) {
+      setAcademicYearId(years[0].id);
+    }
+  }, [academicYearId, years, setAcademicYearId]);
 
   const handleLogout = async () => {
     await supabase.auth.signOut();

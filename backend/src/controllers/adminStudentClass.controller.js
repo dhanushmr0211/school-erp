@@ -69,10 +69,9 @@ const enrollStudentsToClass = async (req, res) => {
                 .select('id')
                 .eq('student_id', update.student_id)
                 .eq('academic_year_id', update.academic_year_id)
-                .single();
+                .maybeSingle();
 
-            // Ignore "Row not found" error from .single()
-            if (findError && findError.code !== 'PGRST116') throw findError;
+            if (findError) throw findError;
 
             if (existing) {
                 // UPDATE existing enrollment (effectively moves student to this class if they were in another)

@@ -2,60 +2,42 @@ const { supabaseAdmin } = require('../services/supabaseClient');
 
 const getFacultyClasses = async (req, res) => {
     try {
-        const userId = req.user.id; // User ID from Supabase Auth
+        const userId = req.user.id;
+        const academicYearId = req.academicYearId;
 
+        console.log(`Fetching dashboard for user: ${userId}, Year: ${academicYearId}`);
 
-        console.log("Fetching dashboard for user:", userId);
-
-        // 1. Get Faculty ID
-        const { data: faculty, error: facultyError } = await supabaseAdmin
-            .from('faculties')
-            .select('id')
-            .eq('user_id', userId)
-            .single();
-
-        console.log("Faculty Lookup result:", faculty, facultyError);
-
-        if (facultyError || !faculty) {
-            console.error('Faculty not found for user:', userId, facultyError);
-            return res.status(404).json({ error: 'Faculty profile not found' });
-        }
-
-        const facultyId = faculty.id;
-
-        const academicYearId = req.academicYearId; // From academicYearGuard
-
-        console.log(`Querying assignments for Faculty: ${facultyId}, Year: ${academicYearId}`);
-
-        // 2. Fetch Class Assignments with Class and Subject details
+        // Combined query: Get assignments for the faculty linked to this user_id
         const { data: assignments, error: assignmentError } = await supabaseAdmin
             .from('class_subject_faculty')
             .select(`
-        class_id,
-        subject_id,
-        classes!inner (
-          id,
-          class_name,
-          section,
-          academic_year_id
-        ),
-        subjects (
-          id,
-          name,
-          code
-        )
-      `)
-            .eq('faculty_id', facultyId)
+                class_id,
+                subject_id,
+                faculty:faculties!inner (id, user_id),
+                classes!inner (
+                    id,
+                    class_name,
+                    section,
+                    academic_year_id
+                ),
+                subjects (
+                    id,
+                    name,
+                    code
+                )
+            `)
+            .eq('faculty.user_id', userId)
             .eq('classes.academic_year_id', academicYearId);
 
-        console.log("Assignments found:", assignments ? assignments.length : 0);
-        if (assignmentError) console.error("Assignment Query Error:", assignmentError);
-
         if (assignmentError) {
+            console.error("Assignment Query Error:", assignmentError);
             throw assignmentError;
         }
 
-        // 3. Map to flat list for dashboard
+        if (!assignments || assignments.length === 0) {
+            console.log("No assignments found for faculty user:", userId);
+        }
+
         const dashboardData = assignments.map(a => ({
             class_id: a.classes.id,
             class_name: a.classes.class_name,

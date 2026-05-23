@@ -1,40 +1,34 @@
-import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { fetchStudentMarks, fetchStudentFees, fetchStudentClasses } from "../../services/studentApi";
 import { useAcademicYear } from "../../context/AcademicYearContext";
 import { BookOpen, GraduationCap, Banknote, Calendar } from "lucide-react";
 
 export default function StudentDashboard() {
   const { academicYearId } = useAcademicYear();
-  const [marks, setMarks] = useState([]);
-  const [fees, setFees] = useState([]);
-  const [classesData, setClassesData] = useState(null); // { class_details, subjects }
-  const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    if (academicYearId) {
-      loadData();
-    }
-  }, [academicYearId]);
+  const isYearLoaded = academicYearId && academicYearId !== "null" && academicYearId !== "undefined";
 
-  async function loadData() {
-    setLoading(true);
-    try {
-      const [marksData, feesData, classData] = await Promise.all([
-        fetchStudentMarks(academicYearId),
-        fetchStudentFees(academicYearId),
-        fetchStudentClasses(academicYearId)
-      ]);
-      setMarks(marksData || []);
-      setFees(feesData || []);
-      setClassesData(classData || null);
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  }
+  // Use individual queries for better flexibility and easier background fetching
+  const { data: marks = [], isLoading: marksLoading } = useQuery({
+    queryKey: ['studentMarks', academicYearId],
+    queryFn: () => fetchStudentMarks(academicYearId),
+    enabled: !!isYearLoaded,
+  });
 
-  // Calculate Fee Summary
+  const { data: fees = [], isLoading: feesLoading } = useQuery({
+    queryKey: ['studentFees', academicYearId],
+    queryFn: () => fetchStudentFees(academicYearId),
+    enabled: !!isYearLoaded,
+  });
+
+  const { data: classesData = null, isLoading: classesLoading } = useQuery({
+    queryKey: ['studentClasses', academicYearId],
+    queryFn: () => fetchStudentClasses(academicYearId),
+    enabled: !!isYearLoaded,
+  });
+
+  const loading = marksLoading || feesLoading || classesLoading;
+
   // Calculate Fee Summary
   const calculateTotal = (f) => (Number(f.tuition_total) || 0) + (Number(f.books_total) || 0) + (Number(f.uniform_total) || 0) + (Number(f.bus_total) || 0);
   const calculatePaid = (f) => (Number(f.tuition_paid) || 0) + (Number(f.books_paid) || 0) + (Number(f.uniform_paid) || 0) + (Number(f.bus_paid) || 0);
@@ -43,7 +37,7 @@ export default function StudentDashboard() {
   const totalPaid = fees.reduce((acc, f) => acc + calculatePaid(f), 0);
   const balanceFee = totalFee - totalPaid;
 
-  if (loading) return <div className="p-8 text-center text-gray-500">Loading dashboard...</div>;
+  if (loading && !classesData) return <div className="p-8 text-center text-gray-500">Loading dashboard...</div>;
 
   return (
     <div>

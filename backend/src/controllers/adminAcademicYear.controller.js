@@ -31,7 +31,7 @@ const createAcademicYear = async (req, res) => {
             .from('academic_years')
             .insert([{ year_name, start_date, end_date, is_active: false }])
             .select()
-            .single();
+            .maybeSingle();
 
         if (yearError) {
             throw yearError;
@@ -42,7 +42,7 @@ const createAcademicYear = async (req, res) => {
             .from('academic_years')
             .select('id')
             .eq('is_active', true)
-            .single();
+            .maybeSingle();
 
         if (activeYear) {
             console.log(`Copying data from academic year ${activeYear.id} to ${newYear.id}`);

@@ -61,7 +61,7 @@ const upsertMarks = async (req, res) => {
                     .from('marks')
                     .insert(update)
                     .select()
-                    .single();
+                    .maybeSingle();
 
                 if (insertError) throw insertError;
                 results.push(insertedRow);

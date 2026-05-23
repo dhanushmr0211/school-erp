@@ -50,7 +50,7 @@ const upsertStudentFees = async (req, res) => {
             .from('student_fees')
             .upsert(feeData, { onConflict: 'student_id, academic_year_id, semester' })
             .select()
-            .single();
+            .maybeSingle();
 
         if (error) {
             throw error;
