@@ -248,16 +248,6 @@ export default function AdminDashboard() {
                     </Link>
                 </div>
             </div>
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '0.5rem',
-                        fontSize: '1rem',
-                        fontWeight: 600
-                    }}>
-                        <BookOpen size={20} /> Generate Reports
-                    </a>
-                </div>
-            </div>
         </div>
     );
 }
