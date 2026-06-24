@@ -474,9 +474,10 @@ function AddStudentModal({ cls, academicYearId, onClose }) {
     useEffect(() => {
         if (academicYearId && cls.id) {
             Promise.all([
-                fetchStudents(academicYearId),
+                fetchStudents(academicYearId, { limit: 1000 }),
                 fetchClassStudents(cls.id)
-            ]).then(([all, enrolled]) => {
+            ]).then(([studentsRes, enrolled]) => {
+                const all = studentsRes?.data || studentsRes || [];
                 // enrolled is array of { student_id, students: {...} }
                 // Filter out students who are ALREADY enrolled in THIS class OR ANY OTHER class for this academic year.
                 // Note: fetchStudents now returns `enrollments` array.

@@ -58,8 +58,8 @@ export default function Students() {
 
     async function loadData() {
         try {
-            const data = await fetchStudents(academicYearId);
-            setStudents(data);
+            const data = await fetchStudents(academicYearId, { limit: 1000 });
+            setStudents(data?.data || data || []);
         } catch (err) {
             console.error(err);
         } finally {
