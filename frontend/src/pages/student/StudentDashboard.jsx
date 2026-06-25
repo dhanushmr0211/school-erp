@@ -38,35 +38,15 @@ export default function StudentDashboard() {
   const totalPaid = fees.reduce((acc, f) => acc + calculatePaid(f), 0);
   const balanceFee = totalFee - totalPaid;
 
-  const [selectedExams, setSelectedExams] = useState({});
+  const [activeExam, setActiveExam] = useState(null);
 
   const ALL_EXAMS = ["Test 1", "Test 2", "Semester 1", "Test 3", "Test 4", "Semester 2"];
 
-  const getShortExamName = (fullName) => {
-    if (fullName === "Test 1") return "T1";
-    if (fullName === "Test 2") return "T2";
-    if (fullName === "Test 3") return "T3";
-    if (fullName === "Test 4") return "T4";
-    if (fullName === "Semester 1") return "Sem 1";
-    if (fullName === "Semester 2") return "Sem 2";
-    return fullName;
-  };
-
-  const getDefaultExam = (subjectExams) => {
-    const firstWithMarks = subjectExams.find(m => m.marks_obtained !== null && m.marks_obtained !== undefined);
-    return firstWithMarks ? firstWithMarks.exam_type : null;
-  };
-
-  const marksBySubject = useMemo(() => {
-    const groups = {};
-    marks.forEach(m => {
-      const subj = m.subject_name || "Unknown";
-      if (!groups[subj]) {
-        groups[subj] = [];
-      }
-      groups[subj].push(m);
-    });
-    return groups;
+  // Filter exams that have marks entered
+  const examsWithMarks = useMemo(() => {
+    return ALL_EXAMS.filter(examType => 
+      marks.some(m => m.exam_type === examType)
+    );
   }, [marks]);
 
   if (loading && !classesData) return <div className="p-8 text-center text-gray-500">Loading dashboard...</div>;
@@ -142,108 +122,138 @@ export default function StudentDashboard() {
           <h3 className="flex items-center gap-2 mb-6 text-accent">
             <GraduationCap size={20} /> Recent Exam Results
           </h3>
-          {marks.length === 0 ? (
+          {examsWithMarks.length === 0 ? (
             <p className="text-gray-500 italic">No marks available.</p>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {Object.keys(marksBySubject).map((subjectName) => {
-                const subjectExams = marksBySubject[subjectName];
-                const activeExamType = selectedExams[subjectName] || getDefaultExam(subjectExams) || ALL_EXAMS[0];
-                const activeExamData = subjectExams.find(m => m.exam_type === activeExamType);
-
-                return (
-                  <div key={subjectName} className="p-5 bg-white rounded-xl border border-gray-100 shadow-sm flex flex-col justify-between" style={{ background: '#ffffff', border: '1px solid var(--border-soft)' }}>
-                    <div>
-                      <h4 className="font-bold text-lg mb-4 text-primary flex items-center gap-2">
-                        <BookOpen size={18} className="text-accent" /> {subjectName}
-                      </h4>
-                      <div className="flex gap-2 flex-wrap">
-                        {ALL_EXAMS.map((examType) => {
-                          const examData = subjectExams.find(m => m.exam_type === examType);
-                          const isSelected = activeExamType === examType;
-                          const hasMarks = !!examData;
-                          const isPass = hasMarks && Number(examData.percentage) >= 35;
-
-                          let btnStyle = {
-                              minWidth: "50px",
-                              height: "50px",
-                              padding: "4px 8px",
-                              display: "flex",
-                              flexDirection: "column",
-                              justifyContent: "center",
-                              alignItems: "center",
-                              borderRadius: "8px",
-                              cursor: "pointer",
-                              transition: "all 0.2s ease",
-                              border: "1px solid var(--border-soft)",
-                              flex: "1 1 calc(16.66% - 8px)"
-                          };
-
-                          if (hasMarks) {
-                              if (isPass) {
-                                  btnStyle.background = isSelected ? "var(--royal-blue, #1d4ed8)" : "#f0fdf4";
-                                  btnStyle.color = isSelected ? "#ffffff" : "#15803d";
-                                  btnStyle.borderColor = isSelected ? "var(--royal-blue, #1d4ed8)" : "#bbf7d0";
-                              } else {
-                                  btnStyle.background = isSelected ? "#dc2626" : "#fef2f2";
-                                  btnStyle.color = isSelected ? "#ffffff" : "#b91c1c";
-                                  btnStyle.borderColor = isSelected ? "#dc2626" : "#fecaca";
-                              }
-                          } else {
-                              btnStyle.background = isSelected ? "var(--royal-blue, #1d4ed8)" : "#f8fafc";
-                              btnStyle.color = isSelected ? "#ffffff" : "#94a3b8";
-                              btnStyle.borderColor = "#e2e8f0";
-                          }
-
-                          return (
-                            <button
-                              key={examType}
-                              style={btnStyle}
-                              onClick={() => setSelectedExams(prev => ({ ...prev, [subjectName]: examType }))}
-                            >
-                              <span style={{ fontSize: "0.8rem", fontWeight: 700 }}>
-                                {getShortExamName(examType)}
-                              </span>
-                              <span style={{ fontSize: "0.65rem", marginTop: "2px", opacity: 0.8 }}>
-                                {hasMarks ? `${examData.marks_obtained}/${examData.total_marks}` : "-"}
-                              </span>
-                            </button>
-                          );
-                        })}
-                      </div>
-                    </div>
-
-                    <div style={{
-                      marginTop: "1.25rem",
-                      padding: "1rem",
-                      background: "#f8fafc",
-                      borderRadius: "8px",
-                      border: "1px solid var(--border-soft)",
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "center"
-                    }}>
+            <div>
+              {/* Exam Selection Cards */}
+              <div className="flex gap-4 flex-wrap mb-6">
+                {examsWithMarks.map((examType) => {
+                  const examMarks = marks.filter(m => m.exam_type === examType);
+                  const totalObtained = examMarks.reduce((sum, m) => sum + (Number(m.marks_obtained) || 0), 0);
+                  const totalMax = examMarks.reduce((sum, m) => sum + (Number(m.total_marks) || 0), 0);
+                  const overallPct = totalMax > 0 ? Math.round((totalObtained / totalMax) * 100) : 0;
+                  const anySubjectFailed = examMarks.some(m => Number(m.percentage) < 35);
+                  
+                  const isSelected = (activeExam || examsWithMarks[0]) === examType;
+                  
+                  let cardStyle = {
+                    flex: "1 1 180px",
+                    minWidth: "180px",
+                    padding: "1.25rem",
+                    borderRadius: "12px",
+                    cursor: "pointer",
+                    transition: "all 0.2s ease",
+                    border: "2px solid transparent",
+                    textAlign: "left",
+                    display: "flex",
+                    flexDirection: "column",
+                    justifyContent: "space-between"
+                  };
+                  
+                  if (anySubjectFailed) {
+                    cardStyle.background = isSelected ? "#fee2e2" : "#fef2f2";
+                    cardStyle.borderColor = isSelected ? "#dc2626" : "transparent";
+                    cardStyle.color = "#991b1b";
+                  } else {
+                    cardStyle.background = isSelected ? "#dcfce7" : "#f0fdf4";
+                    cardStyle.borderColor = isSelected ? "#15803d" : "transparent";
+                    cardStyle.color = "#14532d";
+                  }
+                  
+                  return (
+                    <button
+                      key={examType}
+                      style={cardStyle}
+                      onClick={() => setActiveExam(examType)}
+                    >
                       <div>
-                        <strong style={{ fontSize: "0.95rem", color: "var(--text-primary)" }}>{activeExamType}</strong>
-                        <div className="text-sm text-secondary mt-1">
-                          {activeExamData ? (
-                            <>
-                              Marks: <strong style={{ color: "var(--text-primary)" }}>{activeExamData.marks_obtained}</strong> / {activeExamData.total_marks} ({activeExamData.percentage}%)
-                            </>
-                          ) : (
-                            "No marks entered for this exam."
-                          )}
+                        <div style={{ fontSize: "0.75rem", textTransform: "uppercase", letterSpacing: "0.05em", opacity: 0.8, marginBottom: "4px" }}>
+                          Exam Type
+                        </div>
+                        <strong style={{ fontSize: "1.1rem", display: "block", marginBottom: "8px" }}>
+                          {examType}
+                        </strong>
+                      </div>
+                      <div>
+                        <div style={{ fontSize: "1.25rem", fontWeight: 700 }}>
+                          {totalObtained} / {totalMax}
+                        </div>
+                        <div style={{ fontSize: "0.85rem", opacity: 0.9, marginTop: "2px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                          <span>Percentage: {overallPct}%</span>
+                          <span className={`badge ${anySubjectFailed ? "badge-red" : "badge-green"}`} style={{ fontSize: "0.7rem", padding: "1px 6px" }}>
+                            {anySubjectFailed ? "FAIL" : "PASS"}
+                          </span>
                         </div>
                       </div>
-                      {activeExamData && (
-                        <span className={`badge ${Number(activeExamData.percentage) >= 35 ? "badge-green" : "badge-red"}`} style={{ padding: "4px 10px", fontSize: "0.8rem" }}>
-                          {Number(activeExamData.percentage) >= 35 ? "PASS" : "FAIL"}
-                        </span>
-                      )}
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Selected Exam Marks Details */}
+              {(() => {
+                const selectedExam = activeExam || examsWithMarks[0];
+                const selectedExamMarks = marks.filter(m => m.exam_type === selectedExam);
+                const selectedGrandObtained = selectedExamMarks.reduce((sum, m) => sum + (Number(m.marks_obtained) || 0), 0);
+                const selectedGrandMax = selectedExamMarks.reduce((sum, m) => sum + (Number(m.total_marks) || 0), 0);
+                const selectedGrandPercentage = selectedGrandMax > 0 ? Math.round((selectedGrandObtained / selectedGrandMax) * 100) : 0;
+                const selectedAnyFailed = selectedExamMarks.some(m => Number(m.percentage) < 35);
+
+                return (
+                  <div className="p-6 bg-white rounded-xl shadow-sm mt-6" style={{ background: '#ffffff', border: '1px solid var(--border-soft)' }}>
+                    <h4 className="font-bold text-lg mb-4 text-primary flex items-center gap-2" style={{ borderBottom: "1px solid var(--border-soft)", paddingBottom: "10px" }}>
+                      <BookOpen size={18} className="text-accent" /> {selectedExam} Marksheet
+                    </h4>
+                    
+                    <div style={{ overflowX: "auto", width: "100%", WebkitOverflowScrolling: "touch" }}>
+                      <table style={{ minWidth: "500px", width: "100%", borderSpacing: 0 }}>
+                        <thead>
+                          <tr style={{ color: "var(--text-secondary)", fontSize: "0.85rem" }}>
+                            <th style={{ textAlign: "left", padding: "10px 0" }}>Subject</th>
+                            <th style={{ textAlign: "right", padding: "10px 0" }}>Marks Obtained</th>
+                            <th style={{ textAlign: "right", padding: "10px 0" }}>Total Marks</th>
+                            <th style={{ textAlign: "right", padding: "10px 0" }}>Percentage</th>
+                            <th style={{ textAlign: "center", padding: "10px 0" }}>Result</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {selectedExamMarks.map((m, idx) => {
+                            const isFail = Number(m.percentage) < 35;
+                            const rowColor = isFail ? "#dc2626" : "var(--text-primary)";
+                            return (
+                              <tr key={idx} style={{ color: rowColor, borderBottom: "1px solid #f1f5f9" }}>
+                                <td style={{ padding: "12px 0", fontWeight: 500 }}>{m.subject_name}</td>
+                                <td style={{ padding: "12px 0", textAlign: "right", fontWeight: 700 }}>{m.marks_obtained}</td>
+                                <td style={{ padding: "12px 0", textAlign: "right", opacity: 0.8 }}>{m.total_marks}</td>
+                                <td style={{ padding: "12px 0", textAlign: "right" }}>{m.percentage}%</td>
+                                <td style={{ padding: "12px 0", textAlign: "center" }}>
+                                  <span className={`badge ${isFail ? "badge-red" : "badge-green"}`} style={{ padding: "2px 8px", fontSize: "0.75rem" }}>
+                                    {isFail ? "FAIL" : "PASS"}
+                                  </span>
+                                </td>
+                              </tr>
+                            );
+                          })}
+                          
+                          {/* Grand summary row */}
+                          <tr style={{ fontWeight: "bold", background: "#f8fafc" }}>
+                            <td style={{ padding: "12px 10px", borderRadius: "8px 0 0 8px" }}>Grand Total</td>
+                            <td style={{ padding: "12px 10px", textAlign: "right" }}>{selectedGrandObtained}</td>
+                            <td style={{ padding: "12px 10px", textAlign: "right" }}>{selectedGrandMax}</td>
+                            <td style={{ padding: "12px 10px", textAlign: "right" }}>{selectedGrandPercentage}%</td>
+                            <td style={{ padding: "12px 10px", textAlign: "center", borderRadius: "0 8px 8px 0" }}>
+                              <span className={`badge ${selectedAnyFailed ? "badge-red" : "badge-green"}`} style={{ padding: "4px 10px", fontSize: "0.8rem" }}>
+                                {selectedAnyFailed ? "FAIL" : "PASS"}
+                              </span>
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
                     </div>
                   </div>
                 );
-              })}
+              })()}
             </div>
           )}
         </div>
