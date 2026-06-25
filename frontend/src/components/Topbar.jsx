@@ -21,8 +21,12 @@ export default function Topbar({ onMenuClick }) {
   });
 
   useEffect(() => {
-    if (!academicYearId && years.length > 0) {
-      setAcademicYearId(years[0].id);
+    if (years.length > 0) {
+      const exists = years.some(y => y.id === academicYearId);
+      if (!exists) {
+        const activeYear = years.find(y => y.is_active);
+        setAcademicYearId(activeYear ? activeYear.id : years[0].id);
+      }
     }
   }, [academicYearId, years, setAcademicYearId]);
 
