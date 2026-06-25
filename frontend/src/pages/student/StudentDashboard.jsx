@@ -127,7 +127,7 @@ export default function StudentDashboard() {
           ) : (
             <div>
               {/* Exam Selection Cards */}
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">
+              <div className="recent-exams-grid">
                 {examsWithMarks.map((examType) => {
                   const examMarks = marks.filter(m => m.exam_type === examType);
                   const totalObtained = examMarks.reduce((sum, m) => sum + (Number(m.marks_obtained) || 0), 0);

@@ -135,7 +135,7 @@ const generateReportCard = async (req, res) => {
         const logoPath = logoPaths.find(p => fs.existsSync(p));
 
         if (logoPath) {
-            doc.image(logoPath, 460, 25, { width: 80 });
+            doc.image(logoPath, 475, 20, { width: 65 });
         }
 
         // School Name & Details (left side)
@@ -145,11 +145,11 @@ const generateReportCard = async (req, res) => {
             .text('Kadur Road, 9th Cross, Chikkamagaluru, Karnataka - 577138', 30, 64, { width: 420 })
             .text('Phone: +91 74112 91438  |  Email: aesanikethanaschool@gmail.com', 30, 76, { width: 420 });
 
-        // Divider line
-        doc.moveTo(30, 100).lineTo(570, 100).lineWidth(1.5).stroke();
+        // Divider line (closer to header, below logo)
+        doc.moveTo(30, 90).lineTo(570, 90).lineWidth(1.5).stroke();
 
         // Report Card Title
-        doc.y = 115;
+        doc.y = 105;
         doc.fontSize(14).font('Helvetica-Bold').text('STUDENT REPORT CARD', { align: 'center' });
         doc.fontSize(10).font('Helvetica').text(`Academic Year: ${academicYearName}`, { align: 'center' });
         doc.moveDown(0.5);

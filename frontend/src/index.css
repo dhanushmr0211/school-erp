@@ -601,3 +601,17 @@ input[type=number] {
     0% { background-position: 200% 0; }
     100% { background-position: -200% 0; }
 }
+
+/* Responsive Grid for Recent Exam Results Cards */
+.recent-exams-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-lg);
+}
+
+@media (min-width: 768px) {
+    .recent-exams-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+}
