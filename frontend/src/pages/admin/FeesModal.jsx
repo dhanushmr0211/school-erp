@@ -129,7 +129,12 @@ export default function FeesModal({ student, academicYearId, onClose }) {
                 </div>
 
                 {loading ? (
-                    <p className="text-center py-8 text-gray-500">Loading fees...</p>
+                    <div className="flex flex-col gap-md py-4">
+                        <div className="skeleton" style={{ height: '40px', width: '100%' }}></div>
+                        <div className="skeleton" style={{ height: '40px', width: '100%' }}></div>
+                        <div className="skeleton" style={{ height: '40px', width: '100%' }}></div>
+                        <div className="skeleton" style={{ height: '40px', width: '100%' }}></div>
+                    </div>
                 ) : (
                     <div className="grid gap-6">
                         {/* Table Header */}

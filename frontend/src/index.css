@@ -550,3 +550,54 @@ input[type=number] {
         margin-left: 0 !important;
     }
 }
+
+/* Custom Alert Banners */
+.alert {
+    padding: var(--spacing-md);
+    border-radius: var(--radius-md);
+    margin-bottom: var(--spacing-md);
+    font-size: 0.95rem;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    border: 1px solid transparent;
+    animation: fadeIn 0.3s ease-out;
+}
+
+.alert-danger {
+    background: #fef2f2;
+    color: var(--ribbon-red);
+    border-color: #fee2e2;
+}
+
+.alert-success {
+    background: #f0fdf4;
+    color: #15803d;
+    border-color: #dcfce7;
+}
+
+/* Skeleton Loading Shimmer */
+.skeleton {
+    background: linear-gradient(90deg, #e2e8f0 25%, #f1f5f9 50%, #e2e8f0 75%);
+    background-size: 200% 100%;
+    animation: loading-shimmer 1.5s infinite;
+    border-radius: var(--radius-sm);
+}
+
+.skeleton-text {
+    height: 1rem;
+    margin-bottom: 0.5rem;
+    width: 100%;
+}
+
+.skeleton-title {
+    height: 1.5rem;
+    margin-bottom: 1rem;
+    width: 60%;
+}
+
+@keyframes loading-shimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}

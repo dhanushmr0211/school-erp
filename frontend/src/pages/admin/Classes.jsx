@@ -20,6 +20,8 @@ export default function Classes() {
     const [form, setForm] = useState({ class_name: "", section: "" });
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [selectedClass, setSelectedClass] = useState(null);
+    const [error, setError] = useState("");
+    const [success, setSuccess] = useState("");
 
     const [modalType, setModalType] = useState(null); // 'assign', 'details', 'add_students'
 
@@ -48,15 +50,18 @@ export default function Classes() {
 
     async function handleSubmit(e) {
         e.preventDefault();
-        if (!academicYearId) return alert("Select Academic Year");
+        setError("");
+        setSuccess("");
+        if (!academicYearId) return setError("Select Academic Year");
 
         setIsSubmitting(true);
         try {
             await createClass({ ...form, academic_year_id: academicYearId });
             setForm({ class_name: "", section: "" });
+            setSuccess("Class created successfully!");
             loadData();
         } catch (err) {
-            alert("Failed to create class");
+            setError(err.message || "Failed to create class");
         } finally {
             setIsSubmitting(false);
         }
@@ -79,6 +84,9 @@ export default function Classes() {
             <div className="page-header">
                 <h1>Classes Management</h1>
             </div>
+
+            {error && <div className="alert alert-danger">{error}</div>}
+            {success && <div className="alert alert-success">{success}</div>}
 
             <div className="card">
                 <h3>Create New Class</h3>
@@ -209,6 +217,7 @@ function AssignSubjectModal({ cls, allSubjects, onClose }) {
     const [eligibleFaculty, setEligibleFaculty] = useState([]);
     const [selectedFaculty, setSelectedFaculty] = useState("");
     const [loading, setLoading] = useState(false);
+    const [loadingAssigned, setLoadingAssigned] = useState(true);
 
     useEffect(() => {
         loadAssigned();
@@ -224,11 +233,14 @@ function AssignSubjectModal({ cls, allSubjects, onClose }) {
     }, [selectedSubject]);
 
     async function loadAssigned() {
+        setLoadingAssigned(true);
         try {
             const data = await fetchClassSubjects(cls.id);
             setAssignedList(data);
         } catch (err) {
             console.error(err);
+        } finally {
+            setLoadingAssigned(false);
         }
     }
 
@@ -293,27 +305,36 @@ function AssignSubjectModal({ cls, allSubjects, onClose }) {
 
             <div>
                 <h4>Current Assignments</h4>
-                <div style={{ overflowX: "auto", width: "100%", WebkitOverflowScrolling: "touch" }}>
-                    <table style={{ fontSize: "0.9rem", minWidth: "400px" }}>
-                        <thead>
-                            <tr>
-                                <th>Subject</th>
-                                <th>Teacher</th>
-                                {/* <th>Action</th> */}
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {assignedList.map((item, idx) => (
-                                <tr key={idx}>
-                                    <td>{item.subject?.name}</td>
-                                    <td>{item.faculty?.name}</td>
-                                    {/* <td><button className="btn btn-danger btn-sm">X</button></td> */}
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
-                {assignedList.length === 0 && <p className="text-gray">No subjects assigned yet.</p>}
+                {loadingAssigned ? (
+                    <div className="flex flex-col gap-sm mt-sm">
+                        <div className="skeleton" style={{ height: '35px', width: '100%' }}></div>
+                        <div className="skeleton" style={{ height: '35px', width: '100%' }}></div>
+                    </div>
+                ) : (
+                    <>
+                        <div style={{ overflowX: "auto", width: "100%", WebkitOverflowScrolling: "touch" }}>
+                            <table style={{ fontSize: "0.9rem", minWidth: "400px" }}>
+                                <thead>
+                                    <tr>
+                                        <th>Subject</th>
+                                        <th>Teacher</th>
+                                        {/* <th>Action</th> */}
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {assignedList.map((item, idx) => (
+                                        <tr key={idx}>
+                                            <td>{item.subject?.name}</td>
+                                            <td>{item.faculty?.name}</td>
+                                            {/* <td><button className="btn btn-danger btn-sm">X</button></td> */}
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                        {assignedList.length === 0 && <p className="text-gray">No subjects assigned yet.</p>}
+                    </>
+                )}
             </div>
 
             <div className="mt-md text-right">
@@ -331,12 +352,14 @@ function ClassDetailModal({ cls, allSubjects, onClose, onUpdate }) {
     // Associated Data
     const [students, setStudents] = useState([]);
     const [subjects, setSubjects] = useState([]);
+    const [loadingDetails, setLoadingDetails] = useState(true);
 
     useEffect(() => {
         loadDetails();
     }, []);
 
     async function loadDetails() {
+        setLoadingDetails(true);
         try {
             const [studentsData, subjectsData] = await Promise.all([
                 fetchClassStudents(cls.id),
@@ -346,6 +369,8 @@ function ClassDetailModal({ cls, allSubjects, onClose, onUpdate }) {
             setSubjects(subjectsData);
         } catch (err) {
             console.error("Failed to load class details", err);
+        } finally {
+            setLoadingDetails(false);
         }
     }
 
@@ -396,72 +421,93 @@ function ClassDetailModal({ cls, allSubjects, onClose, onUpdate }) {
                 <button onClick={onClose} className="btn btn-secondary">Close</button>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-md">
-                <div>
-                    <h4>Assigned Subjects & Faculty</h4>
-                    <div style={{ overflowX: "auto", width: "100%", WebkitOverflowScrolling: "touch" }}>
-                        <table style={{ fontSize: "0.85rem", minWidth: "350px" }}>
-                            <thead>
-                                <tr>
-                                    <th>Subject</th>
-                                    <th>Teacher</th>
-                                    <th>Action</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {subjects.map((item, idx) => (
-                                    <tr key={idx}>
-                                        <td>{item.subject?.name}</td>
-                                        <td>{item.faculty?.name}</td>
-                                        <td>
-                                            <button
-                                                onClick={() => handleRemoveSubject(item.id)}
-                                                className="btn btn-danger btn-sm"
-                                                style={{ padding: '2px 6px' }}
-                                            >
-                                                <Trash2 size={12} />
-                                            </button>
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
+            {loadingDetails ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-lg mt-md">
+                    <div>
+                        <div className="skeleton skeleton-title" style={{ width: '180px', height: '20px', marginBottom: '20px' }}></div>
+                        <div className="flex flex-col gap-sm">
+                            <div className="skeleton" style={{ height: '40px', width: '100%' }}></div>
+                            <div className="skeleton" style={{ height: '40px', width: '100%' }}></div>
+                            <div className="skeleton" style={{ height: '40px', width: '100%' }}></div>
+                        </div>
                     </div>
-                    {subjects.length === 0 && <p className="text-gray text-sm">No subjects.</p>}
-                </div>
-                <div>
-                    <h4>Enrolled Students ({students.length})</h4>
-                    <div style={{ maxHeight: "300px", overflowX: "auto", overflowY: "auto", width: "100%", WebkitOverflowScrolling: "touch" }}>
-                        <table style={{ fontSize: "0.85rem", minWidth: "350px" }}>
-                            <thead>
-                                <tr>
-                                    <th>Roll</th>
-                                    <th>Name</th>
-                                    <th>Action</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {students.map((item, idx) => (
-                                    <tr key={idx}>
-                                        <td>{item.roll_number || "-"}</td>
-                                        <td>{item.students?.name}</td>
-                                        <td>
-                                            <button
-                                                onClick={() => handleRemoveStudent(item.student_id)}
-                                                className="btn btn-danger btn-sm"
-                                                style={{ padding: '2px 6px' }}
-                                            >
-                                                <Trash2 size={12} />
-                                            </button>
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
+                    <div>
+                        <div className="skeleton skeleton-title" style={{ width: '180px', height: '20px', marginBottom: '20px' }}></div>
+                        <div className="flex flex-col gap-sm">
+                            <div className="skeleton" style={{ height: '40px', width: '100%' }}></div>
+                            <div className="skeleton" style={{ height: '40px', width: '100%' }}></div>
+                            <div className="skeleton" style={{ height: '40px', width: '100%' }}></div>
+                        </div>
                     </div>
-                    {students.length === 0 && <p className="text-gray text-sm">No students enrolled.</p>}
                 </div>
-            </div>
+            ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-md">
+                    <div>
+                        <h4>Assigned Subjects & Faculty</h4>
+                        <div style={{ overflowX: "auto", width: "100%", WebkitOverflowScrolling: "touch" }}>
+                            <table style={{ fontSize: "0.85rem", minWidth: "350px" }}>
+                                <thead>
+                                    <tr>
+                                        <th>Subject</th>
+                                        <th>Teacher</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {subjects.map((item, idx) => (
+                                        <tr key={idx}>
+                                            <td>{item.subject?.name}</td>
+                                            <td>{item.faculty?.name}</td>
+                                            <td>
+                                                <button
+                                                    onClick={() => handleRemoveSubject(item.id)}
+                                                    className="btn btn-danger btn-sm"
+                                                    style={{ padding: '2px 6px' }}
+                                                >
+                                                    <Trash2 size={12} />
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                        {subjects.length === 0 && <p className="text-gray text-sm">No subjects.</p>}
+                    </div>
+                    <div>
+                        <h4>Enrolled Students ({students.length})</h4>
+                        <div style={{ maxHeight: "300px", overflowX: "auto", overflowY: "auto", width: "100%", WebkitOverflowScrolling: "touch" }}>
+                            <table style={{ fontSize: "0.85rem", minWidth: "350px" }}>
+                                <thead>
+                                    <tr>
+                                        <th>Roll</th>
+                                        <th>Name</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {students.map((item, idx) => (
+                                        <tr key={idx}>
+                                            <td>{item.roll_number || "-"}</td>
+                                            <td>{item.students?.name}</td>
+                                            <td>
+                                                <button
+                                                    onClick={() => handleRemoveStudent(item.student_id)}
+                                                    className="btn btn-danger btn-sm"
+                                                    style={{ padding: '2px 6px' }}
+                                                >
+                                                    <Trash2 size={12} />
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                        {students.length === 0 && <p className="text-gray text-sm">No students enrolled.</p>}
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
@@ -525,7 +571,14 @@ function AddStudentModal({ cls, academicYearId, onClose }) {
     return (
         <div className="card" style={{ width: "500px", maxHeight: "80vh", overflowY: "auto" }}>
             <h3>Add Students to {cls.class_name}</h3>
-            {loading ? <p>Loading students...</p> : (
+            {loading ? (
+                <div className="flex flex-col gap-sm mt-md">
+                    <div className="skeleton" style={{ height: '35px', width: '100%' }}></div>
+                    <div className="skeleton" style={{ height: '35px', width: '100%' }}></div>
+                    <div className="skeleton" style={{ height: '35px', width: '100%' }}></div>
+                    <div className="skeleton" style={{ height: '35px', width: '100%' }}></div>
+                </div>
+            ) : (
                 <>
                     <div className="mb-md" style={{ maxHeight: "400px", overflowX: "auto", overflowY: "auto", width: "100%", WebkitOverflowScrolling: "touch" }}>
                         <table style={{ fontSize: "0.85rem", minWidth: "400px" }}>

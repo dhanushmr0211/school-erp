@@ -48,6 +48,8 @@ export default function Students() {
     const [profileModalOpen, setProfileModalOpen] = useState(false);
     const [selectedProfile, setSelectedProfile] = useState(null);
     const [searchQuery, setSearchQuery] = useState("");
+    const [error, setError] = useState("");
+    const [success, setSuccess] = useState("");
 
     useEffect(() => {
         if (academicYearId) {
@@ -75,6 +77,8 @@ export default function Students() {
     async function handleSubmit(e) {
         e.preventDefault();
         setIsSubmitting(true);
+        setError("");
+        setSuccess("");
         try {
             const validSiblings = form.siblings.filter(s => s.name && s.age);
             await createStudent({
@@ -93,9 +97,10 @@ export default function Students() {
                 contact: "",
                 siblings: []
             });
+            setSuccess("Student registered successfully!");
             loadData();
         } catch (err) {
-            alert("Failed to create student");
+            setError(err.message || "Failed to create student");
         } finally {
             setIsSubmitting(false);
         }
@@ -177,6 +182,9 @@ export default function Students() {
             <div className="page-header">
                 <h1>Student Management</h1>
             </div>
+
+            {error && <div className="alert alert-danger">{error}</div>}
+            {success && <div className="alert alert-success">{success}</div>}
 
             <div className="card">
                 <h3>Register New Student</h3>

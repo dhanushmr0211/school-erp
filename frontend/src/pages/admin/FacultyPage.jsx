@@ -15,6 +15,8 @@ export default function FacultyPage() {
     const [selectedSubjects, setSelectedSubjects] = useState({});
     const [editingId, setEditingId] = useState(null); // ID of the faculty currently being edited
     const [editForm, setEditForm] = useState({ name: "", email: "", qualification: "" });
+    const [error, setError] = useState("");
+    const [success, setSuccess] = useState("");
 
     useEffect(() => {
         loadData();
@@ -39,15 +41,21 @@ export default function FacultyPage() {
 
     async function handleSubmit(e) {
         e.preventDefault();
-        if (!academicYearId) return alert("Select Academic Year");
+        setError("");
+        setSuccess("");
+        if (!academicYearId) return setError("Please select an Academic Year first.");
 
-        await createFaculty({
-            ...form,
-            academic_year_id: academicYearId,
-        });
-
-        setForm({ name: "", email: "", qualification: "" });
-        loadData();
+        try {
+            await createFaculty({
+                ...form,
+                academic_year_id: academicYearId,
+            });
+            setForm({ name: "", email: "", qualification: "" });
+            setSuccess("Faculty member added successfully!");
+            loadData();
+        } catch (err) {
+            setError(err.message || "Failed to add faculty member. User email might be already registered.");
+        }
     }
 
     async function handleSave(facultyId) {
@@ -77,6 +85,8 @@ export default function FacultyPage() {
                 <h1>Faculty Management</h1>
             </div>
 
+            {error && <div className="alert alert-danger">{error}</div>}
+            {success && <div className="alert alert-success">{success}</div>}
 
             <div className="card">
                 <h3>Add New Faculty</h3>

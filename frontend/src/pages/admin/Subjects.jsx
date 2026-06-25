@@ -8,6 +8,8 @@ export default function Subjects() {
     const [loading, setLoading] = useState(true);
     const [form, setForm] = useState({ name: "", code: "", type: "THEORY" });
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [error, setError] = useState("");
+    const [success, setSuccess] = useState("");
 
     useEffect(() => {
         loadData();
@@ -27,12 +29,15 @@ export default function Subjects() {
     async function handleSubmit(e) {
         e.preventDefault();
         setIsSubmitting(true);
+        setError("");
+        setSuccess("");
         try {
             await createSubject(form);
             setForm({ name: "", code: "", type: "THEORY" });
+            setSuccess("Subject created successfully!");
             loadData();
         } catch (err) {
-            alert("Failed to create subject");
+            setError(err.message || "Failed to create subject");
         } finally {
             setIsSubmitting(false);
         }
@@ -55,6 +60,9 @@ export default function Subjects() {
             <div className="page-header">
                 <h1>Subjects Management</h1>
             </div>
+
+            {error && <div className="alert alert-danger">{error}</div>}
+            {success && <div className="alert alert-success">{success}</div>}
 
             <div className="card">
                 <h3>Add New Subject</h3>
