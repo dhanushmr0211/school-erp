@@ -68,9 +68,7 @@ const generateReportCard = async (req, res) => {
         let grandTotalObtained = 0;
         let grandTotalMax = 0;
 
-        const tableRows = marks.map(m => {
-            const subjectName = m.subject?.name || 'Unknown';
-
+        marks.forEach(m => {
             const t1 = m.test1;
             const t2 = m.test2;
             const s1 = m.sem1;
@@ -97,16 +95,17 @@ const generateReportCard = async (req, res) => {
             if (t3 != null) { grandTotalObtained += t3; grandTotalMax += 25; }
             if (t4 != null) { grandTotalObtained += t4; grandTotalMax += 25; }
             if (s2 != null) { grandTotalObtained += s2; grandTotalMax += 50; }
+        });
 
-            return {
-                subject: subjectName,
-                test1: t1 ?? '-',
-                test2: t2 ?? '-',
-                sem1: s1 ?? '-',
-                test3: t3 ?? '-',
-                test4: t4 ?? '-',
-                sem2: s2 ?? '-'
-            };
+        // Unique subjects and map for rendering table
+        const subjects = [];
+        const subjectMap = {};
+        marks.forEach(m => {
+            const subName = m.subject?.name || 'Unknown';
+            if (!subjects.includes(subName)) {
+                subjects.push(subName);
+            }
+            subjectMap[subName] = m;
         });
 
         // Averages
@@ -150,7 +149,7 @@ const generateReportCard = async (req, res) => {
         doc.moveTo(30, 100).lineTo(570, 100).lineWidth(1.5).stroke();
 
         // Report Card Title
-        doc.moveDown(1);
+        doc.y = 115;
         doc.fontSize(14).font('Helvetica-Bold').text('STUDENT REPORT CARD', { align: 'center' });
         doc.fontSize(10).font('Helvetica').text(`Academic Year: ${academicYearName}`, { align: 'center' });
         doc.moveDown(0.5);
@@ -174,50 +173,122 @@ const generateReportCard = async (req, res) => {
         doc.moveDown(0.5);
 
         // Table Constants
+        const startX = 30;
+        const endX = 570;
+        const totalWidth = endX - startX; // 540
+        const testColWidth = 80;
+        const totalColWidth = 75;
+        const resultColWidth = 55;
+        const subjectColsWidth = totalWidth - testColWidth - totalColWidth - resultColWidth; // 330
+        const numSubjects = subjects.length || 1;
+        const subjectColWidth = subjectColsWidth / numSubjects;
+
+        let fSize = 10;
+        if (numSubjects > 5) {
+            fSize = 8;
+        } else if (numSubjects > 4) {
+            fSize = 9;
+        }
+
         const tableTop = doc.y;
-        const colX = {
-            subject: 30,
-            test1: 130,
-            test2: 180,
-            sem1: 230,
-            test3: 280,
-            test4: 330,
-            sem2: 380,
-        };
 
         // Draw Table Header
-        doc.font('Helvetica-Bold').fontSize(10);
-        doc.text('Subject', colX.subject, tableTop);
-        doc.text('T1 (25)', colX.test1, tableTop);
-        doc.text('T2 (25)', colX.test2, tableTop);
-        doc.text('Sem1 (50)', colX.sem1, tableTop);
-        doc.text('T3 (25)', colX.test3, tableTop);
-        doc.text('T4 (25)', colX.test4, tableTop);
-        doc.text('Sem2 (50)', colX.sem2, tableTop);
+        doc.font('Helvetica-Bold').fontSize(fSize).fillColor('#000000');
+        doc.text('Test', startX, tableTop, { width: testColWidth, align: 'left' });
+        
+        subjects.forEach((sub, i) => {
+            const x = startX + testColWidth + i * subjectColWidth;
+            doc.text(sub, x, tableTop, { width: subjectColWidth, align: 'center' });
+        });
+        
+        doc.text('Total Marks', endX - totalColWidth - resultColWidth, tableTop, { width: totalColWidth, align: 'center' });
+        doc.text('Result', endX - resultColWidth, tableTop, { width: resultColWidth, align: 'center' });
 
-        doc.moveTo(30, tableTop + 15).lineTo(570, tableTop + 15).stroke();
-        doc.font('Helvetica');
+        doc.moveTo(startX, tableTop + 15).lineTo(endX, tableTop + 15).lineWidth(0.5).stroke();
 
-        // Draw Table Rows
+        const testConfigs = [
+            { key: 'test1', label: 'T1 (25)', max: 25 },
+            { key: 'test2', label: 'T2 (25)', max: 25 },
+            { key: 'sem1', label: 'Sem 1 (50)', max: 50 },
+            { key: 'test3', label: 'T3 (25)', max: 25 },
+            { key: 'test4', label: 'T4 (25)', max: 25 },
+            { key: 'sem2', label: 'Sem 2 (50)', max: 50 }
+        ];
+
         let y = tableTop + 25;
-        tableRows.forEach(row => {
+        testConfigs.forEach(config => {
             if (y > 750) {
                 doc.addPage();
                 y = 50;
             }
-            doc.text(row.subject, colX.subject, y);
-            doc.text(row.test1, colX.test1, y);
-            doc.text(row.test2, colX.test2, y);
-            doc.text(row.sem1, colX.sem1, y);
-            doc.text(row.test3, colX.test3, y);
-            doc.text(row.test4, colX.test4, y);
-            doc.text(row.sem2, colX.sem2, y);
+
+            // Gather scores and check pass/fail
+            let totalObtained = 0;
+            let hasAnyMark = false;
+            let anyFailed = false;
+
+            const rowMarks = {};
+            subjects.forEach(sub => {
+                const markRec = subjectMap[sub];
+                const score = markRec ? markRec[config.key] : null;
+                rowMarks[sub] = score;
+
+                if (score != null) {
+                    hasAnyMark = true;
+                    totalObtained += score;
+                    // Pass is >= 35% of max marks
+                    const passThreshold = config.max * 0.35;
+                    if (score < passThreshold) {
+                        anyFailed = true;
+                    }
+                }
+            });
+
+            const resultText = hasAnyMark ? (anyFailed ? 'FAIL' : 'PASS') : '-';
+            const totalText = hasAnyMark ? totalObtained.toString() : '-';
+
+            // Print Test Label (red if any failed, else black)
+            doc.font('Helvetica-Bold').fontSize(fSize);
+            if (anyFailed) {
+                doc.fillColor('#dc2626');
+            } else {
+                doc.fillColor('#000000');
+            }
+            doc.text(config.label, startX, y, { width: testColWidth, align: 'left' });
+
+            // Print Subject Marks
+            subjects.forEach((sub, i) => {
+                const x = startX + testColWidth + i * subjectColWidth;
+                const score = rowMarks[sub];
+                const scoreText = score != null ? score.toString() : '-';
+
+                if (score != null && score < config.max * 0.35) {
+                    doc.fillColor('#dc2626').font('Helvetica-Bold');
+                } else {
+                    doc.fillColor('#000000').font('Helvetica');
+                }
+                doc.text(scoreText, x, y, { width: subjectColWidth, align: 'center' });
+            });
+
+            // Print Total Marks (black)
+            doc.fillColor('#000000').font('Helvetica');
+            doc.text(totalText, endX - totalColWidth - resultColWidth, y, { width: totalColWidth, align: 'center' });
+
+            // Print Result (red if failed, else black)
+            if (anyFailed) {
+                doc.fillColor('#dc2626').font('Helvetica-Bold');
+            } else {
+                doc.fillColor('#000000').font('Helvetica');
+            }
+            doc.text(resultText, endX - resultColWidth, y, { width: resultColWidth, align: 'center' });
 
             y += 20;
         });
 
-        doc.moveDown();
-        doc.moveTo(30, y).lineTo(570, y).stroke();
+        // Restore default color
+        doc.fillColor('#000000');
+
+        doc.moveTo(startX, y).lineTo(endX, y).lineWidth(0.5).stroke();
         y += 15;
 
         // Summary

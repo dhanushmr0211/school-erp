@@ -127,7 +127,7 @@ export default function StudentDashboard() {
           ) : (
             <div>
               {/* Exam Selection Cards */}
-              <div className="flex gap-4 flex-wrap mb-6">
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">
                 {examsWithMarks.map((examType) => {
                   const examMarks = marks.filter(m => m.exam_type === examType);
                   const totalObtained = examMarks.reduce((sum, m) => sum + (Number(m.marks_obtained) || 0), 0);
@@ -138,8 +138,6 @@ export default function StudentDashboard() {
                   const isSelected = (activeExam || examsWithMarks[0]) === examType;
                   
                   let cardStyle = {
-                    flex: "1 1 180px",
-                    minWidth: "180px",
                     padding: "1.25rem",
                     borderRadius: "12px",
                     cursor: "pointer",
@@ -212,7 +210,7 @@ export default function StudentDashboard() {
                           <tr style={{ color: "var(--text-secondary)", fontSize: "0.85rem" }}>
                             <th style={{ textAlign: "left", padding: "10px 0" }}>Subject</th>
                             <th style={{ textAlign: "right", padding: "10px 0" }}>Marks Obtained</th>
-                            <th style={{ textAlign: "right", padding: "10px 0" }}>Total Marks</th>
+                            <th style={{ textAlign: "right", padding: "10px 0" }}>Max Marks</th>
                             <th style={{ textAlign: "right", padding: "10px 0" }}>Percentage</th>
                             <th style={{ textAlign: "center", padding: "10px 0" }}>Result</th>
                           </tr>
