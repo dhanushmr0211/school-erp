@@ -206,30 +206,39 @@ export default function FacultyMarks() {
                                         <td className="font-medium text-primary">
                                             {s.students?.name}
                                         </td>
-
-                                        {activeTab === "SEM1" ? (
-                                            <>
-                                                <td className="text-center">{renderInput(s.student_id, "test1", 25)}</td>
-                                                <td className="text-center">{renderInput(s.student_id, "test2", 25)}</td>
-                                                <td className="text-center">{renderInput(s.student_id, "sem1", 50)}</td>
-                                                <td className="text-center" style={{ paddingRight: '2rem' }}>
-                                                    <span style={{ fontWeight: 700, color: "var(--text-secondary)" }}>
-                                                        {marks[s.student_id]?.sem1_percentage ? `${marks[s.student_id]?.sem1_percentage}%` : "-"}
-                                                    </span>
-                                                </td>
-                                            </>
-                                        ) : (
-                                            <>
-                                                <td className="text-center">{renderInput(s.student_id, "test3", 25)}</td>
-                                                <td className="text-center">{renderInput(s.student_id, "test4", 25)}</td>
-                                                <td className="text-center">{renderInput(s.student_id, "sem2", 50)}</td>
-                                                <td className="text-center" style={{ paddingRight: '2rem' }}>
-                                                    <span style={{ fontWeight: 700, color: "var(--text-secondary)" }}>
-                                                        {marks[s.student_id]?.sem2_percentage ? `${marks[s.student_id]?.sem2_percentage}%` : "-"}
-                                                    </span>
-                                                </td>
-                                            </>
-                                        )}
+                                         {activeTab === "SEM1" ? (
+                                             <>
+                                                 <td className="text-center">{renderInput(s.student_id, "test1", 25)}</td>
+                                                 <td className="text-center">{renderInput(s.student_id, "test2", 25)}</td>
+                                                 <td className="text-center">{renderInput(s.student_id, "sem1", 50)}</td>
+                                                 <td className="text-center" style={{ paddingRight: '2rem' }}>
+                                                     <span style={{ fontWeight: 700, color: "var(--text-secondary)" }}>
+                                                         {(() => {
+                                                             const semVal = marks[s.student_id]?.sem1;
+                                                             if (semVal === undefined || semVal === null || semVal === "") return "-";
+                                                             const pct = Math.round((Number(semVal) / 50) * 100);
+                                                             return isNaN(pct) ? "-" : `${pct}%`;
+                                                         })()}
+                                                     </span>
+                                                 </td>
+                                             </>
+                                         ) : (
+                                             <>
+                                                 <td className="text-center">{renderInput(s.student_id, "test3", 25)}</td>
+                                                 <td className="text-center">{renderInput(s.student_id, "test4", 25)}</td>
+                                                 <td className="text-center">{renderInput(s.student_id, "sem2", 50)}</td>
+                                                 <td className="text-center" style={{ paddingRight: '2rem' }}>
+                                                     <span style={{ fontWeight: 700, color: "var(--text-secondary)" }}>
+                                                         {(() => {
+                                                             const semVal = marks[s.student_id]?.sem2;
+                                                             if (semVal === undefined || semVal === null || semVal === "") return "-";
+                                                             const pct = Math.round((Number(semVal) / 50) * 100);
+                                                             return isNaN(pct) ? "-" : `${pct}%`;
+                                                         })()}
+                                                     </span>
+                                                 </td>
+                                             </>
+                                         )}
                                     </tr>
                                 ))}
                             </tbody>
