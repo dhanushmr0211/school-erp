@@ -113,8 +113,9 @@ export default function Students() {
             alert("Student Enrolled!");
             setEnrollModal(null);
             setSelectedClassId("");
+            loadData(); // Reload student list to show changes
         } catch (err) {
-            alert("Failed to enroll");
+            alert("Failed to enroll: " + err.message);
         }
     }
 

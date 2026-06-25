@@ -9,6 +9,23 @@ const enrollStudentsToClass = async (req, res) => {
             return res.status(400).json({ error: 'Class ID, Academic Year ID, and a list of Student IDs are required' });
         }
 
+        // Pre-verify: check if any student is already enrolled in a different class in this academic year
+        const { data: existingAll, error: checkError } = await supabaseAdmin
+            .from('student_class_enrollments')
+            .select('student_id, class_id, classes(class_name, section), students(name)')
+            .in('student_id', student_ids)
+            .eq('academic_year_id', academic_year_id);
+
+        if (checkError) throw checkError;
+
+        for (const ext of existingAll) {
+            if (ext.class_id !== class_id) {
+                const className = ext.classes ? `${ext.classes.class_name} - ${ext.classes.section}` : 'another class';
+                const studentName = ext.students ? ext.students.name : 'Student';
+                return res.status(400).json({ error: `${studentName} is already enrolled in ${className} for this academic year.` });
+            }
+        }
+
         // 1. Fetch ALL currently enrolled students for this class
         const { data: existingEnrollments, error: fetchError } = await supabaseAdmin
             .from('student_class_enrollments')

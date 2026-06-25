@@ -104,39 +104,41 @@ export default function Subjects() {
 
             <div className="card">
                 <h3>All Subjects</h3>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Code</th>
-                            <th>Name</th>
-                            <th>Type</th>
-                            <th style={{ textAlign: "right", width: "100px" }}>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {subjects.map((s) => (
-                            <tr key={s.id}>
-                                <td>{s.code || "-"}</td>
-                                <td>{s.name}</td>
-                                <td>
-                                    <span className={`badge ${s.type === 'LAB' ? 'badge-purple' : 'badge-blue'}`}>
-                                        {s.type}
-                                    </span>
-                                </td>
-                                <td style={{ textAlign: "right" }}>
-                                    <button
-                                        onClick={() => handleDelete(s.id)}
-                                        className="btn btn-danger"
-                                        style={{ padding: "0.25rem 0.5rem" }}
-                                        title="Delete Subject"
-                                    >
-                                        <Trash2 size={16} />
-                                    </button>
-                                </td>
+                <div style={{ overflowX: "auto", width: "100%", WebkitOverflowScrolling: "touch" }}>
+                    <table style={{ minWidth: "500px" }}>
+                        <thead>
+                            <tr>
+                                <th>Code</th>
+                                <th>Name</th>
+                                <th>Type</th>
+                                <th style={{ textAlign: "right", width: "100px" }}>Actions</th>
                             </tr>
-                        ))}
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                            {subjects.map((s) => (
+                                <tr key={s.id}>
+                                    <td>{s.code || "-"}</td>
+                                    <td>{s.name}</td>
+                                    <td>
+                                        <span className={`badge ${s.type === 'LAB' ? 'badge-purple' : 'badge-blue'}`}>
+                                            {s.type}
+                                        </span>
+                                    </td>
+                                    <td style={{ textAlign: "right" }}>
+                                        <button
+                                            onClick={() => handleDelete(s.id)}
+                                            className="btn btn-danger"
+                                            style={{ padding: "0.25rem 0.5rem" }}
+                                            title="Delete Subject"
+                                        >
+                                            <Trash2 size={16} />
+                                        </button>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     );

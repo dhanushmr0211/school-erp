@@ -520,7 +520,10 @@ function AddStudentModal({ cls, academicYearId, onClose }) {
     useEffect(() => {
         if (academicYearId && cls.id) {
             Promise.all([
-                fetchStudents(academicYearId, { limit: 1000 }),
+                fetchStudents(academicYearId, {
+                    limit: 1000,
+                    fields: '*,enrollments:student_class_enrollments(class_id,academic_year_id,class:classes(class_name,section))'
+                }),
                 fetchClassStudents(cls.id)
             ]).then(([studentsRes, enrolled]) => {
                 const all = studentsRes?.data || studentsRes || [];

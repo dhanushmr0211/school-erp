@@ -28,31 +28,33 @@ export default function FacultyDashboard() {
         {classes.length === 0 ? (
           <p>No classes assigned for this academic year.</p>
         ) : (
-          <table>
-            <thead>
-              <tr>
-                <th>Class</th>
-                <th>Subject</th>
-                <th>Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              {classes.map((c, idx) => (
-                <tr key={idx}>
-                  <td>{c.class_name} ({c.section})</td>
-                  <td>{c.subject_name} ({c.subject_code})</td>
-                  <td>
-                    <button
-                      className="btn btn-primary"
-                      onClick={() => navigate(`/faculty/marks?class_id=${c.class_id}&subject_id=${c.subject_id}`)}
-                    >
-                      Enter Marks
-                    </button>
-                  </td>
+          <div style={{ overflowX: "auto", width: "100%", WebkitOverflowScrolling: "touch" }}>
+            <table style={{ minWidth: "500px" }}>
+              <thead>
+                <tr>
+                  <th>Class</th>
+                  <th>Subject</th>
+                  <th>Action</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {classes.map((c, idx) => (
+                  <tr key={idx}>
+                    <td>{c.class_name} ({c.section})</td>
+                    <td>{c.subject_name} ({c.subject_code})</td>
+                    <td>
+                      <button
+                        className="btn btn-primary"
+                        onClick={() => navigate(`/faculty/marks?class_id=${c.class_id}&subject_id=${c.subject_id}`)}
+                      >
+                        Enter Marks
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
       </div>
     </div>

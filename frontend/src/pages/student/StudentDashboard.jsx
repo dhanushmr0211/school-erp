@@ -113,8 +113,8 @@ export default function StudentDashboard() {
           {marks.length === 0 ? (
             <p className="text-gray-500 italic">No marks available.</p>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-left border-collapse">
+            <div style={{ overflowX: "auto", width: "100%", WebkitOverflowScrolling: "touch" }}>
+              <table className="w-full text-left border-collapse" style={{ minWidth: "600px" }}>
                 <thead>
                   <tr className="border-b border-gray-700 text-gray-400 text-sm">
                     <th className="p-3">Exam</th>

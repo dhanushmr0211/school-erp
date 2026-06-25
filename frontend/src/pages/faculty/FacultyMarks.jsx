@@ -167,8 +167,8 @@ export default function FacultyMarks() {
                 {loading ? (
                     <div className="text-center py-12 text-muted">Loading class data...</div>
                 ) : (
-                    <div className="overflow-x-auto">
-                        <table style={{ minWidth: "100%", width: "100%", borderSpacing: 0 }}>
+                    <div style={{ overflowX: "auto", width: "100%", WebkitOverflowScrolling: "touch" }}>
+                        <table style={{ minWidth: "700px", width: "100%", borderSpacing: 0 }}>
                             <thead>
                                 <tr>
                                     <th style={{ paddingLeft: '2rem', width: "10%" }}>Roll No</th>

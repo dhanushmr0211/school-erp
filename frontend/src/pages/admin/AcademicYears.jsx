@@ -108,54 +108,56 @@ export default function AcademicYears() {
 
             <div className="card">
                 <h3>Existing Years</h3>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Year Name</th>
-                            <th>Start Date</th>
-                            <th>End Date</th>
-                            <th>Status</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {years.map((y) => {
-                            const activeYear = years.find(yr => yr.is_active);
-                            return (
-                                <tr key={y.id}>
-                                    <td>{y.year_name}</td>
-                                    <td>{y.start_date}</td>
-                                    <td>{y.end_date}</td>
-                                    <td>
-                                        <div className="flex items-center gap-md">
-                                            <span className={`badge ${y.is_active ? "badge-green" : "badge-blue"}`}>
-                                                {y.is_active ? "Active" : "Historical"}
-                                            </span>
-                                            <div className="flex gap-sm">
-                                                {!y.is_active && (
-                                                    <button
-                                                        className="btn btn-secondary btn-sm"
-                                                        onClick={() => handleSetActive(y.id)}
-                                                    >
-                                                        Set Active
-                                                    </button>
-                                                )}
-                                                {!y.is_active && activeYear && y.year_name > activeYear.year_name && !syncedYears.has(y.id) && (
-                                                    <button
-                                                        className="btn btn-primary btn-sm"
-                                                        style={{ background: '#6366f1', display: 'flex', alignItems: 'center', gap: '4px' }}
-                                                        onClick={() => handleSync(activeYear.id, y.id, activeYear.year_name, y.year_name)}
-                                                    >
-                                                        <span>🔄</span> Sync Data from {activeYear.year_name}
-                                                    </button>
-                                                )}
+                <div style={{ overflowX: "auto", width: "100%", WebkitOverflowScrolling: "touch" }}>
+                    <table style={{ minWidth: "600px" }}>
+                        <thead>
+                            <tr>
+                                <th>Year Name</th>
+                                <th>Start Date</th>
+                                <th>End Date</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {years.map((y) => {
+                                const activeYear = years.find(yr => yr.is_active);
+                                return (
+                                    <tr key={y.id}>
+                                        <td>{y.year_name}</td>
+                                        <td>{y.start_date}</td>
+                                        <td>{y.end_date}</td>
+                                        <td>
+                                            <div className="flex items-center gap-md">
+                                                <span className={`badge ${y.is_active ? "badge-green" : "badge-blue"}`}>
+                                                    {y.is_active ? "Active" : "Historical"}
+                                                </span>
+                                                <div className="flex gap-sm">
+                                                    {!y.is_active && (
+                                                        <button
+                                                            className="btn btn-secondary btn-sm"
+                                                            onClick={() => handleSetActive(y.id)}
+                                                        >
+                                                            Set Active
+                                                        </button>
+                                                    )}
+                                                    {!y.is_active && activeYear && y.year_name > activeYear.year_name && !syncedYears.has(y.id) && (
+                                                        <button
+                                                            className="btn btn-primary btn-sm"
+                                                            style={{ background: '#6366f1', display: 'flex', alignItems: 'center', gap: '4px' }}
+                                                            onClick={() => handleSync(activeYear.id, y.id, activeYear.year_name, y.year_name)}
+                                                        >
+                                                            <span>🔄</span> Sync Data from {activeYear.year_name}
+                                                        </button>
+                                                    )}
+                                                </div>
                                             </div>
-                                        </div>
-                                    </td>
-                                </tr>
-                            );
-                        })}
-                    </tbody>
-                </table>
+                                        </td>
+                                    </tr>
+                                );
+                            })}
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     );
